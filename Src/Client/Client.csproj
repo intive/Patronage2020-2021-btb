@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <AssemblyName>BTB.Client</AssemblyName>
+    <RootNamespace>BTB.Client</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,8 +13,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Blazor.DevServer" Version="3.2.0-preview1.20073.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.2.0-preview1.20073.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Shared\BTB.Shared.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
+
 
 </Project>
