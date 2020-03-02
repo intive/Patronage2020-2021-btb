@@ -1,7 +1,6 @@
 using BTB.Application;
 using BTB.Infrastructure;
 using BTB.Persistence;
-using BTB.Server.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -50,8 +49,6 @@ namespace BTB.Server
                 app.UseDeveloperExceptionPage();
                 app.UseBlazorDebugging();
             }
-
-            app.UseCustomExceptionHandler();
 
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<Client.Program>();

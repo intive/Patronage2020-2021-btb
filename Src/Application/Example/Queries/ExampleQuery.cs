@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.Example.Queries.ExampleQuery
+namespace BTB.Application.Example.Queries
 {
     public class ExampleQuery : IRequest<bool>
     {
@@ -13,7 +13,7 @@ namespace BTB.Application.Example.Queries.ExampleQuery
         {
             public async Task<bool> Handle(ExampleQuery request, CancellationToken cancellationToken)
             {
-                return await Task.Run(() => true);
+                return true;
             }
         }
     }
