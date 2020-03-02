@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  server:
+    image: ${DOCKER_REGISTRY-}server
+    build:
+      context: .
+      dockerfile: Src/Server/Dockerfile
+    ports:
+      - "4500:80"
