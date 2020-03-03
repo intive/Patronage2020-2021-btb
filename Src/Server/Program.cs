@@ -45,7 +45,6 @@ namespace BTB.Server
                 var env = hostContext.HostingEnvironment;
 
                 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
                 config.AddEnvironmentVariables();
             })
                 .UseStartup<Startup>();

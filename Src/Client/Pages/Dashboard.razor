@@ -1,0 +1,39 @@
+﻿@page "/dashboard"
+@using BTB.Domain.Entities
+@inject HttpClient Http
+<h1>Dashboard</h1>
+
+@if (_topList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _topList)
+            {
+                <tr>
+                    <td>@item.Symbol</td>
+                    <td>@Math.Round(item.LastPrice, 6)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<BinanceSymbolPrice> _topList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _topList = await Http.GetJsonAsync<List<BinanceSymbolPrice>>(@"api/dashboard/top");
+    }
+
+}

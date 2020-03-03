@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using BTB.Application.Common.Interfaces;
 
 namespace BTB.Server
 {
@@ -31,13 +32,14 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
-
             services.AddMvc();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
+
+            services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
