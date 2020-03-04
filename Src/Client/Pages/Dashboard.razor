@@ -11,16 +11,16 @@ else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Price</th>
-            </tr>
+        <tr>
+            <th>Symbol</th>
+            <th>Price</th>
+        </tr>
         </thead>
         <tbody>
             @foreach (var item in _topList)
             {
                 <tr>
-                    <td>@item.Symbol</td>
+                    <td><NavLink href="@($"dashboard/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
                     <td>@Math.Round(item.LastPrice, 6)</td>
                 </tr>
             }
@@ -29,11 +29,11 @@ else
 }
 
 @code {
-    private List<BinanceSymbolPrice> _topList { get; set; }
+    private IEnumerable<BinanceSymbolPrice> _topList { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _topList = await Http.GetJsonAsync<List<BinanceSymbolPrice>>(@"api/dashboard/top");
+        _topList = await Http.GetJsonAsync<IEnumerable<BinanceSymbolPrice>>(@"api/dashboard/top");
     }
 
 }

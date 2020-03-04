@@ -11,7 +11,7 @@ using Binance.Net;
 
 namespace BTB.Application.Binance.Queries.GetTopListQuery
 {
-    public class GetTopListQuery : IRequest<List<BinanceSymbolPrice>>
+    public class GetTopListQuery : IRequest<IEnumerable<BinanceSymbolPrice>>
     {
 
         private readonly BinanceClient _client;
@@ -21,32 +21,27 @@ namespace BTB.Application.Binance.Queries.GetTopListQuery
             _client = client;
         }
 
-        public class GetTopListQueryHandler : IRequestHandler<GetTopListQuery, List<BinanceSymbolPrice>>
+        public class GetTopListQueryHandler : IRequestHandler<GetTopListQuery, IEnumerable<BinanceSymbolPrice>>
         {
 
-            public async Task<List<BinanceSymbolPrice>> Handle(GetTopListQuery request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<BinanceSymbolPrice>> Handle(GetTopListQuery request, CancellationToken cancellationToken)
             {
-                var responses = new List<BinanceSymbolPrice>();
-
                 var result = await request._client.Get24HPricesListAsync(cancellationToken);
 
                 if (result.Success)
                 {
-                    var data = result.Data;
-                    var selectedData =
-                        data.Where(d => d.Symbol.Contains("BTC"))
+                    return result.Data
+                            .Where(d => d.Symbol.Contains("BTC"))
+                            .OrderByDescending(d => d.LastPrice)
                             .Select(d => new BinanceSymbolPrice
                             {
                                 Symbol = d.Symbol,
                                 LastPrice = d.LastPrice
                             })
-                            .OrderByDescending(d => d.LastPrice)
-                            .Take(10).ToList();
-
-                    responses.AddRange(selectedData);
+                            .Take(10);
                 }
 
-                return responses;
+                return new List<BinanceSymbolPrice>();
             }
         }
     }

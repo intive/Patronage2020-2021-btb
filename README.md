@@ -20,6 +20,36 @@ TODO: Guide users through getting your code up and running on their own system. 
 # Build and Test
 TODO: Describe and show how to build your code and run the tests. 
 
+## Controllers endpoints
+
+### Dashboard Controller
+
+#### [GET] GetTop
+
+Request:
+* URL: /api/dashboard/top
+* Method: GET
+* Headers: None
+* cURL:
+```
+curl -X GET "https://localhost:5001/api/dashboard/top"
+-H "accept: application/json" --insecure
+```
+
+Response:
+* 200 Success
+```
+{
+	"topList": [
+		{
+			"symbol": "string",
+			"lastPrice": decimal
+		}
+	]
+}
+```
+* 500 Internal Server Error
+
 # Contribute
 TODO: Explain how other users and developers can contribute to make your code better. 
 
