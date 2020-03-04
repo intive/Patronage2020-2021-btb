@@ -1,4 +1,5 @@
 using BTB.Application;
+using BTB.Application.Common.Interfaces;
 using BTB.Infrastructure;
 using BTB.Persistence;
 using BTB.Server.Common;
@@ -39,6 +40,9 @@ namespace BTB.Server
             });
 
             services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
+            services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
+
+            services.AddScoped<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

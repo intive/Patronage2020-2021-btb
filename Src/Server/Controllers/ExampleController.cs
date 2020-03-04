@@ -2,11 +2,17 @@
 using BTB.Application.Example.Queries;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using BTB.Application.Common.Interfaces;
 
 namespace BTB.Server.Controllers
 {
     public class ExampleController : BaseController
     {
+        public ExampleController(IEmailService emailService)
+        {
+            emailService.Send("receiver@gmail.com", "title", "message");
+        }
+
         [HttpGet]
         public async Task<IActionResult> test()
         {
