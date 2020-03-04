@@ -1,0 +1,78 @@
+﻿<div class="modal" tabindex="-1" style="display:@ToggleModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Alert on @Symbol</h5>
+            </div>
+
+            <div class="modal-body">
+                <p>Condition @Symbol</p>
+
+                <div class="form-group form-inline">
+                    <label for="condition" class="control-label w-50 float-left">Select condition:</label>
+                    <select class="form-control w-50 float-right" id="condition">
+                        <option value="crossing">Crossing</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-inline">
+                    <label for="data" class="control-label w-50 float-left">Select value:</label>
+                    <select class="form-control w-50 float-right" id="data">
+                        <option value="volume">Volume</option>
+                        <option value="max">Price</option>
+                        <option value="max">Trade Count</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-inline">
+                    <label for="Value" class="control-label w-50 float-left">Quantity:</label>
+                    <input id="Value" class="form-control w-50 float-right" type="number" placeholder="Value" />
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="control-label w-50 float-left" for="exampleCheck1">Alert actions:</label>
+                    <input type="checkbox" class="form-check-input" id="sendEmail">
+                    <span>Send Email</span>
+                </div>
+
+                <div class="form-group form-inline">
+                    <label for="Email" class="control-label w-50 float-left">Email:</label>
+                    <input id="Email" class="form-control w-50 float-right" type="email" placeholder="Email" />
+                </div>
+
+                <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Message:</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+                <br />
+
+                <div class="text-right">
+                    <button class="btn btn-danger" @onclick="Close">Cancel</button>
+                    <button class="btn btn-success" @onclick="Close">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    private static string turnOffStyle = "none";
+
+    [Parameter]
+    public string ToggleModal { get; set; }
+
+    [Parameter]
+    public string Symbol { get; set; }
+
+    [Parameter]
+    public Action<string> TurnOn { get; set; }
+
+
+    private void Close()
+    {
+        ToggleModal = turnOffStyle;
+    }
+
+}

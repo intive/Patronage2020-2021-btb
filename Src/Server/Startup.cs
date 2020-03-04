@@ -31,13 +31,14 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
-
             services.AddMvc();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
+
+            services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
