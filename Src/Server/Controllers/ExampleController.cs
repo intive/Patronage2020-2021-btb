@@ -6,22 +6,53 @@ using BTB.Application.Common.Interfaces;
 
 namespace BTB.Server.Controllers
 {
+    /// <summary>
+    ///     Example controller class
+    /// </summary>
     public class ExampleController : BaseController
     {
+        private readonly IEmailService _emailServiceTest;
+
         public ExampleController(IEmailService emailService)
         {
-            emailService.Send("receiver@gmail.com", "title", "message");
+            this._emailServiceTest = emailService;
         }
 
+        /// <summary>
+        ///     Tries to send email to given adress.
+        ///     Please remember to enter your e-mail credentials to appsettings.json.
+        /// </summary>
+        /// <returns>
+        ///     Ok() on success, throws exception on fail.
+        /// </returns>
+        [HttpPost]
+        public async Task<IActionResult> emailTest(string emailAdress)
+        {
+            _emailServiceTest.Send(emailAdress, "title", "message");
+            return Ok("Email Sent");
+        }
+
+        /// <summary>
+        ///     Test method XML documentation.
+        /// </summary>
+        /// <returns>
+        ///     Test return value.
+        /// </returns>
         [HttpGet]
         public async Task<IActionResult> test()
         {
             return Ok(await Mediator.Send(new ExampleQuery()));
         }
 
-        /* Added for the purpose of testing global exception handling,
-         * In case you're using localhost: https://localhost:[YOUR_PORT_NUMBER]/api/example/1
-         */
+        /// <summary>
+        ///     Test global exception handling method.
+        /// </summary>
+        /// <param name="id">
+        ///     Test item id.
+        /// </param>
+        /// <returns>
+        ///     Throws custom "NotFoundException". 
+        /// </returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<int>> GetItem(int id)
         {

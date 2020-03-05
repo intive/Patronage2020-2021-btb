@@ -9,7 +9,11 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace BTB.Server
 {
@@ -31,6 +35,14 @@ namespace BTB.Server
             services.AddInfrastructure(Configuration, Environment);
             services.AddPersistence(Configuration);
             services.AddApplication();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BTB API", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
 
             services.AddMvc();
             services.AddResponseCompression(opts =>
@@ -54,6 +66,13 @@ namespace BTB.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBlazorDebugging();
+
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BTB API V1");
+
+                });
             }
 
             app.UseCustomExceptionHandler();
