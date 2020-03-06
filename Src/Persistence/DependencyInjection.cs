@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BTB.Application.Common.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -10,14 +12,12 @@ namespace BTB.Persistence
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            /*
-                services.AddScoped<IDbContext, DbContext>();
+            services.AddScoped<IBTBDbContext, BTBDbContext>();
 
-                services.AddDbContext<DbContext>(options =>
-                {
-                    options.UseSqlServer(ConnectionString);
-                });
-            */
+            services.AddDbContext<BTBDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("BTBConnection"));
+            });
 
             return services;
         }
