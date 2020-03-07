@@ -1,32 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Linq;
+using Binance.Net.Interfaces;
 using BTB.Domain.Entities;
 using MediatR;
-using Binance.Net;
 
-namespace BTB.Application.Binance.Queries.GetTopListQuery
+namespace BTB.Application.Dashboard.Queries.GetTopListQuery
 {
     public class GetTopListQuery : IRequest<IEnumerable<BinanceSymbolPrice>>
     {
-
-        private readonly BinanceClient _client;
-
-        public GetTopListQuery(BinanceClient client)
-        {
-            _client = client;
-        }
-
         public class GetTopListQueryHandler : IRequestHandler<GetTopListQuery, IEnumerable<BinanceSymbolPrice>>
         {
+            private readonly IBinanceClient _client;
+
+            public GetTopListQueryHandler(IBinanceClient client)
+            {
+                _client = client;
+            }
 
             public async Task<IEnumerable<BinanceSymbolPrice>> Handle(GetTopListQuery request, CancellationToken cancellationToken)
             {
-                var result = await request._client.Get24HPricesListAsync(cancellationToken);
+                var result = await _client.Get24HPricesListAsync(cancellationToken);
 
                 if (result.Success)
                 {

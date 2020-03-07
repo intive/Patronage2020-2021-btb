@@ -1,5 +1,6 @@
 using BTB.Application;
 using BTB.Application.Common.Interfaces;
+using BTB.Application.Binance;
 using BTB.Infrastructure;
 using BTB.Persistence;
 using BTB.Server.Common;
@@ -32,6 +33,8 @@ namespace BTB.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
+
             services.AddInfrastructure(Configuration, Environment);
             services.AddPersistence(Configuration);
             services.AddApplication();
@@ -51,7 +54,6 @@ namespace BTB.Server
                     new[] { "application/octet-stream" });
             });
 
-            services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
             services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
 
             services.AddScoped<IEmailService, EmailService>();
