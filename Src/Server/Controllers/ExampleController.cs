@@ -22,6 +22,9 @@ namespace BTB.Server.Controllers
         ///     Tries to send email to given adress.
         ///     Please remember to enter your e-mail credentials to appsettings.json.
         /// </summary>
+        /// <param name="emailAdress">
+        ///     Email adress to which mail should be sent.
+        /// </param>
         /// <returns>
         ///     Ok() on success, throws exception on fail.
         /// </returns>
@@ -33,7 +36,7 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
-        ///     Test method XML documentation.
+        ///     Test method description.
         /// </summary>
         /// <returns>
         ///     Test return value.
