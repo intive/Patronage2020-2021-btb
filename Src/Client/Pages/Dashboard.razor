@@ -11,10 +11,11 @@ else
 {
     <table class="table">
         <thead>
-        <tr>
-            <th>Symbol</th>
-            <th>Price</th>
-        </tr>
+            <tr>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Subscribe</th>
+            </tr>
         </thead>
         <tbody>
             @foreach (var item in _topList)
@@ -22,14 +23,31 @@ else
                 <tr>
                     <td><NavLink href="@($"dashboard/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
                     <td>@Math.Round(item.LastPrice, 6)</td>
+                    <td><button type="button" class="btn btn-primary" @onclick="@(()=> HandleOnSelected(@item.Symbol))">Subscribe</button></td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <AlertSubscription turnOn="@HandleOnSelected" Symbol="@_actualSymbol" ToggleModal="@_popUpStyle"></AlertSubscription>
 }
 
 @code {
     private IEnumerable<BinanceSymbolPrice> _topList { get; set; }
+
+    private static string _turnOffStyle = "none";
+    private static string _turnOnStyle = "block";
+
+    private string _actualSymbol;
+    private string _popUpStyle = _turnOffStyle;
+
+
+    private void HandleOnSelected(string symbol)
+    {
+        _actualSymbol = symbol;
+        _popUpStyle = _turnOnStyle;
+        StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {

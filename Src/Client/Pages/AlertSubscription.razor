@@ -1,78 +1,143 @@
-﻿<div class="modal" tabindex="-1" style="display:@ToggleModal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Alert on @Symbol</h5>
-            </div>
+﻿@inject HttpClient Http
+@using Dto
 
-            <div class="modal-body">
-                <p>Condition @Symbol</p>
+    <EditForm Model="@_alertDto" OnValidSubmit="CreateAlert">
+        <div class="modal" tabindex="-1" style="display:@toggleModal; font-size: 12px" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Alert on @symbol</h5>
+                    </div>
 
-                <div class="form-group form-inline">
-                    <label for="condition" class="control-label w-50 float-left">Select condition:</label>
-                    <select class="form-control w-50 float-right" id="condition">
-                        <option value="crossing">Crossing</option>
-                    </select>
-                </div>
+                    <div class="modal-body">
+                        <p>Condition @symbol</p>
+                        <div class="form-group form-inline">
+                            <label class="control-label">
+                                Select condition:
+                                <InputSelect @bind-Value="_alertDto.Condition">
+                                    <option disabled selected> -- select an option -- </option>
+                                    <option value="crossing">Crossing</option>
+                                </InputSelect>
+                            </label>
+                        </div>
 
-                <div class="form-group form-inline">
-                    <label for="data" class="control-label w-50 float-left">Select value:</label>
-                    <select class="form-control w-50 float-right" id="data">
-                        <option value="volume">Volume</option>
-                        <option value="max">Price</option>
-                        <option value="max">Trade Count</option>
-                    </select>
-                </div>
+                        <div class="form-group form-inline">
+                            <label class="control-label">
+                                Select value type:
+                                <InputSelect @bind-Value="_alertDto.ValueType">
+                                    <option disabled selected> -- select an option -- </option>
+                                    <option value="volume">Volume</option>
+                                    <option value="price">Price</option>
+                                    <option value="tradeCount">Trade Count</option>
+                                </InputSelect>
+                            </label>
+                        </div>
 
-                <div class="form-group form-inline">
-                    <label for="Value" class="control-label w-50 float-left">Quantity:</label>
-                    <input id="Value" class="form-control w-50 float-right" type="number" placeholder="Value" />
-                </div>
+                        <div class="form-group form-inline">
+                            <label class="control-label">
+                                Value:
+                                <InputNumber @bind-Value="_alertDto.Value" />
+                            </label>
+                        </div>
 
-                <div class="form-group form-inline">
-                    <label class="control-label w-50 float-left" for="exampleCheck1">Alert actions:</label>
-                    <input type="checkbox" class="form-check-input" id="sendEmail">
-                    <span>Send Email</span>
-                </div>
+                        <div class="form-group form-inline">
+                            <label class="control-label">
+                                Alert actions:
+                                <InputCheckbox @bind-Value="_alertDto.SendEmail" />
 
-                <div class="form-group form-inline">
-                    <label for="Email" class="control-label w-50 float-left">Email:</label>
-                    <input id="Email" class="form-control w-50 float-right" type="email" placeholder="Email" />
-                </div>
+                                <span>Send Email</span>
+                            </label>
+                        </div>
 
-                <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Message:</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                </div>
-                <br />
+                        <div class="form-group form-inline">
+                            <label class="control-label">
+                                Email:
+                                <InputText @bind-Value="_alertDto.Email" />
+                            </label>
+                        </div>
 
-                <div class="text-right">
-                    <button class="btn btn-danger" @onclick="Close">Cancel</button>
-                    <button class="btn btn-success" @onclick="Close">Create</button>
+                        <div class="form-group">
+                            <label>
+                                Message:
+                                <InputTextArea @bind-Value="_alertDto.Message"></InputTextArea>
+                            </label>
+                        </div>
+
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <p style="color: red">@_serverValidadion</p>
+                        <div class="text-right">
+                            <button class="btn btn-danger btn-sm" type="reset" @onclick="Close">Cancel</button>
+                            <button class="btn btn-success btn-sm" type="submit">Create</button>
+                        </div>
+                    </div>                 
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </EditForm>
 
 
 @code {
 
-    private static string turnOffStyle = "none";
+
+    private static string _turnOffStyle = "none";
+    private static string _serverError = "Problem on server.";
+
+   
+    private bool _exceptionCatched = false;
+    private string _serverValidadion;
+
+    private AlertDto _alertDto = new AlertDto();
+
 
     [Parameter]
-    public string ToggleModal { get; set; }
+    public string toggleModal { get; set; }
 
     [Parameter]
-    public string Symbol { get; set; }
+    public string symbol { get; set; }
 
     [Parameter]
-    public Action<string> TurnOn { get; set; }
+    public Action<string> turnOn { get; set; }
 
+    protected async void CreateAlert()
+    {
+        _alertDto.Symbol = symbol;
+
+        try
+        {
+            await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts/new",_alertDto);
+
+            _exceptionCatched = false;
+
+            _serverValidadion = "";
+        }
+        catch(Exception)
+        {
+            _exceptionCatched = true;
+
+            _serverValidadion = _serverError;
+        }
+
+        if (!_exceptionCatched)
+        {
+            Close();
+        }
+
+        StateHasChanged();
+
+    }
 
     private void Close()
     {
-        ToggleModal = turnOffStyle;
+        toggleModal = _turnOffStyle;
+
+        _alertDto.Reset();
+
+        _serverValidadion = "";
+
+        StateHasChanged();
     }
+
 
 }

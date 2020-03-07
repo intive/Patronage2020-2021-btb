@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using BTB.Application.Alerts.Commands.CreateAlert;
+using BTB.Application.Common.Behaviours;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -11,6 +14,10 @@ namespace BTB.Application
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddTransient(typeof(IPipelineBehavior<,>),typeof(RequestValidationBehavior<,>));
+            services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();
+
 
             return services;
         }
