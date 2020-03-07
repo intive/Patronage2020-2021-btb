@@ -1,10 +1,17 @@
-﻿using AutoMapper;
-using BTB.Application.Alerts.Commands.CreateAlert;
+﻿using BTB.Application.Alerts.Commands.CreateAlert;
 using BTB.Application.Common.Behaviours;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Logging;
+using BTB.Application.Binance;
+using Binance.Net.Interfaces;
+using Binance.Net.Objects;
+using Binance.Net;
 using System.Reflection;
+using AutoMapper;
+using MediatR;
 
 namespace BTB.Application
 {
@@ -14,6 +21,18 @@ namespace BTB.Application
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddTransient<IBinanceClient, BinanceClient>();
+
+            var sp = services.BuildServiceProvider();
+            var settings = sp.GetService<IOptions<BinanceSettings>>();
+            BinanceClient.SetDefaultOptions(new BinanceClientOptions()
+            {
+                ApiCredentials = new ApiCredentials(
+                    settings.Value.ApiKey,
+                    settings.Value.SecretKey),
+                LogVerbosity = LogVerbosity.Error,
+            });
 
             services.AddTransient(typeof(IPipelineBehavior<,>),typeof(RequestValidationBehavior<,>));
             services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();

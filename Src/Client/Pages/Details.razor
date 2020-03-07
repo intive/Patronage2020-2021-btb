@@ -1,0 +1,70 @@
+﻿@page "/dashboard/details/{symbol}"
+
+@using BTB.Domain.Entities
+@using Binance.Net.Objects
+@inject HttpClient Http
+
+<h1>Details of @Symbol</h1>
+
+@if (_priceHistory == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <br />
+
+    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="Minutes group">
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.OneMinute)) type="button" class="btn btn-primary">1 min</button>
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.FifteenMinutes)) type="button" class="btn btn-primary">15 min</button>
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="Hours group">
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.OneHour)) type="button" class="btn btn-primary">1h</button>
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.TwoHour)) type="button" class="btn btn-primary">2h</button>
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.FourHour)) type="button" class="btn btn-primary">4h</button>
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.TwelveHour)) type="button" class="btn btn-primary">12h</button>
+        </div>
+        <div class="btn-group" role="group" aria-label="Days group">
+            <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.OneDay)) type="button" class="btn btn-primary">1d</button>
+        </div>
+    </div>
+
+    <br />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _priceHistory)
+            {
+                <tr>
+                    <td>@item.Time.ToString("dd MMM yyyy, hh:mm:ss")</td>
+                    <td>@Math.Round(item.Price, 6)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<BinanceSymbolPriceInTime> _priceHistory { get; set; }
+
+    [Parameter]
+    public string Symbol { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshDetailsList(KlineInterval.OneMinute);
+    }
+
+    private async Task RefreshDetailsList(KlineInterval interval)
+    {
+        _priceHistory = await Http.GetJsonAsync<IEnumerable<BinanceSymbolPriceInTime>>($"api/details/{Symbol}?interval={interval}");
+    }
+
+}

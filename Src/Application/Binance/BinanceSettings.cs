@@ -1,4 +1,4 @@
-﻿namespace BTB.Server
+﻿namespace BTB.Application.Binance
 {
     public class BinanceSettings
     {
