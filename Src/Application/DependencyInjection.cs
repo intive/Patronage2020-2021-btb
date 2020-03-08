@@ -1,5 +1,7 @@
 ﻿using BTB.Application.Alerts.Commands.CreateAlert;
 using BTB.Application.Common.Behaviours;
+using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
+using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -36,7 +38,8 @@ namespace BTB.Application
 
             services.AddTransient(typeof(IPipelineBehavior<,>),typeof(RequestValidationBehavior<,>));
             services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();
-
+            services.AddTransient<IValidator<CreateUserProfileCommand>, CreateUserProfileCommandValidator>();
+            services.AddTransient<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
 
             return services;
         }
