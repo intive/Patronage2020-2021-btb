@@ -1,0 +1,67 @@
+﻿@page "/userprofile"
+@using BTB.Client.Pages.Dto;
+@using Newtonsoft.Json;
+@inject HttpClient Http
+
+@if (_processingHttpRequestFinished)
+{
+    if (_userProfileInfo != null)
+    {
+        <div class="text-center">
+            <h1>@_userProfileInfo.Username</h1>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <h4 class="col-12 col-lg-3 col-xl-3">
+                    Profile Bio
+                </h4>
+                <p class="col-12 col-lg-9 col-xl-9 text-break">
+                    @(_userProfileInfo.ProfileBio ?? "No profile bio was provided.")
+                </p>
+            </div>
+
+            <div class="row">
+                <h4 class="col-12 col-lg-3 col-xl-3">
+                    Favourite trading pair
+                </h4>
+                <p class="col-12 col-lg-9 col-xl-9 text-break">
+                    @(_userProfileInfo.FavouriteTradingPair ?? "No favourite trading pair was provided.")
+                </p>
+            </div>
+
+            <div class="text-center">
+                <a class="btn btn-primary" href="/editprofile">Edit Profile</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <h1>Your profile is not yet configured, click the button below!</h1>
+        </div>
+
+        <div class="text-center">
+            <a class="btn btn-primary" href="/editprofile">Edit Profile</a>
+        </div>
+    }
+}
+
+@code {
+    private int loggedInUserId = 1;
+    private UserProfileInfoDto _userProfileInfo = null;
+    private bool _processingHttpRequestFinished = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetAsync($"api/userprofile/{loggedInUserId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonString = await response.Content.ReadAsStringAsync();
+            _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
+        }
+
+        _processingHttpRequestFinished = true;
+    }
+}

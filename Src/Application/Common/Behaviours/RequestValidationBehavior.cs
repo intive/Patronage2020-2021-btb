@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using BTB.Application.Common.Exceptions;
+using FluentValidation;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace BTB.Application.Common.Behaviours
                     errorBuilder.AppendLine(failure.ErrorMessage);
                 }
 
-                throw new Exception(errorBuilder.ToString());
+                throw new BadRequestException(errorBuilder.ToString());
             }
 
             return next();
