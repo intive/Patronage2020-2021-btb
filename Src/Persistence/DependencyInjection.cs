@@ -16,7 +16,7 @@ namespace BTB.Persistence
 
             services.AddDbContext<BTBDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("BTBConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 
             return services;
