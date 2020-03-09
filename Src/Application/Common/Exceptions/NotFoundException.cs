@@ -1,15 +1,22 @@
 ﻿using System;
+using System.Net;
 
 namespace BTB.Application.Common.Exceptions
 {
-    public class NotFoundException : Exception
+    public class NotFoundException : HttpResponseException
     {
         public NotFoundException()
+            : base(HttpStatusCode.NotFound, null)
         {
         }
 
-        public NotFoundException(string name, object key)
-            : base($"Entity \"{name}\" ({key}) was not found.")
+        public NotFoundException(string message)
+            : base(HttpStatusCode.NotFound, new { ErrorMessage = message })
+        {
+        }
+
+        public NotFoundException(object value)
+            : base(HttpStatusCode.NotFound, value)
         {
         }
     }

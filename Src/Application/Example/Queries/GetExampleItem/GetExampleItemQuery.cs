@@ -14,7 +14,7 @@ namespace BTB.Application.Example.Queries.GetExampleItem
         {
             public async Task<int> Handle(GetExampleItemQuery request, CancellationToken cancellationToken)
             {
-                throw new NotFoundException(nameof(Task<int>), request.Id);
+                throw new NotFoundException();
             }
         }
     }
