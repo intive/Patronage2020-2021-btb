@@ -1,4 +1,4 @@
-﻿@page "/dashboard"
+﻿@page "/"
 @using BTB.Domain.Entities
 @inject HttpClient Http
 <h1>Dashboard</h1>
@@ -21,7 +21,7 @@ else
             @foreach (var item in _topList)
             {
                 <tr>
-                    <td><NavLink href="@($"dashboard/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
+                    <td><NavLink href="@($"/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
                     <td>@Math.Round(item.LastPrice, 6)</td>
                     <td><button type="button" class="btn btn-primary" @onclick="@(()=> HandleOnSelected(@item.Symbol))">Subscribe</button></td>
                 </tr>
@@ -51,7 +51,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _topList = await Http.GetJsonAsync<IEnumerable<BinanceSymbolPrice>>(@"api/dashboard/top");
+        _topList = await Http.GetJsonAsync<IEnumerable<BinanceSymbolPrice>>(@"api/dashboard/");
     }
 
 }
