@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  server:
+    image: ${DOCKER_REGISTRY-}server
+    build:
+      context: .
+      dockerfile: Src/Server/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "4500:80"
+      - "4600:443"
+    depends_on:
+      - "database"
+  database:
+    image: "mcr.microsoft.com/mssql/server"
+    env_file:
+      - .env
+    ports:
+      - "4300:1433"

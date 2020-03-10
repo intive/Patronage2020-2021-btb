@@ -23,24 +23,13 @@ namespace BTB.Application.Common.Behaviours
         {
             var context = new ValidationContext(request);
             var failures = _validators
-                .Select(v => v.Validate(context))
+                .Select(validator => validator.Validate(request))
                 .SelectMany(result => result.Errors)
-                .Where(f => f != null)
-                .ToList();
+                .Where(failure => failure != null);
 
-            
-            if(failures.Any())
+            if (failures.Any())
             {
-                var errorBuilder = new StringBuilder();
-
-                errorBuilder.AppendLine("Invalid command, reason: ");
-
-                foreach(var failure in failures)
-                {
-                    errorBuilder.AppendLine(failure.ErrorMessage);
-                }
-
-                throw new BadRequestException(errorBuilder.ToString());
+                throw new ValidationException(failures);
             }
 
             return next();

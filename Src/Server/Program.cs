@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BTB.Server
@@ -15,6 +17,15 @@ namespace BTB.Server
     {
         public static async Task Main(string[] args)
         {
+
+#if DEBUG
+            const string blazorConfigPath = @"/app/bin/Debug/netcoreapp3.1/BTB.Client.blazor.config";
+            var blazorConfig = File.ReadAllText(blazorConfigPath);
+            blazorConfig = Regex.Replace(blazorConfig, @"[a-zA-Z]:\\.+?\\Client\\", "/Client/")
+                .Replace('\\', '/');
+            File.WriteAllText(blazorConfigPath, blazorConfig);
+#endif
+
             var host = CreateWebHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())

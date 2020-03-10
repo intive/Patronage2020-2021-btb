@@ -15,6 +15,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BTB.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace BTB.Server
 {
@@ -33,6 +36,21 @@ namespace BTB.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(new HttpResponseExceptionFilter());
+                options.Filters.Add(new ValidationExceptionFilter());
+            })
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var result = new BadRequestObjectResult(context.ModelState);
+                    result.ContentTypes.Add(MediaTypeNames.Application.Json);
+                    return result;
+                };
+            });
+
             services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
 
             services.AddInfrastructure(Configuration, Environment);
@@ -76,8 +94,6 @@ namespace BTB.Server
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BTB API V1");
                 c.RoutePrefix = "swagger";
             });
-
-            app.UseCustomExceptionHandler();
 
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<Client.Program>();

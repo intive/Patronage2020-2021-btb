@@ -1,19 +1,33 @@
-﻿using MediatR;
+﻿using BTB.Application.Common.Interfaces;
+using BTB.Domain.Example.Entities;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BTB.Application.Example.Queries
 {
-    public class ExampleQuery : IRequest<bool>
+    public class ExampleQuery : IRequest<ExampleEntity>
     {
-        public class ExampleQueryHandler : IRequestHandler<ExampleQuery, bool>
+        public class ExampleQueryHandler : IRequestHandler<ExampleQuery, ExampleEntity>
         {
-            public async Task<bool> Handle(ExampleQuery request, CancellationToken cancellationToken)
+            private IBTBDbContext _context;
+
+            public ExampleQueryHandler(IBTBDbContext context)
             {
-                return true;
+                _context = context;
+            }
+
+            public async Task<ExampleEntity> Handle(ExampleQuery request, CancellationToken cancellationToken)
+            {
+                var entity = new ExampleEntity() { Name = "db works " };
+                await _context.ExampleEntities.AddAsync(entity);
+                await _context.SaveChangesAsync(CancellationToken.None);
+                return await _context.ExampleEntities.FirstAsync();
             }
         }
     }
