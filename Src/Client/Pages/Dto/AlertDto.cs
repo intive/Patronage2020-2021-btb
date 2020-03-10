@@ -20,16 +20,5 @@ namespace BTB.Client.Pages.Dto
         [Required]
         public string Message { get; set; }
 
-        public void Reset()
-        {
-            Symbol = null;
-            Condition = null;
-            ValueType = null;
-            Value = 0;
-            SendEmail = false;
-            Email = null;
-            Message = null;
-        }
-
     }
 }

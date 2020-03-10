@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using BTB.Domain.Entities
 @inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
+
 <h1>Dashboard</h1>
 
 @if (_topList == null)
@@ -29,24 +31,24 @@ else
         </tbody>
     </table>
 
-    <AlertSubscription turnOn="@HandleOnSelected" Symbol="@_actualSymbol" ToggleModal="@_popUpStyle"></AlertSubscription>
 }
 
 @code {
     private IEnumerable<BinanceSymbolPrice> _topList { get; set; }
 
-    private static string _turnOffStyle = "none";
-    private static string _turnOnStyle = "block";
-
-    private string _actualSymbol;
-    private string _popUpStyle = _turnOffStyle;
-
-
     private void HandleOnSelected(string symbol)
     {
-        _actualSymbol = symbol;
-        _popUpStyle = _turnOnStyle;
-        StateHasChanged();
+        var parameters = new ModalParameters();
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+
+        };
+
+        parameters.Add("Symbol", symbol);
+        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+
     }
 
     protected override async Task OnInitializedAsync()
