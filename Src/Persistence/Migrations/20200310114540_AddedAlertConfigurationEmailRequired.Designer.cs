@@ -3,14 +3,16 @@ using BTB.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    partial class BTBDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200310114540_AddedAlertConfigurationEmailRequired")]
+    partial class AddedAlertConfigurationEmailRequired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,32 +55,33 @@ namespace BTB.Persistence.Migrations
                 });
 
             modelBuilder.Entity("BTB.Domain.Entities.UserProfileInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("FavouriteTradingPair")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                b.Property<string>("FavouriteTradingPair")
+                    .HasColumnType("nvarchar(10)")
+                    .HasMaxLength(10);
 
-                    b.Property<string>("ProfileBio")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                b.Property<string>("ProfileBio")
+                    .HasColumnType("nvarchar(256)")
+                    .HasMaxLength(256);
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                b.Property<int>("UserId")
+                    .HasColumnType("int");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(16)")
-                        .HasMaxLength(16);
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(16)")
+                    .HasMaxLength(16);
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("UserProfileInfo");
-                });
+                b.ToTable("UserProfileInfo");
+            });
+
 
             modelBuilder.Entity("BTB.Domain.Example.Entities.ExampleEntity", b =>
                 {

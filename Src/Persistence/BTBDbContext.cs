@@ -13,6 +13,7 @@ namespace BTB.Persistence
     {
         public DbSet<ExampleEntity> ExampleEntities { get; set; }
         public DbSet<UserProfileInfo> UserProfileInfo { get; set; }
+        public DbSet<Alert> Alerts { get; set; }
 
         public BTBDbContext(DbContextOptions<BTBDbContext> options)
             : base(options)
@@ -22,6 +23,7 @@ namespace BTB.Persistence
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new UserProfileInfoConfiguration());
+            builder.ApplyConfiguration(new AlertConfiguration());
         }
     }
 }

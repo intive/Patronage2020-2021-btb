@@ -1,143 +1,105 @@
 ﻿@inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
 @using Dto
-
     <EditForm Model="@_alertDto" OnValidSubmit="CreateAlert">
-        <div class="modal" tabindex="-1" style="display:@toggleModal; font-size: 12px" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create Alert on @symbol</h5>
-                    </div>
 
-                    <div class="modal-body">
-                        <p>Condition @symbol</p>
-                        <div class="form-group form-inline">
-                            <label class="control-label">
-                                Select condition:
-                                <InputSelect @bind-Value="_alertDto.Condition">
-                                    <option disabled selected> -- select an option -- </option>
-                                    <option value="crossing">Crossing</option>
-                                </InputSelect>
-                            </label>
-                        </div>
+        <p class="modal-title">Create Alert on @_symbol</p>
 
-                        <div class="form-group form-inline">
-                            <label class="control-label">
-                                Select value type:
-                                <InputSelect @bind-Value="_alertDto.ValueType">
-                                    <option disabled selected> -- select an option -- </option>
-                                    <option value="volume">Volume</option>
-                                    <option value="price">Price</option>
-                                    <option value="tradeCount">Trade Count</option>
-                                </InputSelect>
-                            </label>
-                        </div>
+        <p>Symbol: @_symbol</p>
 
-                        <div class="form-group form-inline">
-                            <label class="control-label">
-                                Value:
-                                <InputNumber @bind-Value="_alertDto.Value" />
-                            </label>
-                        </div>
+        <div class="form-group row mb-0">
+            <label for="condition" class="col col-form-label">Select condition:</label>
+            <div class="col">
+                <InputSelect @bind-Value="_alertDto.Condition" class="form-control form-control-sm" id="condition">
+                    <option disabled selected> -- select -- </option>
+                    <option value="crossing">Crossing</option>
+                </InputSelect>
+            </div>
+        </div>
+        <ValidationMessage For="@(()=>_alertDto.Condition)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-                        <div class="form-group form-inline">
-                            <label class="control-label">
-                                Alert actions:
-                                <InputCheckbox @bind-Value="_alertDto.SendEmail" />
 
-                                <span>Send Email</span>
-                            </label>
-                        </div>
+        <div class="form-group row mb-0">
+            <label for="valueType" class="col col-form-label">Select value type:</label>
+            <div class="col">
+                <InputSelect @bind-Value="_alertDto.ValueType" class="form-control form-control-sm" id="valueType">
+                    <option disabled selected> -- select-- </option>
+                    <option value="volume">Volume</option>
+                    <option value="price">Price</option>
+                    <option value="tradeCount">Trade Count</option>
+                </InputSelect>
+            </div>
+        </div>
+        <ValidationMessage For="@(()=>_alertDto.ValueType)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-                        <div class="form-group form-inline">
-                            <label class="control-label">
-                                Email:
-                                <InputText @bind-Value="_alertDto.Email" />
-                            </label>
-                        </div>
 
-                        <div class="form-group">
-                            <label>
-                                Message:
-                                <InputTextArea @bind-Value="_alertDto.Message"></InputTextArea>
-                            </label>
-                        </div>
+        <div class="form-group row mb-0">
+            <label for="value" class="col-4 col-form-label">Value:</label>
+            <div class="col-8">
+                <InputNumber @bind-Value="_alertDto.Value" class="form-control form-control-sm" id="value" />
+            </div>
+        </div>
+        <ValidationMessage For="@(()=>_alertDto.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
 
-                        <p style="color: red">@_serverValidadion</p>
-                        <div class="text-right">
-                            <button class="btn btn-danger btn-sm" type="reset" @onclick="Close">Cancel</button>
-                            <button class="btn btn-success btn-sm" type="submit">Create</button>
-                        </div>
-                    </div>                 
+        <div class="form-group row mb-0">
+            <div class="col">
+                <span>Alert Actions:</span>
+                <div class="col offset-sm-2 float-right">
+                    <InputCheckbox @bind-Value="_alertDto.SendEmail" id="sendEmail" />
+                    <span>Send Email</span>
                 </div>
             </div>
         </div>
-    </EditForm>
 
+        <div class="form-group row mb-0">
+            <label for="email" class="col-4 col-form-label">Email:</label>
+            <div class="col-8">
+                <InputText @bind-Value="_alertDto.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" />
+            </div>
+        </div>
+        <ValidationMessage For="@(()=>_alertDto.Email)" style="font-size:14px; margin-bottom:10px" />
+
+        <div class="form-group row mb-1">
+            <label for="message" class="col-4 col-form-label">Message:</label>
+            <div class="col-8">
+                <InputTextArea @bind-Value="_alertDto.Message" class="form-control form-control-sm" id="message" />
+            </div>
+        </div>
+        <ValidationMessage For="@(()=>_alertDto.Message)" style="font-size:14px; margin-bottom:10px" />
+
+
+        <DataAnnotationsValidator />
+
+        <div class="text-right">
+            <button class="btn btn-danger btn-sm" type="reset" @onclick="Close">Cancel</button>
+            <button class="btn btn-success btn-sm" type="submit">Create</button>
+        </div>
+
+    </EditForm>
 
 @code {
 
-
-    private static string _turnOffStyle = "none";
-    private static string _serverError = "Problem on server.";
-
-   
-    private bool _exceptionCatched = false;
-    private string _serverValidadion;
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+    private string _symbol;
 
     private AlertDto _alertDto = new AlertDto();
 
-
-    [Parameter]
-    public string toggleModal { get; set; }
-
-    [Parameter]
-    public string symbol { get; set; }
-
-    [Parameter]
-    public Action<string> turnOn { get; set; }
+    protected override void OnInitialized()
+    {
+        _symbol = Parameters.Get<string>("Symbol");
+    }
 
     protected async void CreateAlert()
     {
-        _alertDto.Symbol = symbol;
-
-        try
-        {
-            await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts/new",_alertDto);
-
-            _exceptionCatched = false;
-
-            _serverValidadion = "";
-        }
-        catch(Exception)
-        {
-            _exceptionCatched = true;
-
-            _serverValidadion = _serverError;
-        }
-
-        if (!_exceptionCatched)
-        {
-            Close();
-        }
-
-        StateHasChanged();
-
+        _alertDto.Symbol = _symbol;
+        await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts/new", _alertDto);
+        Modal.Close();
     }
 
     private void Close()
     {
-        toggleModal = _turnOffStyle;
-
-        _alertDto.Reset();
-
-        _serverValidadion = "";
-
-        StateHasChanged();
+        Modal.Close();
     }
-
-
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BTB.Application.Alerts.Commands.CreateAlert;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Domain.Entities;
@@ -14,6 +15,7 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<CreateUserProfileCommand, UserProfileInfo>();
             CreateMap<UpdateUserProfileCommand, UserProfileInfo>();
+            CreateMap<CreateAlertCommand, Alert>();
         }
     }
 }
