@@ -26,7 +26,7 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
 
             public async Task<IEnumerable<BinanceSymbolPriceInTime>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
             {
-                var result = await _client.GetKlinesAsync(request.Symbol, request.Interval);
+                var result = await _client.GetKlinesAsync(request.Symbol, request.Interval, ct: cancellationToken);
                
                 if (result.Success)
                 {
@@ -39,8 +39,8 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
                         })
                         .Take(10);  
                 }
-                
-                throw new System.Exception();
+
+                throw new BadRequestException(result.Error.Message);
             }
         }
 
