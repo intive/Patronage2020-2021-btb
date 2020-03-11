@@ -15,6 +15,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
@@ -65,7 +66,9 @@ namespace BTB.Server
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddMvc();
+            services.AddSwaggerGenNewtonsoftSupport();
+            services.AddMvc().AddNewtonsoftJson(options =>
+                options.SerializerSettings.Converters.Add(new StringEnumConverter()));
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
