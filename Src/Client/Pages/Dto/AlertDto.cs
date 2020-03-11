@@ -11,7 +11,7 @@ namespace BTB.Client.Pages.Dto
         [Required]
         public string ValueType { get; set; }
         [Required]
-        [Range(1,double.MaxValue,ErrorMessage ="Please enter valid number.")]
+        [Range(double.Epsilon,double.MaxValue,ErrorMessage ="Please enter positive number.")]
         public double Value { get; set; }
         public bool SendEmail { get; set; }
         [Required]
