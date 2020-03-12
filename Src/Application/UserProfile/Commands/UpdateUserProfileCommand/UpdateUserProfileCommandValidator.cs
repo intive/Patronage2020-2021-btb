@@ -8,6 +8,7 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
         {
             RuleFor(command => command.Username)
                 .NotEmpty()
+                .MinimumLength(5)
                 .MaximumLength(16);
 
             RuleFor(command => command.ProfileBio)

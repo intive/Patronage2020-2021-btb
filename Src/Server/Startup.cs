@@ -24,6 +24,7 @@ using BTB.Infrastructure.Identity;
 using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
+using BTB.Server.Services;
 
 namespace BTB.Server
 {
@@ -107,6 +108,7 @@ namespace BTB.Server
             services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
 
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICurrentUserIdentityService, CurrentUserIdentityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

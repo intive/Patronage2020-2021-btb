@@ -17,19 +17,19 @@ namespace BTB.Application.UserProfile.Queries.GetUserProfileQuery
         {
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
-            private readonly IHttpContextAccessor _httpContextAccessor;
+            private readonly ICurrentUserIdentityService _userIdentity;
 
-            public GetUserProfileQueryHandler(IBTBDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+            public GetUserProfileQueryHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
-                _httpContextAccessor = httpContextAccessor;
+                _userIdentity = userIdentity;
             }
 
             public async Task<UserProfileInfoVm> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
             {
-                var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userProfileInfo = await _context.UserProfileInfo.Where(i => i.UserId == userId).SingleOrDefaultAsync();
+                var userId = _userIdentity.UserId;
+                var userProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
                 if (userProfileInfo == null)
                 {

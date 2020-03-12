@@ -27,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UserProfile\" />
+    <Folder Include="UserProfile\Commands\" />
+    <Folder Include="UserProfile\Queries\" />
   </ItemGroup>
 
 </Project>

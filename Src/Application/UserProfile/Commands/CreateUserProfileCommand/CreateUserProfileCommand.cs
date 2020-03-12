@@ -24,26 +24,26 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
             private readonly IBinanceClient _client;
-            private readonly IHttpContextAccessor _httpContextAccessor;
+            private readonly ICurrentUserIdentityService _userIdentity;
 
-            public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, IHttpContextAccessor httpContextAccessor)
+            public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
                 _client = client;
-                _httpContextAccessor = httpContextAccessor;
+                _userIdentity = userIdentity;
             }
 
             public async Task<Unit> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
             {
-                var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair);
+                var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair, cancellationToken);
                 if (!binanceResponse.Success)
                 {
-                    throw new BadRequestException($"Trading pair symbol \"{request.FavouriteTradingPair}\" does not exist.");
+                    throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
                 }
 
-                var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var dbUserProfileInfo = await _context.UserProfileInfo.Where(i => i.UserId == userId).SingleOrDefaultAsync();
+                var userId = _userIdentity.UserId;
+                var dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
                 if (dbUserProfileInfo != null)
                 {
@@ -52,8 +52,8 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 
                 var newUserProfileInfo = _mapper.Map<UserProfileInfo>(request);
                 newUserProfileInfo.UserId = userId;
-                await _context.UserProfileInfo.AddAsync(newUserProfileInfo);
-                await _context.SaveChangesAsync(CancellationToken.None);
+                await _context.UserProfileInfo.AddAsync(newUserProfileInfo, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 return Unit.Value;
             }
