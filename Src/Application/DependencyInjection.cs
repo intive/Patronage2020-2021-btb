@@ -14,6 +14,7 @@ using Binance.Net;
 using System.Reflection;
 using AutoMapper;
 using MediatR;
+using BTB.Application.Authorize.Commands.Register;
 
 namespace BTB.Application
 {
@@ -36,10 +37,11 @@ namespace BTB.Application
                 LogVerbosity = LogVerbosity.Error,
             });
 
-            services.AddTransient(typeof(IPipelineBehavior<,>),typeof(RequestValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
             services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();
             services.AddTransient<IValidator<CreateUserProfileCommand>, CreateUserProfileCommandValidator>();
             services.AddTransient<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
+            services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
 
             return services;
         }

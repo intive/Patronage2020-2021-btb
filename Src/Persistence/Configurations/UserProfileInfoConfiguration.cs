@@ -20,6 +20,8 @@ namespace BTB.Persistence.Configurations
 
             builder.Property(i => i.UserId)
                 .IsRequired();
+            builder.HasIndex(i => i.UserId)
+                .IsUnique();
 
             builder.Property(i => i.Username)
                 .HasMaxLength(16)

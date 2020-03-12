@@ -63,7 +63,6 @@
 }
 
 @code {
-    private int loggedInUserId = 1;
     private UserProfileInfoDto _existingUserProfileInfo = null;
     private bool _processingHttpRequestFinished = false;
     private bool _tradingPairDoesNotExist = false;
@@ -91,7 +90,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetAsync($"api/userprofile/{loggedInUserId}");
+        var response = await Http.GetAsync($"api/userprofile");
         if (response.IsSuccessStatusCode)
         {
             var jsonString = await response.Content.ReadAsStringAsync();
@@ -114,7 +113,7 @@
         }
         else
         {
-            response = await Http.PutAsync($"api/userprofile/{loggedInUserId}", httpRequestContent);
+            response = await Http.PutAsync($"api/userprofile", httpRequestContent);
         }
 
         if (response.StatusCode == HttpStatusCode.BadRequest)

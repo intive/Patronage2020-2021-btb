@@ -1,11 +1,8 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
 {
-    class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
+    internal class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
     {
         public UpdateUserProfileCommandValidator()
         {

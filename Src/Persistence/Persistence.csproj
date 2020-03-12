@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200308190906_BlazorAuthentication.cs" />
+    <Compile Remove="Migrations\20200308190906_BlazorAuthentication.Designer.cs" />
+    <Compile Remove="Migrations\20200309202720_ModifiedUserProfileInfoEntity.cs" />
+    <Compile Remove="Migrations\20200309202720_ModifiedUserProfileInfoEntity.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,6 +25,10 @@
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

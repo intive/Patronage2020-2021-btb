@@ -1,11 +1,8 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 {
-    class CreateUserProfileCommandValidator : AbstractValidator<CreateUserProfileCommand>
+    internal class CreateUserProfileCommandValidator : AbstractValidator<CreateUserProfileCommand>
     {
         public CreateUserProfileCommandValidator()
         {

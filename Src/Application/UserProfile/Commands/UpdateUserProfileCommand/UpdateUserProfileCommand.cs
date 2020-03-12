@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
-using Binance.Net;
 using Binance.Net.Interfaces;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +14,6 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
 {
     public class UpdateUserProfileCommand : IRequest
     {
-        public int UserId { get; set; }
         public string Username { get; set; }
         public string ProfileBio { get; set; }
         public string FavouriteTradingPair { get; set; }
@@ -26,12 +23,14 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
             private readonly IBinanceClient _client;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public UpdateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client)
+            public UpdateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
                 _mapper = mapper;
                 _client = client;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<Unit> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
@@ -42,14 +41,15 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
                     throw new BadRequestException($"Trading pair symbol \"{request.FavouriteTradingPair}\" does not exist.");
                 }
 
-                var dbUserProfileInfo = await _context.UserProfileInfo.Where(i => i.UserId == request.UserId).SingleOrDefaultAsync();
+                var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var dbUserProfileInfo = await _context.UserProfileInfo.Where(i => i.UserId == userId).SingleOrDefaultAsync();
 
                 if (dbUserProfileInfo == null)
                 {
                     throw new NotFoundException();
                 }
 
-                _mapper.Map(request, dbUserProfileInfo);                
+                _mapper.Map(request, dbUserProfileInfo);
                 await _context.SaveChangesAsync(CancellationToken.None);
                 return Unit.Value;
             }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BTB.Application.Authorize.Queries.GetUserInfo;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
 using BTB.Domain.Entities;
@@ -12,7 +13,7 @@ namespace BTB.Application.Common.Mappings
     {
         public EntitiesToDtosMappings()
         {
-            CreateMap<UserProfileInfo, UserProfileInfoDto>();
+            CreateMap<UserProfileInfo, UserProfileInfoVm>();
         }
     }
 }

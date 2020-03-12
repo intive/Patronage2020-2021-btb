@@ -20,9 +20,9 @@ namespace Application.UnitTests.Common
             context.Database.EnsureCreated();
 
             context.UserProfileInfo.AddRange(new[] {
-                new UserProfileInfo { Id = 1, UserId = 1, Username = "UserOne", ProfileBio = "", FavouriteTradingPair = ""},
-                new UserProfileInfo { Id = 2, UserId = 2, Username = "UserTwo", ProfileBio = "", FavouriteTradingPair = ""},
-                new UserProfileInfo { Id = 3, UserId = 3, Username = "UserThree", ProfileBio = "", FavouriteTradingPair = ""}
+                new UserProfileInfo { Id = 1, UserId = "1", Username = "UserOne", ProfileBio = "", FavouriteTradingPair = ""},
+                new UserProfileInfo { Id = 2, UserId = "2", Username = "UserTwo", ProfileBio = "", FavouriteTradingPair = ""},
+                new UserProfileInfo { Id = 3, UserId = "3", Username = "UserThree", ProfileBio = "", FavouriteTradingPair = ""}
 
             });
 
