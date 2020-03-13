@@ -48,14 +48,13 @@
 }
 
 @code {
-    private int loggedInUserId = 1;
     private UserProfileInfoDto _userProfileInfo = null;
     private bool _processingHttpRequestFinished = false;
 
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetAsync($"api/userprofile/{loggedInUserId}");
+        var response = await Http.GetAsync($"api/userprofile");
         if (response.IsSuccessStatusCode)
         {
             var jsonString = await response.Content.ReadAsStringAsync();

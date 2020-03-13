@@ -26,4 +26,9 @@
     <ProjectReference Include="..\..\Src\Persistence\Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UserProfile\Commands\" />
+    <Folder Include="UserProfile\Queries\" />
+  </ItemGroup>
+
 </Project>

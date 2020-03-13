@@ -6,28 +6,28 @@ using AutoMapper;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace BTB.Server.Controllers
 {
+    [Authorize]
     public class UserProfileController : BaseController
     {
         /// <summary>
         /// Returns user profile information.
         /// </summary>
-        /// <param name="userId">ID of the user.</param>
-        /// <returns> A DTO containing user profile information. <see cref="UserProfileInfoDto"/></returns>
+        /// <returns> A DTO containing user profile information. <see cref="UserProfileInfoVm"/></returns>
         /// <response code="200">When successful.</response>
         /// <response code="404">If a user with given id does not exist or has not created a profile yet.</response>
         [HttpGet]
-        [Route("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get(int userId)
+        public async Task<IActionResult> Get()
         {
-            var result = await Mediator.Send(new GetUserProfileQuery() { UserId = userId });
+            var result = await Mediator.Send(new GetUserProfileQuery());
             return Ok(result);
         }
 
@@ -52,13 +52,11 @@ namespace BTB.Server.Controllers
         /// <response code="400">If a validation error occurs.</response>
         /// <response code="404">If a user with given id does not exist or has not created a profile yet.</response>
         [HttpPut]
-        [Route("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int userId, [FromBody] UpdateUserProfileCommand command)
+        public async Task<IActionResult> Update([FromBody] UpdateUserProfileCommand command)
         {
-            command.UserId = userId;
             await Mediator.Send(command);
             return Ok();
         }

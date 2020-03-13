@@ -1,16 +1,14 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
 {
-    class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
+    internal class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
     {
         public UpdateUserProfileCommandValidator()
         {
             RuleFor(command => command.Username)
                 .NotEmpty()
+                .MinimumLength(5)
                 .MaximumLength(16);
 
             RuleFor(command => command.ProfileBio)

@@ -15,10 +15,16 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using BTB.Infrastructure.Identity;
 using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
-using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
+using BTB.Server.Services;
 
 namespace BTB.Server
 {
@@ -58,6 +64,30 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+            services.AddControllers().AddNewtonsoftJson();
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = false;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
+
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
+
+            services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BTB API", Version = "v1" });
@@ -78,6 +108,7 @@ namespace BTB.Server
             services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
 
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICurrentUserIdentityService, CurrentUserIdentityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -102,6 +133,8 @@ namespace BTB.Server
             app.UseClientSideBlazorFiles<Client.Program>();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

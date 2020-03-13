@@ -1,4 +1,5 @@
-﻿using BTB.Persistence;
+﻿using BTB.Application.System.Commands.SeedSampleData;
+using BTB.Persistence;
 using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BTB.Server
@@ -17,7 +19,6 @@ namespace BTB.Server
     {
         public static async Task Main(string[] args)
         {
-
 #if DEBUG
             const string blazorConfigPath = @"/app/bin/Debug/netcoreapp3.1/BTB.Client.blazor.config";
             var blazorConfig = File.ReadAllText(blazorConfigPath);
@@ -38,11 +39,11 @@ namespace BTB.Server
                     apiContext.Database.Migrate();
 
                     var mediator = services.GetRequiredService<IMediator>();
-                    //await mediator.Send(new SeedSampleDataCommand(), CancellationToken.None);
+                    await mediator.Send(new SeedSampleDataCommand(), CancellationToken.None);
                 }
                 catch (Exception e)
                 {
-                    //TODO log exception
+                    // TODO log exception
                 }
             }
 
@@ -51,13 +52,16 @@ namespace BTB.Server
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((hostContext, config) =>
-            {
-                var env = hostContext.HostingEnvironment;
+                .UseConfiguration(new ConfigurationBuilder()
+                    .AddCommandLine(args)
+                    .Build())
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    var env = hostContext.HostingEnvironment;
 
-                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-                config.AddEnvironmentVariables();
-            })
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                })
                 .UseStartup<Startup>();
     }
 }
