@@ -1,6 +1,6 @@
 ﻿@page "/details/{symbol}"
 
-@using BTB.Domain.Entities
+@using BTB.Client.Pages.Dto
 @using Binance.Net.Objects
 @using System.Net.Http;
 @using System.Net;
@@ -44,16 +44,24 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Time</th>
-                <th>Price</th>
+                <th>Open Time</th>
+                <th>Close Time</th>
+                <th>Open Price</th>
+                <th>Close Price</th>
+                <th>Lowest Price</th>
+                <th>Highest Price</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in _priceHistory)
             {
                 <tr>
-                    <td>@item.Time.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
-                    <td>@Math.Round(item.Price, 6)</td>
+                    <td>@item.OpenTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
+                    <td>@item.CloseTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
+                    <td>@Math.Round(item.OpenPrice, 5)</td>
+                    <td>@Math.Round(item.ClosePrice, 5)</td>
+                    <td>@Math.Round(item.LowestPrice, 5)</td>
+                    <td>@Math.Round(item.HighestPrice, 5)</td>
                 </tr>
             }
         </tbody>
@@ -61,7 +69,7 @@ else
 }
 
 @code {
-    private IEnumerable<BinanceSymbolPriceInTime> _priceHistory { get; set; }
+    private IEnumerable<BinanceSymbolPriceInTimeDto> _priceHistory { get; set; }
 
     private bool _requestFailed = false;
 
@@ -87,7 +95,7 @@ else
         }
         else
         {
-            _priceHistory = JsonConvert.DeserializeObject<IEnumerable<BinanceSymbolPriceInTime>>(jsonString);
+            _priceHistory = JsonConvert.DeserializeObject<IEnumerable<BinanceSymbolPriceInTimeDto>>(jsonString);
         }
     }
 

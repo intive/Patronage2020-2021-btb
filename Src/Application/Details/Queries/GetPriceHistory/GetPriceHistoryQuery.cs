@@ -7,15 +7,16 @@ using Binance.Net.Objects;
 using BTB.Domain.Entities;
 using MediatR;
 using System.Linq;
+using System;
 
 namespace BTB.Application.Details.Queries.GetPriceHistory
 {
-    public class GetPriceHistoryQuery : IRequest<IEnumerable<BinanceSymbolPriceInTime>>
+    public class GetPriceHistoryQuery : IRequest<IEnumerable<BinanceSymbolPriceInTimeVm>>
     {
         public string Symbol { get; set; }
         public KlineInterval Interval { get; set; }
 
-        public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<BinanceSymbolPriceInTime>>
+        public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<BinanceSymbolPriceInTimeVm>>
         {
             private readonly IBinanceClient _client;
 
@@ -24,7 +25,7 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
                 _client = client;
             }
 
-            public async Task<IEnumerable<BinanceSymbolPriceInTime>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<BinanceSymbolPriceInTimeVm>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
             {
                 var result = await _client.GetKlinesAsync(request.Symbol, request.Interval, ct: cancellationToken);
                
@@ -32,10 +33,14 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
                 {
                     return result.Data
                         .Reverse()
-                        .Select(b => new BinanceSymbolPriceInTime
+                        .Select(b => new BinanceSymbolPriceInTimeVm
                         {
-                            Time = b.CloseTime,
-                            Price = b.Close
+                            OpenTime = b.OpenTime,
+                            CloseTime = b.CloseTime,
+                            OpenPrice = b.Open,
+                            ClosePrice = b.Close,
+                            LowestPrice = b.Low,
+                            HighestPrice = b.High
                         })
                         .Take(10);  
                 }
