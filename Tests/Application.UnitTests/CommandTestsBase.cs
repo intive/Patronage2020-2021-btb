@@ -9,15 +9,7 @@ using System.Text;
 
 namespace Application.UnitTests.Common
 {
-    public class CommandTestsBase : TestsBase
+    public class CommandTestsBase : HandlerTestsBase
     {
-        protected Mock<ICurrentUserIdentityService> GetUserIdentityMock(string userId)
-        {
-            var userIdentityMock = new Mock<ICurrentUserIdentityService>();
-            userIdentityMock
-                .Setup(x => x.UserId)
-                .Returns(userId);
-            return userIdentityMock;
-        }
     }
 }

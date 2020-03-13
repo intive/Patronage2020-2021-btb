@@ -11,15 +11,7 @@ using Xunit;
 namespace Application.UnitTests
 {
     [Collection("QueryCollection")]
-    public class QueryTestsBase : TestsBase
+    public class QueryTestsBase : HandlerTestsBase
     {
-        protected Mock<ICurrentUserIdentityService> GetUserIdentityMock(string userId)
-        {
-            var userIdentityMock = new Mock<ICurrentUserIdentityService>();
-            userIdentityMock
-                .Setup(x => x.UserId)
-                .Returns(userId);
-            return userIdentityMock;
-        }
     }
 }
