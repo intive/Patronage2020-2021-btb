@@ -36,10 +36,13 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 
             public async Task<Unit> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
             {
-                var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair, cancellationToken);
-                if (!binanceResponse.Success)
+                if (!string.IsNullOrEmpty(request.FavouriteTradingPair))
                 {
-                    throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
+                    var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair, cancellationToken);
+                    if (!binanceResponse.Success)
+                    {
+                        throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
+                    }
                 }
 
                 var userId = _userIdentity.UserId;
