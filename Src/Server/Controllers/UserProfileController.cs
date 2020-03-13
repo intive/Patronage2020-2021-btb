@@ -48,7 +48,7 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Updates user profile information.
         /// </summary>
-        /// <response code="201">If user profile is updated successfully.</response>
+        /// <response code="200">If user profile is updated successfully.</response>
         /// <response code="400">If a validation error occurs.</response>
         /// <response code="404">If a user with given id does not exist or has not created a profile yet.</response>
         [HttpPut]

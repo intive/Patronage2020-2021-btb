@@ -1,6 +1,5 @@
 ﻿using Binance.Net.Objects;
 using BTB.Application.Details.Queries.GetPriceHistory;
-using BTB.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +20,7 @@ namespace Application.UnitTests.Details
             var result = await handler.Handle(new GetPriceHistoryQuery { Symbol = "ANY", Interval = KlineInterval.OneHour }, CancellationToken.None);
             result.GetEnumerator().MoveNext();
 
-            Assert.IsAssignableFrom<IEnumerable<BinanceSymbolPriceInTime>>(result);
+            Assert.IsAssignableFrom<IEnumerable<BinanceSymbolPriceInTimeVm>>(result);
             Assert.NotNull(result.GetEnumerator());
         }
     }

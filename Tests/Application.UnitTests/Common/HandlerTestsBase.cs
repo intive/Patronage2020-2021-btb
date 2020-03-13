@@ -1,20 +1,22 @@
 ﻿using Application.UnitTests.Common;
 using AutoMapper;
 using Binance.Net.Interfaces;
+using BTB.Application.Common.Interfaces;
 using BTB.Persistence;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Application.UnitTests
 {
-    public class TestsBase : IDisposable
+    public class HandlerTestsBase : IDisposable
     {
         protected readonly IBinanceClient _binanceClient;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
 
-        public TestsBase()
+        public HandlerTestsBase()
         {
             QueryTestFixture fixture = QueryTestFixture.Get();
             this._context = fixture.Context;
@@ -26,6 +28,15 @@ namespace Application.UnitTests
         public void Dispose()
         {
             BTBContextFactory.Destroy(_context);
+        }
+
+        protected Mock<ICurrentUserIdentityService> GetUserIdentityMock(string userId)
+        {
+            var userIdentityMock = new Mock<ICurrentUserIdentityService>();
+            userIdentityMock
+                .Setup(x => x.UserId)
+                .Returns(userId);
+            return userIdentityMock;
         }
     }
 }

@@ -8,6 +8,9 @@ namespace BTB.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Alert> builder)
         {
+            builder.Property(a => a.UserId)
+                .IsRequired();
+
             builder.Property(a => a.Email)
                 .IsRequired();
         }
