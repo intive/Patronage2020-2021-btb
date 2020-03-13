@@ -16,7 +16,7 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 
             RuleFor(command => command.FavouriteTradingPair)
                 .MaximumLength(10)
-                .Matches("^([A-Z|a-z]{5,10})$");
+                .Matches("^$|^([A-Z]{5,10})$");
         }
     }
 }
