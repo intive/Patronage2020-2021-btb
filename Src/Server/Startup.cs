@@ -63,6 +63,8 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
+            services.AddHostedService<UpdateExchangeService>();
+
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
