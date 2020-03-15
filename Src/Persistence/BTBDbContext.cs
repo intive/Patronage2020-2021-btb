@@ -1,10 +1,10 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
-using BTB.Infrastructure.Identity;
 using BTB.Persistence.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace BTB.Persistence
 {

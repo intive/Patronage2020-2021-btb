@@ -1,4 +1,5 @@
 ﻿using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ namespace BTB.Application.System.SeedSampleData
     {
         private readonly IBTBDbContext _context;
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SampleDataSeeder(IBTBDbContext context, UserManager<IdentityUser> userManager)
+        public SampleDataSeeder(IBTBDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -33,7 +34,7 @@ namespace BTB.Application.System.SeedSampleData
 
         private async Task SeedAspNetUsersAsync(CancellationToken cancellationToken)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = "admin"
             };

@@ -13,6 +13,11 @@ namespace BTB.Persistence.Configurations
 
             builder.Property(a => a.Email)
                 .IsRequired();
+
+            builder.HasOne(a => a.User)
+                .WithMany(u => u.Alerts)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

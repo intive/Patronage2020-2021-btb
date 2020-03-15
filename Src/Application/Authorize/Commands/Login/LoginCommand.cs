@@ -1,4 +1,5 @@
 ﻿using BTB.Application.Common.Exceptions;
+using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
@@ -14,10 +15,10 @@ namespace BTB.Application.Authorize.Commands.Login
 
         public class LoginCommandHandler : IRequestHandler<LoginCommand>
         {
-            private readonly UserManager<IdentityUser> _userManager;
-            private readonly SignInManager<IdentityUser> _signInManager;
+            private readonly UserManager<ApplicationUser> _userManager;
+            private readonly SignInManager<ApplicationUser> _signInManager;
 
-            public LoginCommandHandler(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+            public LoginCommandHandler(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
             {
                 _userManager = userManager;
                 _signInManager = signInManager;

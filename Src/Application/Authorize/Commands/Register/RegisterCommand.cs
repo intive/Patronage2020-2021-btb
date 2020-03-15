@@ -1,4 +1,5 @@
 ﻿using BTB.Application.Common.Exceptions;
+using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Linq;
@@ -15,16 +16,16 @@ namespace BTB.Application.Authorize.Commands.Register
 
         public class RegisterCommandHandler : IRequestHandler<RegisterCommand>
         {
-            private readonly UserManager<IdentityUser> _userManager;
+            private readonly UserManager<ApplicationUser> _userManager;
 
-            public RegisterCommandHandler(UserManager<IdentityUser> userManager)
+            public RegisterCommandHandler(UserManager<ApplicationUser> userManager)
             {
                 _userManager = userManager;
             }
 
             public async Task<Unit> Handle(RegisterCommand request, CancellationToken cancellationToken)
             {
-                var user = new IdentityUser
+                var user = new ApplicationUser
                 {
                     UserName = request.UserName
                 };

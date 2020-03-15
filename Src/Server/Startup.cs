@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using BTB.Infrastructure.Identity;
 using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
