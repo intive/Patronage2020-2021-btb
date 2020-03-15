@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BTB.Persistence.Migrations
 {
-    public partial class AddedAuthorization : Migration
+    public partial class AuthorizationAndRelationships : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,6 +13,12 @@ namespace BTB.Persistence.Migrations
                 nullable: false,
                 oldClrType: typeof(int),
                 oldType: "int");
+
+            migrationBuilder.AddColumn<string>(
+                name: "UserId",
+                table: "Alerts",
+                nullable: false,
+                defaultValue: "");
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
@@ -46,7 +52,8 @@ namespace BTB.Persistence.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,6 +173,11 @@ namespace BTB.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Alerts_UserId",
+                table: "Alerts",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -203,10 +215,34 @@ namespace BTB.Persistence.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Alerts_AspNetUsers_UserId",
+                table: "Alerts",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_UserProfileInfo_AspNetUsers_UserId",
+                table: "UserProfileInfo",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Alerts_AspNetUsers_UserId",
+                table: "Alerts");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserProfileInfo_AspNetUsers_UserId",
+                table: "UserProfileInfo");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -231,6 +267,14 @@ namespace BTB.Persistence.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_UserProfileInfo_UserId",
                 table: "UserProfileInfo");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Alerts_UserId",
+                table: "Alerts");
+
+            migrationBuilder.DropColumn(
+                name: "UserId",
+                table: "Alerts");
 
             migrationBuilder.AlterColumn<int>(
                 name: "UserId",

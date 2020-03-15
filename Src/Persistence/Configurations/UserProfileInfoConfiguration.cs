@@ -34,6 +34,11 @@ namespace BTB.Persistence.Configurations
             builder.Property(i => i.FavouriteTradingPair)
                 .HasMaxLength(10)
                 .IsRequired(false);
+
+            builder.HasOne(i => i.User)
+                .WithOne(u => u.ProfileInfo)
+                .HasForeignKey<UserProfileInfo>(i => i.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

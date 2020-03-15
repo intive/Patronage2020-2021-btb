@@ -1,5 +1,6 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Application.System.SeedSampleData;
+using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -17,9 +18,9 @@ namespace BTB.Application.System.Commands.SeedSampleData
     public class SeedSampleDataCommandHandler : IRequestHandler<SeedSampleDataCommand>
     {
         private readonly IBTBDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SeedSampleDataCommandHandler(IBTBDbContext context, UserManager<IdentityUser> userManager)
+        public SeedSampleDataCommandHandler(IBTBDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;

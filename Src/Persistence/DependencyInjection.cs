@@ -1,4 +1,5 @@
 ﻿using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ namespace BTB.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
 

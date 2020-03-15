@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using BTB.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,9 +10,9 @@ namespace BTB.Application.Authorize.Commands.Logout
     {
         public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
         {
-            private readonly SignInManager<IdentityUser> _signInManager;
+            private readonly SignInManager<ApplicationUser> _signInManager;
 
-            public LogoutCommandHandler(SignInManager<IdentityUser> signInManager)
+            public LogoutCommandHandler(SignInManager<ApplicationUser> signInManager)
             {
                 _signInManager = signInManager;
             }
