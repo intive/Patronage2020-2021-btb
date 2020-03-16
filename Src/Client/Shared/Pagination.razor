@@ -1,0 +1,92 @@
+﻿<nav aria-label="Page navigation" class="d-inline-block float-right mb-2">
+    <ul class="pagination justify-content-end">
+        @foreach (var link in _links)
+        {
+            <li @onclick="@(() => SelectedPageInternal(link))"
+                style="cursor: pointer; @PointerEventsStyle"
+                class="page-item
+                @link.IsActive()
+                @link.IsEnabled()">
+                <span class="page-link" href="#">@link.Text</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code {
+
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+    [Parameter]
+    public int TotalPagesQuantity { get; set; }
+    [Parameter]
+    public int Radius { get; set; }
+    [Parameter]
+    public EventCallback<int> SelectedPage { get; set; }
+
+    [Parameter]
+    public string PointerEventsStyle { get; set; }
+
+    private List<LinkModel> _links;
+
+    protected override void OnParametersSet()
+    {
+        LoadPages();
+    }
+
+    private async Task SelectedPageInternal(LinkModel link)
+    {
+        if (link.Page == CurrentPage) return;
+
+        if (!link.Enabled) return;
+
+        CurrentPage = link.Page;
+        await SelectedPage.InvokeAsync(link.Page);
+    }
+
+    private void LoadPages()
+    {
+        _links = new List<LinkModel>();
+
+        _links.Add(new LinkModel
+        {
+            Page = CurrentPage - 1,
+            Enabled = CurrentPage != 1,
+            Text = "Previous"
+        });
+
+        for (var i = 1; i <= TotalPagesQuantity; i++)
+        {
+            if (i >= CurrentPage - Radius && i <= CurrentPage + Radius)
+            {
+                _links.Add(new LinkModel
+                {
+                    Page = i,
+                    Enabled = true,
+                    Text = $"{i}",
+                    Active = (CurrentPage == i)
+                });
+            }
+        }
+
+        _links.Add(new LinkModel
+        {
+            Page = CurrentPage + 1,
+            Enabled = CurrentPage != TotalPagesQuantity,
+            Text = "Next"
+        });
+    }
+
+    private class LinkModel
+    {
+        public string Text { get; set; }
+        public int Page { get; set; }
+        public bool Enabled { get; set; }
+        public bool Active { get; set; }
+
+        public LinkModel() => Enabled = true;
+
+        public string IsActive() => this.Active ? "active" : null;
+        public string IsEnabled() => this.Enabled ? null : "disabled";
+    }
+}
