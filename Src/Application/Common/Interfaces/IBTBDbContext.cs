@@ -9,6 +9,8 @@ namespace BTB.Application.Common.Interfaces
     {
         DbSet<UserProfileInfo> UserProfileInfo { get; set; }
         DbSet<Alert> Alerts { get; set; }
+        DbSet<Symbol> Symbols { get; set; }
+        DbSet<Kline> Klines { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

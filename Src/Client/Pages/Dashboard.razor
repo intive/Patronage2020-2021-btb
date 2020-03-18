@@ -1,40 +1,80 @@
 ﻿@page "/"
 @using BTB.Domain.Entities
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@using System.Threading
+@using BTB.Client.Models
+@using BTB.Client.Pages.Enums
 @inject HttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
+@implements IDisposable
 
 <h1>Dashboard</h1>
 
-@if (_topList == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Price</th>
-                <th>Subscribe</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in _topList)
-            {
-                <tr>
-                    <td><NavLink href="@($"/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
-                    <td>@Math.Round(item.LastPrice, 6)</td>
-                    <td><button type="button" class="btn btn-primary" @onclick="@(()=> HandleOnSelected(@item.Symbol))">Subscribe</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
+        @foreach (var value in Enum<PaginationQuantity>.GetValues())
+        {
+            <button style="@PointerEventsStyle()" class="btn btn-primary mr-2" type="button" @onclick="@(() => SelectedQuantity(value))">@((int) value)</button>
+        }
+    </div>
+</div>
 
-}
+<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+
+<EditForm class="form-group" Model="_filter">
+    <DataAnnotationsValidator />
+    <ValidationMessage For="@(() => _filter.SymbolName)" />
+    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-3 mb-2 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
+    <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"> Filter </span></button>
+    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-1" type="button" @onclick="Clear"><span class="oi oi-action-undo"> Clear </span></button>
+</EditForm>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 25%">Symbol</th>
+            <th style="width: 25%">Price</th>
+            <th style="width: 25%">Volume</th>
+            <th style="width: 25%">Subscribe</th>
+        </tr>
+    </thead>
+    <tbody>
+        <SpinLoader IsLoading="@(_dashboardElements == null)">
+            <LoadingTemplate>
+                <tr>
+                    <td colspan="4" style="vertical-align: middle; background-color: white; height:500px;">
+                        <Flow Color="#428bca" Size="60px" Center="true" />
+                    </td>
+                </tr>
+            </LoadingTemplate>
+            <ContentTemplate>
+                @foreach (var item in _dashboardElements)
+                {
+                    <tr>
+                        <td><NavLink href="@($"/details/{@item.Symbol}")">@item.Symbol</NavLink></td>
+                        <td>@item.LastPrice</td>
+                        <td>@item.Volume</td>
+                        <td><button type="button" class="btn btn-primary" @onclick="@(() => HandleOnSelected(@item.Symbol))">Subscribe</button></td>
+                    </tr>
+                }
+            </ContentTemplate>
+        </SpinLoader>
+    </tbody>
+</table>
 
 @code {
-    private IEnumerable<BinanceSymbolPrice> _topList { get; set; }
+    private IEnumerable<BinanceSimpleElement> _dashboardElements { get; set; }
+
+    private FilterModel _filter = new FilterModel();
+
+    private int _totalPageQuantity;
+    private int _currentPage = 1;
+    private int _currentQuantity = 10;
+
+    private bool _isRequestRunning = false;
+
+    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
     private void HandleOnSelected(string symbol)
     {
@@ -51,9 +91,88 @@ else
 
     }
 
-    protected override async Task OnInitializedAsync()
+    private async Task Filter()
     {
-        _topList = await Http.GetJsonAsync<IEnumerable<BinanceSymbolPrice>>(@"api/dashboard/");
+        _currentPage = 1;
+        _currentQuantity = 10;
+
+        if (string.IsNullOrEmpty(_filter.SymbolName) ||
+        string.IsNullOrWhiteSpace(_filter.SymbolName) ||
+        !Regex.IsMatch(_filter.SymbolName, @"^[a-zA-Z]+$"))
+        {
+            return;
+        }
+
+        await LoadDashboardTableAsync();
     }
 
+    private async Task Clear()
+    {
+        _currentPage = 1;
+        _currentQuantity = 10;
+        _filter.SymbolName = string.Empty;
+
+        await LoadDashboardTableAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardTableAsync();
+    }
+
+    private async Task LoadDashboardTableAsync()
+    {
+        if (!_isRequestRunning)
+        {
+            _dashboardElements = null;
+
+            _isRequestRunning = true;
+
+            var httpResponse = await Http.GetAsync($"api/dashboard?page={_currentPage}&quantity={_currentQuantity}&name={_filter.SymbolName}", _tokenSource.Token);
+
+            if (_tokenSource.Token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                _totalPageQuantity = int.Parse(httpResponse.Headers.GetValues("quantity").First());
+                var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+                _dashboardElements = JsonSerializer.Deserialize<IEnumerable<BinanceSimpleElement>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else
+            {
+                // TODO: Handle error
+            }
+
+            _isRequestRunning = false;
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        _currentPage = page;
+
+        await LoadDashboardTableAsync();
+    }
+
+    private async Task SelectedQuantity(PaginationQuantity quantity)
+    {
+        _currentPage = 1;
+        _currentQuantity = (int)quantity;
+
+        await LoadDashboardTableAsync();
+    }
+
+    private string PointerEventsStyle()
+    {
+        return _isRequestRunning ? "pointer-events: none;" : null;
+    }
+
+    public void Dispose()
+    {
+        _tokenSource.Cancel();
+    }
 }

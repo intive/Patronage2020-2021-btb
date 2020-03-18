@@ -3,14 +3,15 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
 using Binance.Net.Interfaces;
+using BTB.Application.Common.Exceptions;
 using BTB.Domain.Entities;
 using MediatR;
 
 namespace BTB.Application.Dashboard.Queries.GetTopListQuery
 {
-    public class GetTopListQuery : IRequest<IEnumerable<BinanceSymbolPrice>>
+    public class GetTopListQuery : IRequest<IEnumerable<BinanceSimpleElement>>
     {
-        public class GetTopListQueryHandler : IRequestHandler<GetTopListQuery, IEnumerable<BinanceSymbolPrice>>
+        public class GetTopListQueryHandler : IRequestHandler<GetTopListQuery, IEnumerable<BinanceSimpleElement>>
         {
             private readonly IBinanceClient _client;
 
@@ -19,7 +20,7 @@ namespace BTB.Application.Dashboard.Queries.GetTopListQuery
                 _client = client;
             }
 
-            public async Task<IEnumerable<BinanceSymbolPrice>> Handle(GetTopListQuery request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<BinanceSimpleElement>> Handle(GetTopListQuery request, CancellationToken cancellationToken)
             {
                 var result = await _client.Get24HPricesListAsync(cancellationToken);
 
@@ -28,7 +29,7 @@ namespace BTB.Application.Dashboard.Queries.GetTopListQuery
                     return result.Data
                             .Where(d => d.Symbol.Contains("BTC"))
                             .OrderByDescending(d => d.LastPrice)
-                            .Select(d => new BinanceSymbolPrice
+                            .Select(d => new BinanceSimpleElement
                             {
                                 Symbol = d.Symbol,
                                 LastPrice = d.LastPrice
@@ -36,7 +37,7 @@ namespace BTB.Application.Dashboard.Queries.GetTopListQuery
                             .Take(10);
                 }
 
-                return new List<BinanceSymbolPrice>();
+                throw new NotFoundException();
             }
         }
     }

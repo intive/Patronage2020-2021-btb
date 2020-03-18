@@ -17,6 +17,7 @@ namespace BTB.Persistence.Configurations
             builder.HasOne(a => a.User)
                 .WithMany(u => u.Alerts)
                 .HasForeignKey(a => a.UserId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

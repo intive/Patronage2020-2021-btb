@@ -1,10 +1,8 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using BTB.Persistence.Configurations;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace BTB.Persistence
 {
@@ -12,6 +10,8 @@ namespace BTB.Persistence
     {
         public DbSet<UserProfileInfo> UserProfileInfo { get; set; }
         public DbSet<Alert> Alerts { get; set; }
+        public DbSet<Symbol> Symbols { get; set; }
+        public DbSet<Kline> Klines { get; set; }
 
         public BTBDbContext(DbContextOptions<BTBDbContext> options)
             : base(options)
@@ -28,6 +28,8 @@ namespace BTB.Persistence
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new UserProfileInfoConfiguration());
             builder.ApplyConfiguration(new AlertConfiguration());
+            builder.ApplyConfiguration(new SymbolConfiguration());
+            builder.ApplyConfiguration(new KlineConfiguration());
         }
     }
 }

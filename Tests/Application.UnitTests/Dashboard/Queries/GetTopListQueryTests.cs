@@ -20,7 +20,7 @@ namespace Application.UnitTests.Dashboard.Queries
             var result = await handler.Handle(new GetTopListQuery(), CancellationToken.None);
             result.GetEnumerator().MoveNext();
 
-            Assert.IsAssignableFrom<IEnumerable<BinanceSymbolPrice>>(result);
+            Assert.IsAssignableFrom<IEnumerable<BinanceSimpleElement>>(result);
             Assert.NotNull(result.GetEnumerator());
         }
     }
