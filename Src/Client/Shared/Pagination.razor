@@ -50,6 +50,13 @@
 
         _links.Add(new LinkModel
         {
+            Page = 1,
+            Enabled = CurrentPage != 1,
+            Text = "First"
+        });
+
+        _links.Add(new LinkModel
+        {
             Page = CurrentPage - 1,
             Enabled = CurrentPage != 1,
             Text = "Previous"
@@ -74,6 +81,13 @@
             Page = CurrentPage + 1,
             Enabled = CurrentPage != TotalPagesQuantity,
             Text = "Next"
+        });
+
+        _links.Add(new LinkModel
+        {
+            Page = TotalPagesQuantity,
+            Enabled = CurrentPage != TotalPagesQuantity,
+            Text = "Last"
         });
     }
 
