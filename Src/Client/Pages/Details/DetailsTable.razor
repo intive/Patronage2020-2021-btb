@@ -1,0 +1,33 @@
+﻿@using BTB.Client.Pages.Dto
+<table class="table">
+    <thead>
+        <tr>
+            <th>Open Time</th>
+            <th>Close Time</th>
+            <th>Open Price</th>
+            <th>Close Price</th>
+            <th>Lowest Price</th>
+            <th>Highest Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in _priceHistory)
+        {
+            <tr>
+                <td>@item.OpenTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
+                <td>@item.CloseTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
+                <td>@Math.Round(item.OpenPrice, 5)</td>
+                <td>@Math.Round(item.ClosePrice, 5)</td>
+                <td>@Math.Round(item.LowestPrice, 5)</td>
+                <td>@Math.Round(item.HighestPrice, 5)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    [CascadingParameter]
+    private IEnumerable<BinanceSymbolPriceInTimeDto> _priceHistory { get; set; }
+
+}

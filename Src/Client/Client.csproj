@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Binance.Net" Version="5.0.9" />
+    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.0.0" />
     <PackageReference Include="Blazored.Modal" Version="3.1.2" />
     <PackageReference Include="BlazorPro.Spinkit" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.2.0-preview1.20073.1" />
