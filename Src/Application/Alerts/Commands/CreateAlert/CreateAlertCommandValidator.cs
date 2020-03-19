@@ -7,28 +7,30 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
         public CreateAlertCommandValidator()
         {
             RuleFor(a => a.Symbol)
-                .NotEmpty().WithMessage("Symbol is empty.");
+                .MaximumLength(10)
+                .Matches("^$|^([A-Z]{5,10})$")
+                .NotEmpty();
 
             RuleFor(a => a.Condition)
-                .NotEmpty().WithMessage("Condition is empty.");
+                .NotEmpty();
 
             RuleFor(a => a.ValueType)
-                .NotEmpty().WithMessage("ValueType is empty.");
+                .NotEmpty();
 
             RuleFor(a => a.Value)
-                .NotEmpty().WithMessage("Value is empty.")
-                .GreaterThan(0).WithMessage("Value must be greather than 0.");
+                .NotEmpty()
+                .GreaterThan(0);
 
             RuleFor(a => a.SendEmail)
-                .NotNull().WithMessage("Send email field is empty.");
+                .NotNull();
 
             RuleFor(a => a.Email)
-                .NotEmpty()
-                .WithMessage("Email is empty.")
-                .EmailAddress().WithMessage("A valid email is required.");
+                .NotEmpty().When(a => a.SendEmail)
+                .EmailAddress();
 
             RuleFor(a => a.Message)
-                .MaximumLength(500).WithMessage("Message is to long.");
+                .NotNull().When(a => a.SendEmail)
+                .MaximumLength(500);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
                             .Where(d => d.Symbol.Contains(request.Name.ToUpper()));
                     }
 
-                    _httpContextAccessor.HttpContext.InsertPaginationParameterInResponseHeader(selectedData,
+                    _httpContextAccessor.HttpContext.InsertPaginationParameterInResponseHeader(selectedData.Count(),
                         (int)request.Pagination.Quantity);
 
 

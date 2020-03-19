@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using BTB.Client.Pages.Dto;
+﻿using BTB.Domain.Common.Pagination;
+using System.Linq;
 
-namespace BTB.Server.Extensions
+namespace BTB.Domain.Extensions
 {
-    public static class IQueryableExtensions
+    public static class QueryableExtensions
     {
         public static IQueryable<T> Paginate<T>(this IQueryable<T> queryable, PaginationDto pagination)
         {

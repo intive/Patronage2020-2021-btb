@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 
 namespace BTB.Domain.Extensions
 {
     public static class HttpContextExtensions
     {
-        public static void InsertPaginationParameterInResponseHeader<T>(this HttpContext httpContext, 
-            IQueryable<T> queryable, int recordsPerPage)
+        public static void InsertPaginationParameterInResponseHeader(this HttpContext httpContext,
+            int allRecordsCount, int recordsPerPage)
         {
-            double count = queryable.Count();
-            double pagesQuantity = Math.Ceiling(count / recordsPerPage);
+            double pagesQuantity = Math.Ceiling((double)allRecordsCount / recordsPerPage);
             httpContext.Response.Headers.Add("quantity", $"{pagesQuantity}");
         }
     }

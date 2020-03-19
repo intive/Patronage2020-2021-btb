@@ -16,6 +16,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
+
         public class CreateAlertCommandHandler : IRequestHandler<CreateAlertCommand>
         {
             private readonly IBTBDbContext _context;
@@ -31,13 +32,10 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
 
             public async Task<Unit> Handle(CreateAlertCommand request, CancellationToken cancellationToken)
             {
-                var alert = _mapper.Map<CreateAlertCommand, Alert>(request);
+                var alert = _mapper.Map<Alert>(request);
+                alert.UserId = _userIdentity.UserId;
 
-                var userId = _userIdentity.UserId;
-                alert.UserId = userId;
-
-                _context.Alerts.Add(alert);
-
+                await _context.Alerts.AddAsync(alert, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
                 return Unit.Value;
