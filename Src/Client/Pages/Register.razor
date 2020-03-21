@@ -3,29 +3,37 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
-<h1 class="h2 font-weight-normal login-title">
+<h1 class="h2 font-weight-normal login-title text-center">
     Intive Patronage 2020
 </h1>
 
 <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerParameters">
     <DataAnnotationsValidator />
-    <h4 class="font-weight-normal text-center">Create Account</h4>
+    <h5 class="font-weight-normal text-center">Create Account</h5>
+    <br />
 
-    <label for="inputUsername" class="sr-only">User Name</label>
-    <InputText id="inputUsername" class="form-control" placeholder="Username" autofocus @bind-Value="@registerParameters.UserName" />
-    <ValidationMessage For="@(() => registerParameters.UserName)" />
+    <div class="form-group">
+        <label for="inputUsername">Username</label>
+        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="@registerParameters.UserName" />
+        <ValidationMessage For="@(() => registerParameters.UserName)" />
+    </div>
 
-    <label for="inputPassword" class="sr-only">Password</label>
-    <InputText type="password" id="inputPassword" class="form-control" placeholder="Password" @bind-Value="@registerParameters.Password" />
-    <ValidationMessage For="@(() => registerParameters.Password)" />
+    <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="@registerParameters.Password" />
+        <ValidationMessage For="@(() => registerParameters.Password)" />
+    </div>
 
-    <label for="inputPasswordConfirm" class="sr-only">Password Confirmation</label>
-    <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Password Confirmation" @bind-Value="@registerParameters.PasswordConfirm" />
-    <ValidationMessage For="@(() => registerParameters.PasswordConfirm)" />
+    <div class="form-group">
+        <label for="inputPasswordConfirm">Confirm password</label>
+        <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat password" @bind-Value="@registerParameters.PasswordConfirm" />
+        <ValidationMessage For="@(() => registerParameters.PasswordConfirm)" />
+    </div>
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
 
     <label class="text-danger">@error</label>
+
     <NavLink href="login">
         <h6 class="font-weight-normal text-center">Already have an account? Click here to login</h6>
     </NavLink>
