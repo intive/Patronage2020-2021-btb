@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BTB.Client.Pages.Enums
+namespace BTB.Domain.Extensions
 {
     public static class Enum<T> where T : struct, IComparable, IFormattable, IConvertible
     {

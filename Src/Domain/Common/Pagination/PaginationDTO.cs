@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using BTB.Client.Pages.Enums;
 
-namespace BTB.Client.Pages.Dto
+namespace BTB.Domain.Common.Pagination
 {
     public class PaginationDto
     {

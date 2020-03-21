@@ -3,9 +3,7 @@
 @using Dto
     <EditForm Model="@_alertDto" OnValidSubmit="CreateAlert">
 
-        <p class="modal-title">Create Alert on @_symbol</p>
-
-        <p>Symbol: @_symbol</p>
+        <h4>Create Alert on @_symbol</h4>
 
         <div class="form-group row mb-0">
             <label for="condition" class="col col-form-label">Select condition:</label>
@@ -17,7 +15,6 @@
             </div>
         </div>
         <ValidationMessage For="@(()=>_alertDto.Condition)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
-
 
         <div class="form-group row mb-0">
             <label for="valueType" class="col col-form-label">Select value type:</label>
@@ -32,7 +29,6 @@
         </div>
         <ValidationMessage For="@(()=>_alertDto.ValueType)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-
         <div class="form-group row mb-0">
             <label for="value" class="col-4 col-form-label">Value:</label>
             <div class="col-8">
@@ -40,7 +36,6 @@
             </div>
         </div>
         <ValidationMessage For="@(()=>_alertDto.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
-
 
         <div class="form-group row mb-0">
             <div class="col">
@@ -55,7 +50,7 @@
         <div class="form-group row mb-0">
             <label for="email" class="col-4 col-form-label">Email:</label>
             <div class="col-8">
-                <InputText @bind-Value="_alertDto.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" />
+                <InputText @bind-Value="_alertDto.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_alertDto.SendEmail)" />
             </div>
         </div>
         <ValidationMessage For="@(()=>_alertDto.Email)" style="font-size:14px; margin-bottom:10px" />
@@ -63,11 +58,10 @@
         <div class="form-group row mb-1">
             <label for="message" class="col-4 col-form-label">Message:</label>
             <div class="col-8">
-                <InputTextArea @bind-Value="_alertDto.Message" class="form-control form-control-sm" id="message" />
+                <InputTextArea @bind-Value="_alertDto.Message" class="form-control form-control-sm" id="message" disabled="@(!_alertDto.SendEmail)" />
             </div>
         </div>
         <ValidationMessage For="@(()=>_alertDto.Message)" style="font-size:14px; margin-bottom:10px" />
-
 
         <DataAnnotationsValidator />
 
@@ -79,7 +73,6 @@
     </EditForm>
 
 @code {
-
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
     private string _symbol;
@@ -94,7 +87,14 @@
     protected async void CreateAlert()
     {
         _alertDto.Symbol = _symbol;
-        await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts/new", _alertDto);
+
+        if (!_alertDto.SendEmail)
+        {
+            _alertDto.Email = null;
+            _alertDto.Message = null;
+        }
+
+        await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts", _alertDto);
         Modal.Close();
     }
 

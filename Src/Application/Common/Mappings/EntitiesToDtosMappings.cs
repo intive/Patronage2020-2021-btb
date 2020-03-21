@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
 using BTB.Application.Authorize.Queries.GetUserInfo;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
@@ -14,6 +15,7 @@ namespace BTB.Application.Common.Mappings
         public EntitiesToDtosMappings()
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
+            CreateMap<Alert, AlertVm>();
         }
     }
 }

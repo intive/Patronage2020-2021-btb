@@ -1,0 +1,203 @@
+﻿@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
+@using System
+@using BTB.Client.Pages.Dto
+@using BTB.Client.Pages.Converters
+
+<BECanvas Width="900" Height="550" @ref="_canvasReference"></BECanvas>
+
+@code {
+
+    [CascadingParameter]
+    private IEnumerable<BinanceSymbolPriceInTimeDto> _priceHistory { get; set; }
+
+    private Canvas2DContext _context;
+    protected BECanvasComponent _canvasReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var spaceFromBottomAndUp = 100;
+        var spaceFromLeft = 55;
+        var candleStickWidth = 20;
+
+        var maxValueInKlines = FindKlinesMaxValue(_priceHistory);
+        var minValueInKlines = FindKlinesMinValue(_priceHistory);
+
+        await DisplayChart(spaceFromBottomAndUp, spaceFromLeft, candleStickWidth, maxValueInKlines, minValueInKlines);
+    }
+
+    private async Task DisplayChart(int spaceFromBottomAndUp, int spaceFromLeft, int candleStickWidth, decimal maxValueInKlines, decimal minValueInKlines)
+    {
+        var chartHeight = Convert.ToInt32(_canvasReference.Height);
+        var chartWidth = Convert.ToInt32(_canvasReference.Width);
+
+        var maxValueInChart = chartHeight - spaceFromBottomAndUp * 2;
+
+        _context = await this._canvasReference.CreateCanvas2DAsync();
+
+        var converter = new BinanceSymbolPriceInTimeDtoToCandleStickDtoConverter(_priceHistory,maxValueInKlines,minValueInKlines,maxValueInChart);
+
+        var klines = converter.ConvertList();
+
+        await WipeOffCanvas(chartWidth, chartHeight);
+
+        await DrawAxies(klines, spaceFromBottomAndUp, spaceFromLeft, chartWidth, chartHeight, minValueInKlines, maxValueInKlines,candleStickWidth);
+
+        await DrawCandleSticks(klines, spaceFromBottomAndUp, spaceFromLeft, chartHeight, candleStickWidth);
+    }
+
+    private async Task WipeOffCanvas(int chartWidth, int chartHeight)
+    {
+        var bgColor = "white";
+
+        await _context.SetFillStyleAsync(bgColor);
+
+        await _context.FillRectAsync(0, 0, chartWidth, chartHeight);
+    }
+
+    private async Task DrawAxies(IEnumerable<CandleStickDto> candleSticks, int spaceFromBottomAndUp, int spaceFromLeft, int chartWidth, int chartHeight, decimal minValueInKlines, decimal maxValueInKlines, int candleStickWidth)
+    {
+        var price = "Price";
+        var time = "Time";
+        var lineStyle = "black";
+        var slimLine = 1;
+
+        await _context.SetLineWidthAsync(slimLine);
+
+        await _context.BeginPathAsync();
+
+        await _context.MoveToAsync(spaceFromLeft, spaceFromBottomAndUp);
+        await _context.SetStrokeStyleAsync(lineStyle);
+
+        await _context.LineToAsync(spaceFromLeft, chartHeight - spaceFromBottomAndUp);
+        await _context.LineToAsync(chartWidth - spaceFromLeft, chartHeight - spaceFromBottomAndUp);
+
+        await _context.StrokeTextAsync(minValueInKlines.ToString(), 0, chartHeight - spaceFromBottomAndUp);
+        await _context.StrokeTextAsync(maxValueInKlines.ToString(), 0, spaceFromBottomAndUp);
+        await _context.StrokeTextAsync(((maxValueInKlines + minValueInKlines)/2).ToString(), 0, chartHeight/2);
+
+        await _context.StrokeTextAsync(price, spaceFromBottomAndUp/3, spaceFromBottomAndUp/3);
+        await _context.StrokeTextAsync(time, chartWidth - spaceFromBottomAndUp/3, chartHeight - spaceFromBottomAndUp + spaceFromBottomAndUp/3);
+
+        await _context.StrokeAsync();
+
+        await _context.ClosePathAsync();
+
+    }
+
+    private async Task DrawCandleStick(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
+    {
+        var closePriceBiggerThanOpenPriceStyle = "green";
+        var openPriceBiggerThanOpenPriceStyle = "red";
+        var blackStyle = "black";
+        var slimLineWidth = 1;
+        var boldLineWidth = 3;
+
+        var candleStickStyle = candleStick.OpenPrice >= candleStick.ClosePrice ? openPriceBiggerThanOpenPriceStyle : closePriceBiggerThanOpenPriceStyle;
+
+        await _context.SetFillStyleAsync(candleStickStyle);
+        await _context.SetStrokeStyleAsync(candleStickStyle);
+
+        var higestValue = candleStick.OpenPrice <= candleStick.ClosePrice ? candleStick.ClosePrice : candleStick.OpenPrice;
+        var heightOfCandleStick = Math.Abs(candleStick.OpenPrice - candleStick.ClosePrice);
+
+        await _context.FillRectAsync(spaceFromLeft + (candleStickWidth * index), chartHeight - higestValue - spaceBottomUp, candleStickWidth, heightOfCandleStick);
+
+        await _context.SetLineWidthAsync(boldLineWidth);
+        await _context.BeginPathAsync();
+        await _context.MoveToAsync((candleStickWidth * index) + (candleStickWidth / 2) + spaceFromLeft, chartHeight - candleStick.HighestPrice - spaceBottomUp);
+        await _context.LineToAsync((candleStickWidth * index) + (candleStickWidth / 2) + spaceFromLeft, chartHeight - candleStick.LowestPrice - spaceBottomUp);
+        await _context.StrokeAsync();
+        await _context.ClosePathAsync();
+
+        await _context.SetLineWidthAsync(slimLineWidth);
+        await _context.SetStrokeStyleAsync(blackStyle);
+
+
+        await DrawCandelStickTime(candleStick, spaceBottomUp, spaceFromLeft, index, chartHeight, candleStickWidth);
+
+        await DrawHorizontalLinesIfNoChangeInCandleStick(candleStick, spaceBottomUp, spaceFromLeft, index, chartHeight, candleStickWidth);
+    }
+
+    private async Task DrawCandelStickTime(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
+    {
+        var angle = 1.5707963267949f;
+
+        await _context.SaveAsync();
+        await _context.SetTransformAsync(1, 0, 0, 1, (candleStickWidth * index) + candleStickWidth / 3 + spaceFromLeft, chartHeight - spaceBottomUp);
+        
+        await _context.RotateAsync(angle);
+
+        await _context.StrokeTextAsync(candleStick.OpenTime, 0,0);
+        await _context.RestoreAsync();
+    }
+
+    private async Task DrawHorizontalLinesIfNoChangeInCandleStick(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
+    {
+        if(candleStick.HighestPrice==candleStick.LowestPrice && candleStick.OpenPrice==candleStick.ClosePrice && candleStick.LowestPrice==candleStick.ClosePrice)
+        {
+            var blackStyle = "black";
+            var boldLineWidth = 3;
+
+            await _context.SetLineWidthAsync(boldLineWidth);
+            await _context.SetStrokeStyleAsync(blackStyle);
+            await _context.BeginPathAsync();
+            await _context.MoveToAsync((candleStickWidth * index) + spaceFromLeft, chartHeight - candleStick.HighestPrice - spaceBottomUp);
+            await _context.SetLineDashAsync(new float[] { 3,1});
+            await _context.LineToAsync((candleStickWidth * index) + spaceFromLeft + candleStickWidth, chartHeight - candleStick.HighestPrice - spaceBottomUp);
+            await _context.StrokeAsync();
+            await _context.ClosePathAsync();
+            await _context.SetLineDashAsync(new float[] { 0, 0 });
+        }
+    }
+
+    private async Task DrawCandleSticks(IEnumerable<CandleStickDto> candleSticks, int spaceBottomUp, int spaceFromLeft, int chartHeigth, int klineWidth)
+    {
+        var index = 1;
+
+        foreach (var candleStick in candleSticks)
+        {
+            await DrawCandleStick(candleStick, spaceBottomUp,spaceFromLeft, index, chartHeigth,klineWidth);
+            index++;
+        }
+    }
+
+    private decimal FindKlinesMaxValue(IEnumerable<BinanceSymbolPriceInTimeDto> klines)
+    {
+        var maxHigestPrice = klines.Max(k => k.HighestPrice);
+        var maxOpenPrice = klines.Max(k => k.OpenPrice);
+        var maxLowestPrice = klines.Max(k => k.LowestPrice);
+        var maxClosePrice = klines.Max(k => k.ClosePrice);
+
+        var max = maxHigestPrice;
+
+        if (max < maxOpenPrice)
+            max = maxOpenPrice;
+        if (max < maxLowestPrice)
+            max = maxLowestPrice;
+        if (max < maxClosePrice)
+            max = maxClosePrice;
+
+        return max;
+    }
+
+    private decimal FindKlinesMinValue(IEnumerable<BinanceSymbolPriceInTimeDto> klines)
+    {
+        var minHigestPrice = klines.Min(k => k.HighestPrice);
+        var minOpenPrice = klines.Min(k => k.OpenPrice);
+        var minLowestPrice = klines.Min(k => k.LowestPrice);
+        var minClosePrice = klines.Min(k => k.ClosePrice);
+
+        var min = minHigestPrice;
+
+        if (min > minOpenPrice)
+            min = minOpenPrice;
+        if (min > minLowestPrice)
+            min = minLowestPrice;
+        if (min > minClosePrice)
+            min = minClosePrice;
+
+        return min;
+    }
+
+}

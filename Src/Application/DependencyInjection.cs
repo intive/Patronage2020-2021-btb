@@ -43,6 +43,8 @@ namespace BTB.Application
             services.AddTransient<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
 
+            services.AddHttpContextAccessor();
+
             return services;
         }
     }

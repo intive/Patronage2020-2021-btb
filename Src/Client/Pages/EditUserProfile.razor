@@ -1,5 +1,6 @@
 ﻿@page "/editprofile"
 @using Client.Pages.Dto;
+@using Client.Models;
 @using Newtonsoft.Json;
 @using System.ComponentModel.DataAnnotations;
 @using System.Net;
@@ -8,77 +9,71 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<div class="text-center">
-    <h3>Edit Profile</h3>
-</div>
-
-@if (_processingHttpRequestFinished)
-{
-    <div class="container">
-        <EditForm Model="@_formModel" OnValidSubmit="HandleValidSubmitAsync">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="username">Username</label>
-                <div class="col-sm-9">
-                    <InputText type="text" class="form-control" id="username" placeholder="Enter username"
-                               @bind-Value="@_formModel.Username"></InputText>
-                    <small id="usernameHelp" class="form-text text-muted">A nickname visible to other users.</small>
-                </div>
+<SpinLoader IsLoading="@_processingHttpRequest">
+    <LoadingTemplate>
+        <div class="d-flex" style="height: 75vh">
+            <TimedLoader ShowDelay="500" />
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container">
+            <div class="text-center">
+                <h3>Edit Profile</h3>
             </div>
 
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="profileBio">Profile Bio</label>
-                <div class="col-sm-9">
-                    <textarea class="form-control" id="profileBio" rows="3" maxlength="255" placeholder="Type here..."
-                              @bind="_formModel.ProfileBio" @bind:event="oninput"></textarea>
-                    <small id="profileBioHelp" class="form-text text-muted">Characters left: @(255 - _formModel.ProfileBio.Length)</small>
-                </div>
-            </div>
+            <EditForm Model="@_formModel" OnValidSubmit="HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="favouritePair">Your favourite trading pair</label>
-                <div class="col-sm-9">
-                    <InputText type="text" class="form-control" id="favouritePair" placeholer="Enter your favourite trading pair."
-                               @bind-Value="@_formModel.FavouriteTradingPair" @oninput="@(() => _tradingPairDoesNotExist = false)"></InputText>
-                    @if (_tradingPairDoesNotExist)
-                    {
-                        <small id="profileBioHelp" class="form-text text-danger">Sorry, this trading pair does not exist.</small>
-                    }
-                </div>
-            </div>
-
-            <div class="justify-content-around row">
-                <div class="text-center">
-                    <a class="btn btn-danger" href="/userprofile">Discard changes</a>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="username">Username</label>
+                    <div class="col-sm-9">
+                        <InputText type="text" class="form-control" id="username" placeholder="Enter username"
+                                   @bind-Value="@_formModel.Username"></InputText>
+                        <small id="usernameHelp" class="form-text text-muted">A nickname visible to other users.</small>
+                    </div>
                 </div>
 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Submit changes</button>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="profileBio">Profile Bio</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" id="profileBio" rows="3" maxlength="255" placeholder="Type here..."
+                                  @bind="_formModel.ProfileBio" @bind:event="oninput"></textarea>
+                        <small id="profileBioHelp" class="form-text text-muted">Characters left: @(255 - _formModel.ProfileBio.Length)</small>
+                    </div>
                 </div>
-            </div>
-        </EditForm>
-    </div>
-}
+
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="favouritePair">Your favourite trading pair</label>
+                    <div class="col-sm-9">
+                        <InputText type="text" class="form-control" id="favouritePair" placeholer="Enter your favourite trading pair."
+                                   @bind-Value="@_formModel.FavouriteTradingPair" @oninput="@(() => _tradingPairDoesNotExist = false)"></InputText>
+                        @if (_tradingPairDoesNotExist)
+                        {
+                            <small id="profileBioHelp" class="form-text text-danger">Sorry, this trading pair does not exist.</small>
+                        }
+                    </div>
+                </div>
+
+                <div class="justify-content-around row">
+                    <div class="text-center">
+                        <a class="btn btn-danger" href="/userprofile">Discard changes</a>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Submit changes</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
 
 @code {
     private UserProfileInfoDto _existingUserProfileInfo = null;
-    private bool _processingHttpRequestFinished = false;
+    private bool _processingHttpRequest = true;
     private bool _tradingPairDoesNotExist = false;
     private UserProfileFormModel _formModel = null;
-
-    private class UserProfileFormModel
-    {
-        [Required(ErrorMessage = "Username is required.")]
-        [StringLength(16, MinimumLength = 5, ErrorMessage = "Username must be between 5 and 16 characters long.")]
-        public string Username { get; set; }
-        [StringLength(256, ErrorMessage = "Profile bio cannot be longer than 256 characters.")]
-        public string ProfileBio { get; set; }
-        [StringLength(10, ErrorMessage = "Trading pair symbol cannot be longer than 10 characters.")]
-        [RegularExpression("^$|^([A-Z]{5,10})$", ErrorMessage = "Trading pair format is incorrect.")]
-        public string FavouriteTradingPair { get; set; }
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,7 +94,7 @@
             _formModel.FavouriteTradingPair = _existingUserProfileInfo.FavouriteTradingPair ?? "";
         }
 
-        _processingHttpRequestFinished = true;
+        _processingHttpRequest = false;
     }
 
     private async Task HandleValidSubmitAsync()
@@ -120,7 +115,7 @@
             _tradingPairDoesNotExist = true;
         }
         else
-        { 
+        {
             NavigationManager.NavigateTo("/userprofile");
         }
     }

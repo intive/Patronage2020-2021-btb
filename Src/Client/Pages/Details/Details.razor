@@ -34,42 +34,37 @@ else
             <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.FourHour)) type="button" class="btn btn-primary">4h</button>
             <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.TwelveHour)) type="button" class="btn btn-primary">12h</button>
         </div>
-        <div class="btn-group" role="group" aria-label="Days group">
+        <div class="btn-group mr-2" role="group" aria-label="Days group">
             <button @onclick=@(async () => await RefreshDetailsList(KlineInterval.OneDay)) type="button" class="btn btn-primary">1d</button>
         </div>
+        <div class="btn-group" role="group" aria-label="Table Charts">
+            <button type="button" class="btn btn-primary" @onclick="TurnOffChart">Table</button>
+            <button type="button" class="btn btn-primary" @onclick="TurnOnChart">Chart</button>
+        </div>
+        
     </div>
 
     <br />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Open Time</th>
-                <th>Close Time</th>
-                <th>Open Price</th>
-                <th>Close Price</th>
-                <th>Lowest Price</th>
-                <th>Highest Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in _priceHistory)
-            {
-                <tr>
-                    <td>@item.OpenTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
-                    <td>@item.CloseTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
-                    <td>@Math.Round(item.OpenPrice, 5)</td>
-                    <td>@Math.Round(item.ClosePrice, 5)</td>
-                    <td>@Math.Round(item.LowestPrice, 5)</td>
-                    <td>@Math.Round(item.HighestPrice, 5)</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <CascadingValue Value="_priceHistory">
+        @if (!_chartsOn)
+        {
+            <DetailsTable></DetailsTable>
+        }
+        else
+        {
+            <DetailsChart></DetailsChart>
+        }
+    </CascadingValue>
+
+    
 }
 
 @code {
+
     private IEnumerable<BinanceSymbolPriceInTimeDto> _priceHistory { get; set; }
+
+    private bool _chartsOn = false;
 
     private bool _requestFailed = false;
 
@@ -96,7 +91,18 @@ else
         else
         {
             _priceHistory = JsonConvert.DeserializeObject<IEnumerable<BinanceSymbolPriceInTimeDto>>(jsonString);
+
         }
+    }
+
+    private void TurnOnChart()
+    {
+        _chartsOn = true;
+    }
+
+    private void TurnOffChart()
+    {
+        _chartsOn = false;
     }
 
 }

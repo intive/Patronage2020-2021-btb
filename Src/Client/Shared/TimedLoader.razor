@@ -1,0 +1,29 @@
+﻿@using System.Timers;
+
+@if (timeHasPassed)
+{
+    <Flow Color="#428bca" Size="60px" Center="true" />
+}
+
+@code {
+    [Parameter]
+    public int ShowDelay { get; set; } = 1000;
+
+    private Timer timer;
+    private bool timeHasPassed = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new Timer(ShowDelay);
+        timer.Elapsed += OnTick;
+        timer.Start();
+    }
+
+    private void OnTick(object source, ElapsedEventArgs e)
+    {
+        timeHasPassed = true;
+        timer.Stop();
+        timer.Dispose();
+        this.StateHasChanged();
+    }
+}
