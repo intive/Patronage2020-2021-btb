@@ -14,86 +14,122 @@
     private Canvas2DContext _context;
     protected BECanvasComponent _canvasReference;
 
+    private int _chartHeight;
+    private int _chartWidth;
+
+    private const int XAxisOffset = 10;
+    private const int SpaceFromBottom = 100 + XAxisOffset;
+    private const int SpaceFromUp = 40;
+    private const int SpaceFromLeft = 55;
+    private const int SpaceFromRight = 55;
+    private const int SandlesticWidthDivideOffset = 10;
+
+    private const string YAxisLabel = "Price";
+    private const string XAxisLabel = "Time";
+    private const string SmallFontStyle = "12pt Calibri";
+    private const string BigFontStyle = "20pt Calibri";
+    private const int BigFontHight = 20;
+    private const string BlackStyle = "black";
+    private const string GreenStyle = "green";
+    private const string RedStyle = "red";
+    private const int SlimLine = 1;
+    private const int NormalLine = 2;
+    private const int BoldLine = 3;
+    private const float Angle90 = (float) Math.PI/2;
+    private const int DotHeight = 1;
+    private const int DotWidth = 3;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var spaceFromBottomAndUp = 100;
-        var spaceFromLeft = 55;
-        var candleStickWidth = 20;
-
-        var maxValueInKlines = FindKlinesMaxValue(_priceHistory);
-        var minValueInKlines = FindKlinesMinValue(_priceHistory);
-
-        await DisplayChart(spaceFromBottomAndUp, spaceFromLeft, candleStickWidth, maxValueInKlines, minValueInKlines);
-    }
-
-    private async Task DisplayChart(int spaceFromBottomAndUp, int spaceFromLeft, int candleStickWidth, decimal maxValueInKlines, decimal minValueInKlines)
-    {
-        var chartHeight = Convert.ToInt32(_canvasReference.Height);
-        var chartWidth = Convert.ToInt32(_canvasReference.Width);
-
-        var maxValueInChart = chartHeight - spaceFromBottomAndUp * 2;
-
         _context = await this._canvasReference.CreateCanvas2DAsync();
 
-        var converter = new BinanceSymbolPriceInTimeDtoToCandleStickDtoConverter(_priceHistory,maxValueInKlines,minValueInKlines,maxValueInChart);
+        _chartHeight = Convert.ToInt32(_canvasReference.Height);
+        _chartWidth = Convert.ToInt32(_canvasReference.Width);
 
+        await DisplayChart();
+    }
+
+    private async Task DisplayChart()
+    {
+        var maxValueInChart = _chartHeight - SpaceFromBottom - SpaceFromUp;
+        var maxValueInKlines = FindKlinesMaxValue(_priceHistory);
+        var minValueInKlines = FindKlinesMinValue(_priceHistory);
+        var converter = new BinanceSymbolPriceInTimeDtoToCandleStickDtoConverter(_priceHistory,maxValueInKlines,minValueInKlines,maxValueInChart);
         var klines = converter.ConvertList();
 
-        await WipeOffCanvas(chartWidth, chartHeight);
+        await WipeOffCanvas();
 
-        await DrawAxies(klines, spaceFromBottomAndUp, spaceFromLeft, chartWidth, chartHeight, minValueInKlines, maxValueInKlines,candleStickWidth);
+        var candleStickWidth = (_chartWidth - SpaceFromLeft - SpaceFromRight) / _priceHistory.Count();
+        await DrawAxies(klines, minValueInKlines, maxValueInKlines, candleStickWidth, maxValueInChart);
 
-        await DrawCandleSticks(klines, spaceFromBottomAndUp, spaceFromLeft, chartHeight, candleStickWidth);
+        await DrawCandleSticks(klines, candleStickWidth);
     }
 
-    private async Task WipeOffCanvas(int chartWidth, int chartHeight)
+    private async Task WipeOffCanvas()
     {
-        var bgColor = "white";
-
-        await _context.SetFillStyleAsync(bgColor);
-
-        await _context.FillRectAsync(0, 0, chartWidth, chartHeight);
+        await _context.ClearRectAsync(0, 0, _chartWidth, _chartHeight);
     }
 
-    private async Task DrawAxies(IEnumerable<CandleStickDto> candleSticks, int spaceFromBottomAndUp, int spaceFromLeft, int chartWidth, int chartHeight, decimal minValueInKlines, decimal maxValueInKlines, int candleStickWidth)
+    private async Task DrawAxies(IEnumerable<CandleStickDto> candleSticks, decimal minValueInKlines, decimal maxValueInKlines, int candleStickWidth, int maxValueInChart)
     {
-        var price = "Price";
-        var time = "Time";
-        var lineStyle = "black";
-        var slimLine = 1;
+        await _context.SaveAsync();
 
-        await _context.SetLineWidthAsync(slimLine);
-
+        await _context.SetLineWidthAsync(SlimLine);
+        await _context.SetFillStyleAsync(BlackStyle);
         await _context.BeginPathAsync();
-
-        await _context.MoveToAsync(spaceFromLeft, spaceFromBottomAndUp);
-        await _context.SetStrokeStyleAsync(lineStyle);
-
-        await _context.LineToAsync(spaceFromLeft, chartHeight - spaceFromBottomAndUp);
-        await _context.LineToAsync(chartWidth - spaceFromLeft, chartHeight - spaceFromBottomAndUp);
-
-        await _context.StrokeTextAsync(minValueInKlines.ToString(), 0, chartHeight - spaceFromBottomAndUp);
-        await _context.StrokeTextAsync(maxValueInKlines.ToString(), 0, spaceFromBottomAndUp);
-        await _context.StrokeTextAsync(((maxValueInKlines + minValueInKlines)/2).ToString(), 0, chartHeight/2);
-
-        await _context.StrokeTextAsync(price, spaceFromBottomAndUp/3, spaceFromBottomAndUp/3);
-        await _context.StrokeTextAsync(time, chartWidth - spaceFromBottomAndUp/3, chartHeight - spaceFromBottomAndUp + spaceFromBottomAndUp/3);
-
+        await _context.MoveToAsync(SpaceFromLeft, 0);
+        await _context.LineToAsync(SpaceFromLeft, _chartHeight - SpaceFromBottom + XAxisOffset);
+        await _context.LineToAsync(_chartWidth, _chartHeight - SpaceFromBottom + XAxisOffset);
         await _context.StrokeAsync();
-
         await _context.ClosePathAsync();
 
+        await _context.FillTextAsync(minValueInKlines.ToString(), 0, _chartHeight - SpaceFromBottom);
+        await _context.FillTextAsync(maxValueInKlines.ToString(), 0, SpaceFromUp);
+        await _context.FillTextAsync(((maxValueInKlines + minValueInKlines)/2).ToString(), 0, (_chartHeight - SpaceFromBottom)-(maxValueInChart / 2));
+
+        await _context.SetFontAsync(BigFontStyle);
+        await _context.FillTextAsync(YAxisLabel, 0, BigFontHight);
+        var metrics = await _context.MeasureTextAsync(XAxisLabel);
+        var timeTextWidth = metrics.Width;
+        await _context.FillTextAsync(XAxisLabel, _chartWidth - timeTextWidth, _chartHeight - SpaceFromBottom + BigFontHight + XAxisOffset);
+
+        await _context.RestoreAsync();
     }
 
-    private async Task DrawCandleStick(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
+    private async Task DrawCandleStick(CandleStickDto candleStick, int index, int candleStickWidth)
     {
-        var closePriceBiggerThanOpenPriceStyle = "green";
-        var openPriceBiggerThanOpenPriceStyle = "red";
-        var blackStyle = "black";
-        var slimLineWidth = 1;
-        var boldLineWidth = 3;
 
-        var candleStickStyle = candleStick.OpenPrice >= candleStick.ClosePrice ? openPriceBiggerThanOpenPriceStyle : closePriceBiggerThanOpenPriceStyle;
+        await DrawCandelStickTime(candleStick, index, candleStickWidth);
+
+        if (candleStick.HighestPrice == candleStick.LowestPrice && candleStick.OpenPrice == candleStick.ClosePrice && candleStick.LowestPrice == candleStick.ClosePrice)
+        {
+            await DrawHorizontalDotLines(candleStick, index, candleStickWidth);
+        }
+        else
+        {
+            await DrawVerticalLine(candleStick, index, candleStickWidth);
+
+            await FillRectangle(candleStick, index, candleStickWidth);
+
+            await OutlineRectangle(candleStick, index, candleStickWidth);
+        }
+    }
+
+    private async Task DrawVerticalLine(CandleStickDto candleStick, int index, int candleStickWidth)
+    {
+        await _context.SetLineWidthAsync(BoldLine);
+        await _context.SetStrokeStyleAsync(BlackStyle);
+
+        await _context.BeginPathAsync();
+        await _context.MoveToAsync((candleStickWidth * index) + (candleStickWidth / 2) + SpaceFromLeft + (candleStickWidth / SandlesticWidthDivideOffset) / 2, _chartHeight - candleStick.HighestPrice - SpaceFromBottom);
+        await _context.LineToAsync((candleStickWidth * index) + (candleStickWidth / 2) + SpaceFromLeft + (candleStickWidth / SandlesticWidthDivideOffset) / 2, _chartHeight - candleStick.LowestPrice - SpaceFromBottom);
+        await _context.StrokeAsync();
+        await _context.ClosePathAsync();
+    }
+
+    private async Task FillRectangle(CandleStickDto candleStick, int index, int candleStickWidth)
+    {
+        var candleStickStyle = candleStick.OpenPrice >= candleStick.ClosePrice ? RedStyle : GreenStyle;
 
         await _context.SetFillStyleAsync(candleStickStyle);
         await _context.SetStrokeStyleAsync(candleStickStyle);
@@ -101,63 +137,65 @@
         var higestValue = candleStick.OpenPrice <= candleStick.ClosePrice ? candleStick.ClosePrice : candleStick.OpenPrice;
         var heightOfCandleStick = Math.Abs(candleStick.OpenPrice - candleStick.ClosePrice);
 
-        await _context.FillRectAsync(spaceFromLeft + (candleStickWidth * index), chartHeight - higestValue - spaceBottomUp, candleStickWidth, heightOfCandleStick);
+        await _context.FillRectAsync(SpaceFromLeft + candleStickWidth * index + candleStickWidth/SandlesticWidthDivideOffset, _chartHeight - higestValue - SpaceFromBottom, candleStickWidth - candleStickWidth/10, heightOfCandleStick);
+    }
 
-        await _context.SetLineWidthAsync(boldLineWidth);
+    private async Task OutlineRectangle(CandleStickDto candleStick, int index, int candleStickWidth)
+    {
+        await _context.SetLineWidthAsync(NormalLine);
+        await _context.SetStrokeStyleAsync(BlackStyle);
+
         await _context.BeginPathAsync();
-        await _context.MoveToAsync((candleStickWidth * index) + (candleStickWidth / 2) + spaceFromLeft, chartHeight - candleStick.HighestPrice - spaceBottomUp);
-        await _context.LineToAsync((candleStickWidth * index) + (candleStickWidth / 2) + spaceFromLeft, chartHeight - candleStick.LowestPrice - spaceBottomUp);
+        await _context.MoveToAsync(candleStickWidth * index + SpaceFromLeft + candleStickWidth / SandlesticWidthDivideOffset, _chartHeight - candleStick.OpenPrice - SpaceFromBottom);
+        await _context.LineToAsync(candleStickWidth * index + SpaceFromLeft + candleStickWidth / SandlesticWidthDivideOffset, _chartHeight - candleStick.ClosePrice - SpaceFromBottom);
+        await _context.LineToAsync(candleStickWidth * index + SpaceFromLeft + candleStickWidth, _chartHeight - candleStick.ClosePrice - SpaceFromBottom);
+        await _context.LineToAsync(candleStickWidth * index + SpaceFromLeft + candleStickWidth, _chartHeight - candleStick.OpenPrice - SpaceFromBottom);
+        await _context.LineToAsync(candleStickWidth * index + SpaceFromLeft + candleStickWidth / SandlesticWidthDivideOffset, _chartHeight - candleStick.OpenPrice - SpaceFromBottom);
         await _context.StrokeAsync();
         await _context.ClosePathAsync();
-
-        await _context.SetLineWidthAsync(slimLineWidth);
-        await _context.SetStrokeStyleAsync(blackStyle);
-
-
-        await DrawCandelStickTime(candleStick, spaceBottomUp, spaceFromLeft, index, chartHeight, candleStickWidth);
-
-        await DrawHorizontalLinesIfNoChangeInCandleStick(candleStick, spaceBottomUp, spaceFromLeft, index, chartHeight, candleStickWidth);
     }
 
-    private async Task DrawCandelStickTime(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
+    private async Task DrawCandelStickTime(CandleStickDto candleStick, int index, int candleStickWidth)
     {
-        var angle = 1.5707963267949f;
-
-        await _context.SaveAsync();
-        await _context.SetTransformAsync(1, 0, 0, 1, (candleStickWidth * index) + candleStickWidth / 3 + spaceFromLeft, chartHeight - spaceBottomUp);
-        
-        await _context.RotateAsync(angle);
-
-        await _context.StrokeTextAsync(candleStick.OpenTime, 0,0);
-        await _context.RestoreAsync();
-    }
-
-    private async Task DrawHorizontalLinesIfNoChangeInCandleStick(CandleStickDto candleStick, int spaceBottomUp, int spaceFromLeft, int index, int chartHeight, int candleStickWidth)
-    {
-        if(candleStick.HighestPrice==candleStick.LowestPrice && candleStick.OpenPrice==candleStick.ClosePrice && candleStick.LowestPrice==candleStick.ClosePrice)
+        if (index == 0 || index % 3 == 0 || index == _priceHistory.Count()-1)
         {
-            var blackStyle = "black";
-            var boldLineWidth = 3;
+            await _context.SaveAsync();
 
-            await _context.SetLineWidthAsync(boldLineWidth);
-            await _context.SetStrokeStyleAsync(blackStyle);
-            await _context.BeginPathAsync();
-            await _context.MoveToAsync((candleStickWidth * index) + spaceFromLeft, chartHeight - candleStick.HighestPrice - spaceBottomUp);
-            await _context.SetLineDashAsync(new float[] { 3,1});
-            await _context.LineToAsync((candleStickWidth * index) + spaceFromLeft + candleStickWidth, chartHeight - candleStick.HighestPrice - spaceBottomUp);
-            await _context.StrokeAsync();
-            await _context.ClosePathAsync();
-            await _context.SetLineDashAsync(new float[] { 0, 0 });
+            await _context.SetLineWidthAsync(SlimLine);
+            await _context.SetStrokeStyleAsync(BlackStyle);
+
+            await _context.SetFillStyleAsync(BlackStyle);
+            await _context.SetTransformAsync(1, 0, 0, 1, (candleStickWidth * index) + SpaceFromLeft + candleStickWidth / 2, _chartHeight - SpaceFromBottom + XAxisOffset);
+            await _context.RotateAsync(Angle90);
+            await _context.FillTextAsync(candleStick.OpenTime, 0, 0);
+
+            await _context.RestoreAsync();
         }
     }
 
-    private async Task DrawCandleSticks(IEnumerable<CandleStickDto> candleSticks, int spaceBottomUp, int spaceFromLeft, int chartHeigth, int klineWidth)
+    private async Task DrawHorizontalDotLines(CandleStickDto candleStick, int index, int candleStickWidth)
     {
-        var index = 1;
+        await _context.SaveAsync();
+
+        await _context.SetLineWidthAsync(BoldLine);
+        await _context.SetStrokeStyleAsync(BlackStyle);
+        await _context.BeginPathAsync();
+        await _context.MoveToAsync((candleStickWidth * index) + SpaceFromLeft + candleStickWidth / SandlesticWidthDivideOffset, _chartHeight - candleStick.HighestPrice - SpaceFromBottom);
+        await _context.SetLineDashAsync(new float[] { DotWidth, DotHeight});
+        await _context.LineToAsync((candleStickWidth * index) + SpaceFromLeft + candleStickWidth - candleStickWidth / SandlesticWidthDivideOffset, _chartHeight - candleStick.HighestPrice - SpaceFromBottom);
+        await _context.StrokeAsync();
+        await _context.ClosePathAsync();
+
+        await _context.RestoreAsync();
+    }
+
+    private async Task DrawCandleSticks(IEnumerable<CandleStickDto> candleSticks, int klineWidth)
+    {
+        var index = 0;
 
         foreach (var candleStick in candleSticks)
         {
-            await DrawCandleStick(candleStick, spaceBottomUp,spaceFromLeft, index, chartHeigth,klineWidth);
+            await DrawCandleStick(candleStick, index, klineWidth);
             index++;
         }
     }
