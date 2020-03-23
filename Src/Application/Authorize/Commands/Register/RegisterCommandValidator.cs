@@ -13,7 +13,8 @@ namespace BTB.Application.Authorize.Commands.Register
                 .MinimumLength(4);
 
             RuleFor(command => command.PasswordConfirm)
-                .Matches(command => command.Password);
+                .Equal(command => command.Password)
+                .WithMessage("Passwords should match.");
         }
     }
 }
