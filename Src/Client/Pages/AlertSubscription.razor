@@ -1,105 +1,148 @@
-﻿@inject HttpClient Http
+﻿@using BTB.Client.Models;
+@using BTB.Client.Pages.Dto;
+@using FluentValidation;
+@using BTB.Client.Models.Validation;
+@inject HttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
-@using Dto
-    <EditForm Model="@_alertDto" OnValidSubmit="CreateAlert">
 
-        <h4>Create Alert on @_symbol</h4>
+<EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
+    <FluentValidator Validator="_validator"/>
 
-        <div class="form-group row mb-0">
-            <label for="condition" class="col col-form-label">Select condition:</label>
-            <div class="col">
-                <InputSelect @bind-Value="_alertDto.Condition" class="form-control form-control-sm" id="condition">
-                    <option disabled selected> -- select -- </option>
-                    <option value="crossing">Crossing</option>
-                </InputSelect>
-            </div>
+    <h4>Create Alert on @_alertDto.Symbol</h4>
+
+    <div class="form-group row mb-0">
+        <label for="condition" class="col col-form-label">Select condition:</label>
+        <div class="col">
+            <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
+                <option disabled selected> -- select -- </option>
+                <option value="crossing">Crossing</option>
+            </InputSelect>
         </div>
-        <ValidationMessage For="@(()=>_alertDto.Condition)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+    </div>
+    <ValidationMessage For="@(()=>_formModel.Condition)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-        <div class="form-group row mb-0">
-            <label for="valueType" class="col col-form-label">Select value type:</label>
-            <div class="col">
-                <InputSelect @bind-Value="_alertDto.ValueType" class="form-control form-control-sm" id="valueType">
-                    <option disabled selected> -- select-- </option>
-                    <option value="volume">Volume</option>
-                    <option value="price">Price</option>
-                    <option value="tradeCount">Trade Count</option>
-                </InputSelect>
-            </div>
+    <div class="form-group row mb-0">
+        <label for="valueType" class="col col-form-label">Select value type:</label>
+        <div class="col">
+            <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm" id="valueType">
+                <option disabled selected> -- select-- </option>
+                <option value="volume">Volume</option>
+                <option value="price">Price</option>
+                <option value="tradeCount">Trade Count</option>
+            </InputSelect>
         </div>
-        <ValidationMessage For="@(()=>_alertDto.ValueType)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+    </div>
+    <ValidationMessage For="@(()=>_formModel.ValueType)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-        <div class="form-group row mb-0">
-            <label for="value" class="col-4 col-form-label">Value:</label>
-            <div class="col-8">
-                <InputNumber @bind-Value="_alertDto.Value" class="form-control form-control-sm" id="value" />
-            </div>
+    <div class="form-group row mb-0">
+        <label for="value" class="col-4 col-form-label">Value:</label>
+        <div class="col-8">
+            <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
         </div>
-        <ValidationMessage For="@(()=>_alertDto.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+    </div>
+    <ValidationMessage For="@(()=>_formModel.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
 
-        <div class="form-group row mb-0">
-            <div class="col">
-                <span>Alert Actions:</span>
-                <div class="col offset-sm-2 float-right">
-                    <InputCheckbox @bind-Value="_alertDto.SendEmail" id="sendEmail" />
-                    <span>Send Email</span>
-                </div>
-            </div>
+    <h4>Alert Actions:</h4>
+
+    <div class="form-group row mb-0">
+        <label for="sendEmail" class="col-7">Send Email:</label>
+        <div class="col-5">
+            <InputCheckbox @bind-Value="_formModel.SendEmail" id="sendEmail" />
         </div>
+    </div>
 
-        <div class="form-group row mb-0">
-            <label for="email" class="col-4 col-form-label">Email:</label>
-            <div class="col-8">
-                <InputText @bind-Value="_alertDto.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_alertDto.SendEmail)" />
-            </div>
+    <div class="form-group row mb-0">
+        <label for="email" class="col-4 col-form-label">Email:</label>
+        <div class="col-8">
+            <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
         </div>
-        <ValidationMessage For="@(()=>_alertDto.Email)" style="font-size:14px; margin-bottom:10px" />
+    </div>
+    <ValidationMessage For="@(()=>_formModel.Email)" style="font-size:14px; margin-bottom:10px" />
 
-        <div class="form-group row mb-1">
-            <label for="message" class="col-4 col-form-label">Message:</label>
-            <div class="col-8">
-                <InputTextArea @bind-Value="_alertDto.Message" class="form-control form-control-sm" id="message" disabled="@(!_alertDto.SendEmail)" />
-            </div>
+    <div class="form-group row mb-1">
+        <label for="message" class="col-4 col-form-label">Message:</label>
+        <div class="col-8">
+            <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm" id="message" disabled="@(!_formModel.SendEmail)" />
         </div>
-        <ValidationMessage For="@(()=>_alertDto.Message)" style="font-size:14px; margin-bottom:10px" />
+    </div>
+    <ValidationMessage For="@(()=>_formModel.Message)" style="font-size:14px; margin-bottom:10px" />
 
-        <DataAnnotationsValidator />
+    <DataAnnotationsValidator />
 
-        <div class="text-right">
-            <button class="btn btn-danger btn-sm" type="reset" @onclick="Close">Cancel</button>
-            <button class="btn btn-success btn-sm" type="submit">Create</button>
-        </div>
+    <div class="text-right">
+        <button class="btn btn-danger btn-sm" type="reset" @onclick="CancelModal">Cancel</button>
+        <button class="btn btn-success btn-sm" type="submit">Confirm</button>
+    </div>
 
-    </EditForm>
+</EditForm>
 
 @code {
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
-    private string _symbol;
-
-    private AlertDto _alertDto = new AlertDto();
+    private bool _shouldUpdateAlert = false;
+    private AlertDto _alertDto = null;
+    private AlertFormModel _formModel = null;
+    private Func<Task> _onModalClosedAsync = null;
+    private AlertFormModelValidator _validator = new AlertFormModelValidator();
 
     protected override void OnInitialized()
     {
-        _symbol = Parameters.Get<string>("Symbol");
+        _shouldUpdateAlert = Parameters.Get<bool>("ShouldUpdateAlert");
+        _alertDto = Parameters.Get<AlertDto>("Alert");
+        _onModalClosedAsync = Parameters.Get<Func<Task>>("OnModalClosedAsync");
+
+        _formModel = new AlertFormModel()
+        {
+            Symbol = _alertDto.Symbol,
+            Condition = _alertDto.Condition,
+            ValueType = _alertDto.ValueType,
+            Value = _alertDto.Value,
+            SendEmail = _alertDto.SendEmail,
+            Email = _alertDto.Email,
+            Message = _alertDto.Message
+        };
     }
 
-    protected async void CreateAlert()
+    private async Task HandleSubmitAsync(EditContext editContext)
     {
-        _alertDto.Symbol = _symbol;
-
-        if (!_alertDto.SendEmail)
+        if (!_formModel.SendEmail)
         {
-            _alertDto.Email = null;
-            _alertDto.Message = null;
+            _formModel.Email = null;
+            _formModel.Message = null;
         }
 
-        await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts", _alertDto);
-        Modal.Close();
+        if (editContext.Validate())
+        {
+            if (_shouldUpdateAlert)
+            {
+                await SendUpdateAlertRequestAsync(_alertDto.Id);
+            }
+            else
+            {
+                await SendCreateAlertRequestAsync();
+            }
+
+            if (_onModalClosedAsync != null)
+            { 
+                await _onModalClosedAsync();
+            }
+
+            Modal.Close();
+        }
     }
 
-    private void Close()
+    private async Task SendCreateAlertRequestAsync()
     {
-        Modal.Close();
+        await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts", _formModel);
+    }
+
+    private async Task SendUpdateAlertRequestAsync(int alertId)
+    {
+        await Http.SendJsonAsync(HttpMethod.Put, $"/api/alerts/{alertId}", _formModel);
+    }
+
+    private void CancelModal()
+    {
+        Modal.Cancel();
     }
 }

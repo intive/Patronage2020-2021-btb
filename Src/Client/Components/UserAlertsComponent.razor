@@ -1,9 +1,12 @@
-﻿@using BTB.Client.Pages.Dto
-@using BTB.Domain.Common.Pagination;
-@using BTB.Domain.Extensions;
+﻿@using BTB.Client.Pages
+@using BTB.Client.Pages.Dto
+@using BTB.Domain.Common.Pagination
+@using BTB.Domain.Extensions
 @using Newtonsoft.Json
 @using System.Threading
 @inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
+@inject IJSRuntime jsRuntime
 @implements IDisposable
 
 <SpinLoader IsLoading="@_processingHttpRequest">
@@ -18,29 +21,29 @@
                 <h1>My Alerts</h1>
             </div>
 
-            <div class="mb-2 d-flex flex-row justify-content-between">
-                <div class="d-inline-block">
-                    <div class="btn-group" role="group">
-                        @foreach (var value in Enum<PaginationQuantity>.GetValues())
-                        {
-                            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
-                                    @onclick="@(async () => await SelectedQuantityAsync(value))">
-                                @((int)value)
-                            </button>
-                        }
-                    </div>
-                </div>
-
-                <Pagination TotalPagesQuantity="@_totalPageQuantity"
-                            CurrentPage="@_currentPage"
-                            Radius="2"
-                            SelectedPage="SelectedPageAsync"
-                            PointerEventsStyle="@PointerEventsStyle()">
-                </Pagination>
-            </div>
-
             @if (_alertCount > 0)
             {
+                <div class="mb-2 d-flex flex-row justify-content-between">
+                    <div class="d-inline-block">
+                        <div class="btn-group" role="group">
+                            @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                            {
+                                <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
+                                        @onclick="@(async () => await SelectedQuantityAsync(value))">
+                                    @((int)value)
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <Pagination TotalPagesQuantity="@_totalPageQuantity"
+                                CurrentPage="@_currentPage"
+                                Radius="2"
+                                SelectedPage="SelectedPageAsync"
+                                PointerEventsStyle="@PointerEventsStyle()">
+                    </Pagination>
+                </div>
+
                 @for (int i = 0; i < _alertCount; i++)
                 {
                     int alertIndex = i;
@@ -55,11 +58,11 @@
                             </div>
 
                             <div>
-                                <button class="btn btn-link" @onclick:stopPropagation="true">
+                                <button class="btn btn-link" @onclick="() => ShowUpdateAlertModal(alert)" @onclick:stopPropagation="true">
                                     <span class="oi oi-pencil" aria-hidden="true" />
                                 </button>
 
-                                <button class="btn btn-link" @onclick:stopPropagation="true">
+                                <button class="btn btn-link" @onclick="async () => await DeleteAlertAsync(alert.Id)" @onclick:stopPropagation="true">
                                     <span class="oi oi-x" aria-hidden="true" />
                                 </button>
                             </div>
@@ -99,6 +102,12 @@
                     </div>
                 }
             }
+            else
+            {
+                <div class="text-center">
+                    <h4>You have no alerts. Go to the <a href="/">dashboard</a> and create some!</h4>
+                </div>
+            }
         </div>
     </ContentTemplate>
 </SpinLoader>
@@ -110,7 +119,7 @@
     private bool _processingHttpRequest = false;
     private int _alertCount = 0;
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-    private IList<bool> _collapse = new List<bool>();
+    private IList<bool> _collapse = null;
     private IList<AlertDto> _alerts = new List<AlertDto>();
 
     protected override async Task OnInitializedAsync()
@@ -143,6 +152,7 @@
                 _alerts = JsonConvert.DeserializeObject<IList<AlertDto>>(jsonString);
             }
 
+            _collapse = new List<bool>();
             _alertCount = _alerts.Count;
             for (int i = 0; i < _alertCount; i++)
             {
@@ -169,6 +179,31 @@
     private string PointerEventsStyle()
     {
         return _processingHttpRequest ? "pointer-events: none;" : null;
+    }
+
+    private void ShowUpdateAlertModal(AlertDto alert)
+    {
+        var parameters = new ModalParameters();
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+        };
+
+        parameters.Add("ShouldUpdateAlert", true);
+        parameters.Add("Alert", alert);
+        parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); this.StateHasChanged(); }));
+        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+    }
+
+    private async Task DeleteAlertAsync(int alertId)
+    {
+        var confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "Are you sure want to delete this alert?");
+        if (confirmed)
+        {
+            await Http.DeleteAsync($"api/alerts/{alertId}");
+            await LoadDataAsync();
+        }
     }
 
     public void Dispose()

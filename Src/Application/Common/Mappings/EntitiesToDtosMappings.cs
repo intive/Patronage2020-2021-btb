@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
-using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
-using BTB.Application.Authorize.Queries.GetUserInfo;
-using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
+using BTB.Application.Alerts.Common;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
 using BTB.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.Common.Mappings
 {

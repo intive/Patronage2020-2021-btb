@@ -4,6 +4,7 @@
 @using System.Text.RegularExpressions
 @using System.Threading
 @using BTB.Client.Models
+@using BTB.Client.Pages.Dto
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
 @inject HttpClient Http
@@ -95,12 +96,12 @@
         {
             HideCloseButton = true,
             HideHeader = true
-
         };
 
-        parameters.Add("Symbol", symbol);
+        parameters.Add("ShouldUpdateAlert", false);
+        parameters.Add("Alert", new AlertDto() { Symbol = symbol });
+        parameters.Add("OnModalClosedAsync", null);
         Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
-
     }
 
     private async Task Filter()

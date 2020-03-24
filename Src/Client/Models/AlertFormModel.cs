@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
+namespace BTB.Client.Models
 {
-    public class AlertVm
+    public class AlertFormModel
     {
         public string Symbol { get; set; }
         public string Condition { get; set; }

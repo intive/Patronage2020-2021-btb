@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace BTB.Client.Pages.Dto
+namespace BTB.Application.Alerts.Common
 {
-    public class AlertDto
+    public class AlertVm
     {
         public int Id { get; set; }
         public string Symbol { get; set; }

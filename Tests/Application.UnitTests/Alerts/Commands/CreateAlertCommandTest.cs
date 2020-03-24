@@ -24,7 +24,7 @@ namespace Application.UnitTests.Alerts.Commands
 
             var userIdentityMock = GetUserIdentityMock(expectedUserId);
 
-            var sut = new CreateAlertCommandHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new CreateAlertCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
             await sut.Handle(new CreateAlertCommand()
             {
                 Symbol = expectedSymbol,
