@@ -5,6 +5,7 @@
 @using System.Net.Http;
 @using System.Net;
 @using Newtonsoft.Json;
+@using BTB.Domain.ValueObjects
 @inject HttpClient Http
 
 <h1>Details of @Symbol</h1>
@@ -62,7 +63,7 @@ else
 
 @code {
 
-    private IEnumerable<BinanceSymbolPriceInTimeDto> _priceHistory { get; set; }
+    private IEnumerable<KlineVO> _priceHistory { get; set; }
 
     private bool _chartsOn = false;
 
@@ -75,7 +76,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await RefreshDetailsList(KlineInterval.OneMinute);
+        await RefreshDetailsList(KlineInterval.FiveMinutes);
     }
 
     private async Task RefreshDetailsList(KlineInterval interval)
@@ -90,7 +91,7 @@ else
         }
         else
         {
-            _priceHistory = JsonConvert.DeserializeObject<IEnumerable<BinanceSymbolPriceInTimeDto>>(jsonString);
+            _priceHistory = JsonConvert.DeserializeObject<IEnumerable<KlineVO>>(jsonString);
 
         }
     }

@@ -8,17 +8,28 @@ namespace BTB.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Kline> builder)
         {
-            builder.HasOne(a => a.BuySymbol)
-                .WithMany(a => a.KlinesAsBuy)
-                .HasForeignKey(a => a.BuySymbolId)
+            builder.HasOne(a => a.SymbolPair)
+                .WithMany(a => a.Klines)
+                .HasForeignKey(a => a.SymbolPairId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(a => a.SellSymbol)
-                .WithMany(a => a.KlinesAsSell)
-                .HasForeignKey(a => a.SellSymbolId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+            builder.Property(a => a.OpenPrice)
+                .HasColumnType("decimal(16, 5)");
+
+            builder.Property(a => a.ClosePrice)
+                .HasColumnType("decimal(16, 5)");
+
+            builder.Property(a => a.HighestPrice)
+                .HasColumnType("decimal(16, 5)");
+
+            builder.Property(a => a.LowestPrice)
+                .HasColumnType("decimal(16, 5)");
+
+            builder.Property(a => a.Volume)
+                .HasColumnType("decimal(16, 8)");
+
+            builder.ToTable("Klines");
         }
     }
 }

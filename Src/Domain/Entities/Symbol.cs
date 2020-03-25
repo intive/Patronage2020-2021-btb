@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace BTB.Domain.Entities
@@ -8,7 +9,9 @@ namespace BTB.Domain.Entities
     {
         public int Id { get; set; }
         public string SymbolName { get; set; }
-        public IEnumerable<Kline> KlinesAsSell { get; set; } = new List<Kline>();
-        public IEnumerable<Kline> KlinesAsBuy { get; set; } = new List<Kline>();
+
+        public virtual IEnumerable<SymbolPair> BuySymbolPairs { get; set; } = new List<SymbolPair>();
+
+        public virtual IEnumerable<SymbolPair> SellSymbolPairs { get; set; } = new List<SymbolPair>();
     }
 }

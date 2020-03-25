@@ -13,6 +13,7 @@ namespace Application.UnitTests
     public class HandlerTestsBase : IDisposable
     {
         protected readonly IBinanceClient _binanceClient;
+        protected readonly IBTBClient _btbClient;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
 
@@ -23,6 +24,7 @@ namespace Application.UnitTests
             this._mapper = fixture.Mapper;
 
             _binanceClient = IBinanceClientFactory.BinanceClient;
+            _btbClient = IBTBClientFactory.BTBClient;
         }
 
         public void Dispose()

@@ -8,44 +8,38 @@ using BTB.Domain.Entities;
 using MediatR;
 using System.Linq;
 using System;
+using BTB.Application.Common.Interfaces;
+using BTB.Application.Common.Models;
+using BTB.Domain.ValueObjects;
+using BTB.Domain.Common;
+using BTB.Application.Common.Behaviours;
 
 namespace BTB.Application.Details.Queries.GetPriceHistory
 {
-    public class GetPriceHistoryQuery : IRequest<IEnumerable<BinanceSymbolPriceInTimeVm>>
+    public class GetPriceHistoryQuery : IRequest<IEnumerable<KlineVO>>
     {
-        public string Symbol { get; set; }
-        public KlineInterval Interval { get; set; }
+        public string PairName { get; set; }
+        public KlineInterval KlineType { get; set; }
 
-        public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<BinanceSymbolPriceInTimeVm>>
+        public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<KlineVO>>
         {
-            private readonly IBinanceClient _client;
+            private readonly IBTBClient _client;
 
-            public GetPriceHistoryQueryHandler(IBinanceClient client)
+            public GetPriceHistoryQueryHandler(IBTBClient client)
             {
                 _client = client;
             }
 
-            public async Task<IEnumerable<BinanceSymbolPriceInTimeVm>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<KlineVO>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
             {
-                var result = await _client.GetKlinesAsync(request.Symbol, request.Interval, ct: cancellationToken);
+                var klines = await _client.GetKlines(TimestampKlineIntervalConv.GetTimestampInterval(request.KlineType), 10, request.PairName);
                
-                if (result.Success)
+                if (klines.Any())
                 {
-                    return result.Data
-                        .Reverse()
-                        .Select(b => new BinanceSymbolPriceInTimeVm
-                        {
-                            OpenTime = b.OpenTime,
-                            CloseTime = b.CloseTime,
-                            OpenPrice = b.Open,
-                            ClosePrice = b.Close,
-                            LowestPrice = b.Low,
-                            HighestPrice = b.High
-                        })
-                        .Take(10);  
+                    return klines.OrderByDescending(k => k.OpenTime);
                 }
 
-                throw new BadRequestException(result.Error.Message);
+                throw new BadRequestException("Error: no klines found");
             }
         }
 

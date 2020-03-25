@@ -1,5 +1,6 @@
 ﻿using BTB.Application.Dashboard.Queries.GetTopListQuery;
 using BTB.Domain.Entities;
+using BTB.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +21,7 @@ namespace Application.UnitTests.Dashboard.Queries
             var result = await handler.Handle(new GetTopListQuery(), CancellationToken.None);
             result.GetEnumerator().MoveNext();
 
-            Assert.IsAssignableFrom<IEnumerable<BinanceSimpleElement>>(result);
+            Assert.IsAssignableFrom<IEnumerable<SimplePriceVO>>(result);
             Assert.NotNull(result.GetEnumerator());
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Binance.Net.Objects;
 using BTB.Application.Details.Queries.GetPriceHistory;
+using BTB.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,12 +16,12 @@ namespace Application.UnitTests.Details
         [Fact]
         public async Task Average_ShouldBeListOfNotNull()
         {
-            var handler = new GetPriceHistoryQueryHandler(_binanceClient);
+            var handler = new GetPriceHistoryQueryHandler(_btbClient);
 
-            var result = await handler.Handle(new GetPriceHistoryQuery { Symbol = "ANY", Interval = KlineInterval.OneHour }, CancellationToken.None);
+            var result = await handler.Handle(new GetPriceHistoryQuery { PairName = "BTCRUB", KlineType = KlineInterval.FiveMinutes }, CancellationToken.None);
             result.GetEnumerator().MoveNext();
 
-            Assert.IsAssignableFrom<IEnumerable<BinanceSymbolPriceInTimeVm>>(result);
+            Assert.IsAssignableFrom<IEnumerable<KlineVO>>(result);
             Assert.NotNull(result.GetEnumerator());
         }
     }

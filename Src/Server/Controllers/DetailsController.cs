@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Binance.Net.Objects;
 using Microsoft.AspNetCore.Http;
 using System.Threading;
+using BTB.Application.Common.Models;
+using BTB.Domain.Common;
 
 namespace BTB.Server.Controllers
 {
@@ -33,7 +35,7 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> GetPriceHistory([FromRoute] string symbol, [FromQuery] KlineInterval interval, CancellationToken cancellationToken)
         {
-            var priceHistory = await Mediator.Send(new GetPriceHistoryQuery { Symbol = symbol, Interval = interval }, cancellationToken);
+            var priceHistory = await Mediator.Send(new GetPriceHistoryQuery { PairName = symbol, KlineType = interval }, cancellationToken);
             return Ok(priceHistory);
         }
     }

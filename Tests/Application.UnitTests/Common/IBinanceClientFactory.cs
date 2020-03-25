@@ -50,8 +50,7 @@ namespace Application.UnitTests.Common
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
-                }               
-
+                }            
             }
         }
 

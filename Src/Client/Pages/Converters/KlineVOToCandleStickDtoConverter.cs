@@ -1,17 +1,18 @@
 ﻿using BTB.Client.Pages.Dto;
+using BTB.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 
 namespace BTB.Client.Pages.Converters
 {
-    public class BinanceSymbolPriceInTimeDtoToCandleStickDtoConverter
+    public class KlineVOToCandleStickDtoConverter
     {
-        private readonly IEnumerable<BinanceSymbolPriceInTimeDto> _klines;
+        private readonly IEnumerable<KlineVO> _klines;
         private readonly decimal _maxValueInKlines;
         private readonly decimal _minValueInKlines;
         private readonly decimal _maxValueInChart;
 
-        public BinanceSymbolPriceInTimeDtoToCandleStickDtoConverter(IEnumerable<BinanceSymbolPriceInTimeDto> klines, decimal maxValueInKlines, decimal minValueInKlines, decimal maxValueInChart)
+        public KlineVOToCandleStickDtoConverter(IEnumerable<KlineVO> klines, decimal maxValueInKlines, decimal minValueInKlines, decimal maxValueInChart)
         {
             _klines = klines;
             _maxValueInKlines = maxValueInKlines;
@@ -41,7 +42,7 @@ namespace BTB.Client.Pages.Converters
             return candleSticks;
         }
 
-        private CandleStickDto ConvertKline(BinanceSymbolPriceInTimeDto kline, decimal maxValueInKlines, decimal minValueInKlines, decimal maxValueInChart)
+        private CandleStickDto ConvertKline(KlineVO kline, decimal maxValueInKlines, decimal minValueInKlines, decimal maxValueInChart)
         {
             var closePriceNormalized = Normalize(maxValueInChart, maxValueInKlines, kline.ClosePrice, minValueInKlines);
             var openPriceNormalized = Normalize(maxValueInChart, maxValueInKlines, kline.OpenPrice, minValueInKlines);
