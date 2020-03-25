@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.System.Commands.LoadData
 {
-    public class LoadSymbolsCommand : IRequest
+    public class LoadSymbolsCommand : IRequest<int>
     {
-        public class LoadSymbolsCommandHandler : IRequestHandler<LoadSymbolsCommand>
+        public class LoadSymbolsCommandHandler : IRequestHandler<LoadSymbolsCommand, int>
         {
             private readonly IBTBDbContext _context;
             private readonly IBinanceClient _client;
@@ -42,22 +42,26 @@ namespace BTB.Application.System.Commands.LoadData
                 };
             }
 
-            public async Task<Unit> Handle(LoadSymbolsCommand request, CancellationToken cancellationToken)
+            public async Task<int> Handle(LoadSymbolsCommand request, CancellationToken cancellationToken)
             {
                 _exchangeData = _client.GetExchangeInfo().Data.Symbols;
                 SetAllowedSymbols();
 
+                int success = -1;
+
                 if (!AreSymbolsAdded())
                 {
                      await LoadAllSymbolsToDb();
+                    success++;
                 }
 
                 if (!arePairsAdded())
                 {
                     await LoadPairsToDb();
+                    success += 2;
                 }
 
-                return Unit.Value;
+                return success;
             }
 
             private void SetAllowedSymbols()
