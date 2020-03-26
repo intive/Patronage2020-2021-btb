@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BTB.Application.Alerts.Common;
+using BTB.Application.Authorize.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Domain.Entities;
 
@@ -11,6 +12,7 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
             CreateMap<Alert, AlertVm>();
+            CreateMap<LoginParameters, LoginParametersDto>();
         }
     }
 }

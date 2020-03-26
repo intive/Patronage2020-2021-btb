@@ -1,4 +1,6 @@
-﻿using BTB.Application.Common.Exceptions;
+﻿using AutoMapper;
+using BTB.Application.Authorize.Common;
+using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using MediatR;
@@ -13,22 +15,26 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Authorize.Commands.Login
 {
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginParameters>
+    public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginParametersDto>
     {
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public LoginCommandHandler(IConfiguration config, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public LoginCommandHandler(IConfiguration config, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _config = config;
+            _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
         }
         
-        public async Task<LoginParameters> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<LoginParametersDto> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByNameAsync(request.UserName);
+            var loginParameters = _mapper.Map<LoginParameters>(request);
+
+            var user = await _userManager.FindByNameAsync(loginParameters.UserName);
             if (user == null)
             {
                 throw new BadRequestException("Incorrect username or password.");
@@ -40,15 +46,11 @@ namespace BTB.Application.Authorize.Commands.Login
                 throw new BadRequestException("Incorrect username or password.");
             }
 
-            await _signInManager.SignInAsync(user, request.RememberMe);
+            await _signInManager.SignInAsync(user, loginParameters.RememberMe);
 
-            return new LoginParameters
-            {
-                UserName = request.UserName,
-                Password = request.Password,
-                RememberMe = request.RememberMe,
-                Token = BuildToken()
-            };
+            loginParameters.Token = BuildToken();
+
+            return _mapper.Map<LoginParametersDto>(loginParameters);
         }
 
         private string BuildToken()

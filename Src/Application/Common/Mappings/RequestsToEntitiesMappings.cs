@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BTB.Application.Alerts.Commands.CreateAlert;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
+using BTB.Application.Authorize.Commands.Login;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Domain.Entities;
@@ -20,6 +21,8 @@ namespace BTB.Application.Common.Mappings
 
             CreateMap<UpdateAlertCommand, Alert>()
                 .ForMember(aler => aler.Id, opt => opt.Ignore());
+
+            CreateMap<LoginCommand, LoginParameters>();
         }
     }
 }

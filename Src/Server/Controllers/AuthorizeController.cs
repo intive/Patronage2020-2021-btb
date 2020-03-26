@@ -1,6 +1,7 @@
 ﻿using BTB.Application.Authorize.Commands.Login;
 using BTB.Application.Authorize.Commands.Logout;
 using BTB.Application.Authorize.Commands.Register;
+using BTB.Application.Authorize.Common;
 using BTB.Application.Authorize.Queries.GetUserInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +23,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login(LoginCommand command)
+        public async Task<ActionResult<LoginParametersDto>> Login(LoginCommand command)
         {
             var result = await Mediator.Send(command);
             return Ok(result);
@@ -31,11 +32,11 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Returns information about current user's credentials.
         /// </summary>
-        /// <returns>A view model containing information about current user's credentials. <see cref="UserInfoVm"/></returns>
+        /// <returns>A view model containing information about current user's credentials. <see cref="UserInfoDto"/></returns>
         /// <response code="200">When succesful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<UserInfoVm>> UserInfo()
+        public async Task<ActionResult<UserInfoDto>> UserInfo()
         {
             var userInfo = await Mediator.Send(new GetUserInfoQuery { User = User });
             return Ok(userInfo);

@@ -2,7 +2,7 @@
 
 namespace BTB.Application.Authorize.Queries.GetUserInfo
 {
-    public class UserInfoVm
+    public class UserInfoDto
     {
         public bool IsAuthenticated { get; set; }
         public string UserName { get; set; }
