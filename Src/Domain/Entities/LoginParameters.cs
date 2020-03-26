@@ -1,6 +1,6 @@
-﻿namespace BTB.Application.Authorize.Commands.Login
+﻿namespace BTB.Domain.Entities
 {
-    public class LoginParametersDto
+    public class LoginParameters
     {
         public string UserName { get; set; }
 
