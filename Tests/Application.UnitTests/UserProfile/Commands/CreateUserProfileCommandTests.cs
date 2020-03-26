@@ -23,25 +23,23 @@ namespace Application.UnitTests.UserProfile.Commands
             var userId = "new_id";
             var expectedUsername = userId + "_username";
             var expectedProfileBio = userId + "_bio";
-            var expectedFavouriteTradingPair = userId + "_pair";
+            var expectedFavouriteTradingPair = "BTCUSDT";
             var userIdentityMock = GetUserIdentityMock(userId);
 
-            var binanceClientMock = new Mock<IBTBBinanceClient>();
-            binanceClientMock.Setup(x => x.GetSymbolNames(expectedFavouriteTradingPair, "")).Returns(new SymbolPairVO());
-
-            var sut = new CreateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
-            var sutResult = await sut.Handle(new CreateUserProfileCommand()
+            var sut = new CreateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var command = new CreateUserProfileCommand()
             {
                 Username = expectedUsername,
                 ProfileBio = expectedProfileBio,
                 FavouriteTradingPair = expectedFavouriteTradingPair
-            }, CancellationToken.None);
+            };
+            var sutResult = await sut.Handle(command, CancellationToken.None);
 
-            var result = _context.UserProfileInfo.SingleOrDefault(i => i.UserId == userId);
-            Assert.NotNull(result);
-            Assert.Equal(expectedUsername, result.Username);
-            Assert.Equal(expectedProfileBio, result.ProfileBio);
-            Assert.Equal(expectedFavouriteTradingPair, result.FavouriteTradingPair);
+            var dbResult = _context.UserProfileInfo.SingleOrDefault(i => i.UserId == userId);
+            Assert.NotNull(dbResult);
+            Assert.Equal(expectedUsername, dbResult.Username);
+            Assert.Equal(expectedProfileBio, dbResult.ProfileBio);
+            Assert.Equal(expectedFavouriteTradingPair, dbResult.FavouriteTradingPair);
 
             Assert.Equal(userId, sutResult.UserId);
             Assert.Equal(expectedUsername, sutResult.Username);
@@ -53,16 +51,15 @@ namespace Application.UnitTests.UserProfile.Commands
         public async Task Handle_ShouldThrowBadRequestException_WhenGivenTradingPairDoesNotExist()
         {
             var userId = "new_id";
-            var tradingPair = "ABCABC";
+            var tradingPair = "AAABBB";
             var userIdentityMock = GetUserIdentityMock(userId);
-            var binanceClientMock = new Mock<IBTBBinanceClient>();
-            binanceClientMock.Setup(x => x.GetSymbolNames(tradingPair, "")).Returns((SymbolPairVO)null);
 
             var command = new CreateUserProfileCommand()
             {
                 FavouriteTradingPair = tradingPair
             };
-            var sut = new CreateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
+            var sut = new CreateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));
         }
 
@@ -70,13 +67,16 @@ namespace Application.UnitTests.UserProfile.Commands
         public async Task Handle_ShouldThrowBadRequestException_WhenUserProfileAlreadyExists()
         {
             var existingUserId = "1";
+            var existingTrdingPair = "BTCUSDT";
             var userIdentityMock = GetUserIdentityMock(existingUserId);
-            var binanceClientMock = new Mock<IBTBBinanceClient>();
-            binanceClientMock.Setup(x => x.GetSymbolNames(null, "")).Returns(new SymbolPairVO());
 
-            var sut = new CreateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
+            var command = new CreateUserProfileCommand()
+            {
+                FavouriteTradingPair = existingTrdingPair
+            };
+            var sut = new CreateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
 
-            await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(new CreateUserProfileCommand(), CancellationToken.None));
+            await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));
         }
     }
 }

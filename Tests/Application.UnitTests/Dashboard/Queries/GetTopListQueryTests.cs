@@ -16,7 +16,7 @@ namespace Application.UnitTests.Dashboard.Queries
         [Fact]
         public async Task Average_ShouldBeListOfNotNull ()
         {
-            var handler = new GetTopListQueryHandler(_binanceClient);
+            var handler = new GetTopListQueryHandler(_binanceClientMock.Object);
 
             var result = await handler.Handle(new GetTopListQuery(), CancellationToken.None);
             result.GetEnumerator().MoveNext();

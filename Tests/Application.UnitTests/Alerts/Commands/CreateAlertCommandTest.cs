@@ -16,21 +16,19 @@ namespace Application.UnitTests.Alerts.Commands
         [Fact]
         public async Task Handle_ShouldCreateAlert_WhenRequestIsValid()
         {
-            var expectedSymbol = "Symbol";
+            var expectedSymbol = "BTCUSDT";
             var expectedCondition = "Condition";
             var expectedValueType = "ValueType";
             var expectedValue = 1.5;
             var expectedSendEmail = true;
-            var expectedEmail = "example@gmail.com";
+            var expectedEmail = "example@mail.com";
             var expectedMessage = "message";
-            var expectedUserId = "xxx";
+            var expectedUserId = "user";
 
             var userIdentityMock = GetUserIdentityMock(expectedUserId);
-            var binanceClientMock = new Mock<IBTBBinanceClient>();
-            binanceClientMock.Setup(x => x.GetSymbolNames(expectedSymbol, "")).Returns(new SymbolPairVO());
 
-            var sut = new CreateAlertCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
-            await sut.Handle(new CreateAlertCommand()
+            var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var command = new CreateAlertCommand()
             {
                 Symbol = expectedSymbol,
                 Condition = expectedCondition,
@@ -39,19 +37,20 @@ namespace Application.UnitTests.Alerts.Commands
                 SendEmail = expectedSendEmail,
                 Email = expectedEmail,
                 Message = expectedMessage
+            };
+            var sutResult = await sut.Handle(command, CancellationToken.None);
 
-            }, CancellationToken.None);
-
-            var result = _context.Alerts.SingleOrDefault(a => a.UserId == expectedUserId);
-
-            Assert.NotNull(result);
+            var dbResult = _context.Alerts.SingleOrDefault(a => a.UserId == expectedUserId);
+            Assert.NotNull(dbResult);
+            Assert.Equal(expectedSymbol, dbResult.Symbol);
+            Assert.Equal(expectedCondition, dbResult.Condition);
+            Assert.Equal(expectedValue, dbResult.Value);
+            Assert.Equal(expectedSendEmail, dbResult.SendEmail);
+            Assert.Equal(expectedEmail, dbResult.Email);
+            Assert.Equal(expectedMessage, dbResult.Message);
+            
             userIdentityMock.VerifyGet(x => x.UserId);
-            Assert.Equal(expectedSymbol, result.Symbol);
-            Assert.Equal(expectedCondition, result.Condition);
-            Assert.Equal(expectedValue, result.Value);
-            Assert.Equal(expectedSendEmail, result.SendEmail);
-            Assert.Equal(expectedEmail, result.Email);
-            Assert.Equal(expectedMessage, result.Message);
+            _btbBinanceClientMock.Verify(mock => mock.GetSymbolNames(expectedSymbol, ""));
         }
     }
 }
