@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Common.Interfaces
 {
-    public interface IBTBClient
+    public interface IBTBBinanceClient
     {
         string GetSymbolName(int symbolId);
         string GetSymbolName(int pairId, TradeSide tradeSide =TradeSide.Buy);
@@ -18,5 +18,6 @@ namespace BTB.Application.Common.Interfaces
         Task<IEnumerable<KlineVO>> Get24HPricesListAsync();
         Task<IEnumerable<KlineVO>> FilterKlines(string filter, List<KlineVO> klines);
         Task<IEnumerable<SimplePriceVO>> ToSimplePrices(List<KlineVO> klines);
+        SymbolPairVO GetSymbolNames(string pairName, string wantedBuySymbol = "");
     }
 }

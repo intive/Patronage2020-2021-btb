@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Server.Services
 {
-    public class BinanceMiddleService : IBTBClient
+    public class BinanceMiddleService : IBTBBinanceClient
     {
         private readonly IBTBDbContext _context;
 
@@ -187,6 +187,64 @@ namespace BTB.Server.Services
                 ClosePrice = k.ClosePrice,
                 Volume = k.Volume
             });
+        }
+
+        public SymbolPairVO GetSymbolNames(string pairName, string wantedBuySymbol = "")
+        {
+            var result = new SymbolPairVO();
+            var symbols = _context.Symbols.ToList();
+
+            foreach (Symbol symbol in symbols)
+            {
+                try
+                {
+                    string firstSymbol = pairName.Substring(0, symbol.SymbolName.Length);
+                    if (string.IsNullOrEmpty(wantedBuySymbol) && symbol.SymbolName == firstSymbol)
+                    {
+                        result.BuySymbolName = symbol.SymbolName;
+                        break;
+                    }
+                    else if (symbol.SymbolName == wantedBuySymbol)
+                    {
+                        result.BuySymbolName = symbol.SymbolName;
+                        break;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    continue;
+                }
+            }
+
+            if (result.BuySymbolName == null)
+            {
+                return null;
+            }
+
+            string secondSymbol = pairName.Substring(result.BuySymbolName.Length);
+
+            foreach (Symbol symbol in symbols)
+            {
+                try
+                {
+                    if (symbol.SymbolName == secondSymbol)
+                    {
+                        result.SellSymbolName = symbol.SymbolName;
+                        break;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    continue;
+                }
+            }
+
+            if (result.SellSymbolName == null)
+            {
+                return null;
+            }
+
+            return result;
         }
 
         /* Please do not delete - maybe we can use it to calculate 15m-4h klines

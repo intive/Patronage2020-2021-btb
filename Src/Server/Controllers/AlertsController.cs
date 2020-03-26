@@ -34,7 +34,8 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Creates an alert for the currently logged in user.
         /// </summary>
-        /// <param name="command"> From-body data to create an alert. </param>
+        /// <param name="command"> From-body data to create an alert.</param>
+        /// <returns>An object containing the data that was created.</returns>
         /// <response code="201">When alert is created successfully.</response>
         /// <response code="400">When validation error occurs.</response>
         [HttpPost]
@@ -49,6 +50,7 @@ namespace BTB.Server.Controllers
         /// Updates an alert specified by id. The alert must belong to the logged in user.
         /// </summary>
         /// <param name="id">Id of the alert.</param>
+        /// <param name="command"> From-body data to update an alert.</param>
         /// <response code="200">When successful.</response>
         /// <response code="400">When validation error occurs.</response>
         /// <response code="404">When alert with given id does not exist or does not belong to the user.</response>

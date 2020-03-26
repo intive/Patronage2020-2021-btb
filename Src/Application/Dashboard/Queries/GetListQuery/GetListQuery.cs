@@ -21,10 +21,10 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
 
         public class GetListQueryHandler : IRequestHandler<GetListQuery, IEnumerable<SimplePriceVO>>
         {
-            private readonly IBTBClient _client;
+            private readonly IBTBBinanceClient _client;
             private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public GetListQueryHandler(IBTBClient client, IHttpContextAccessor httpContextAccessor)
+            public GetListQueryHandler(IBTBBinanceClient client, IHttpContextAccessor httpContextAccessor)
             {
                 _client = client;
                 _httpContextAccessor = httpContextAccessor;

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BTB.Domain.ValueObjects
 {
-    public class SymbolVO
+    public class SymbolPairVO
     {
         public string BuySymbolName { get; set; }
         public string SellSymbolName { get; set; }

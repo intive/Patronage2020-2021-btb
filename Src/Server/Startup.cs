@@ -126,7 +126,7 @@ namespace BTB.Server
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICurrentUserIdentityService, CurrentUserIdentityService>();
-            services.AddScoped<IBTBClient, BinanceMiddleService>();
+            services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

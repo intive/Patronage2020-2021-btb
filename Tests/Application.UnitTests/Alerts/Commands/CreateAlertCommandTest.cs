@@ -1,5 +1,8 @@
 ﻿using Application.UnitTests.Common;
 using BTB.Application.Alerts.Commands.CreateAlert;
+using BTB.Application.Common.Interfaces;
+using BTB.Domain.ValueObjects;
+using Moq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +26,10 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedUserId = "xxx";
 
             var userIdentityMock = GetUserIdentityMock(expectedUserId);
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(expectedSymbol, "")).Returns(new SymbolPairVO());
 
-            var sut = new CreateAlertCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
+            var sut = new CreateAlertCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
             await sut.Handle(new CreateAlertCommand()
             {
                 Symbol = expectedSymbol,

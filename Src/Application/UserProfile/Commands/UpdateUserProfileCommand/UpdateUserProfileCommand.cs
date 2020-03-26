@@ -22,10 +22,10 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
         {
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
-            private readonly IBinanceClient _client;
+            private readonly IBTBBinanceClient _client;
             private readonly ICurrentUserIdentityService _userIdentity;
 
-            public UpdateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, ICurrentUserIdentityService userIdentity)
+            public UpdateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
@@ -37,8 +37,7 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
             {
                 if (!string.IsNullOrEmpty(request.FavouriteTradingPair))
                 {
-                    var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair, cancellationToken);
-                    if (!binanceResponse.Success)
+                    if (_client.GetSymbolNames(request.FavouriteTradingPair) == null)
                     {
                         throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
                     }

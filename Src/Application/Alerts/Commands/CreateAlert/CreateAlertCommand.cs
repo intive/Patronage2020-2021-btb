@@ -24,10 +24,10 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
         {
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
-            private readonly IBinanceClient _client;
+            private readonly IBTBBinanceClient _client;
             private readonly ICurrentUserIdentityService _userIdentity;
 
-            public CreateAlertCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, ICurrentUserIdentityService userIdentity)
+            public CreateAlertCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
@@ -37,8 +37,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
 
             public async Task<AlertVm> Handle(CreateAlertCommand request, CancellationToken cancellationToken)
             {
-                var binanceResponse = await _client.GetPriceAsync(request.Symbol, cancellationToken);
-                if (!binanceResponse.Success)
+                if (_client.GetSymbolNames(request.Symbol) == null)
                 {
                     throw new BadRequestException($"Trading pair symbol '{request.Symbol}' does not exist.");
                 }

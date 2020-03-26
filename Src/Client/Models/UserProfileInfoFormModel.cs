@@ -1,6 +1,8 @@
-﻿namespace BTB.Application.UserProfile.Queries.GetUserProfileQuery
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BTB.Client.Models
 {
-    public class UserProfileInfoVm
+    public class UserProfileInfoFormModel
     {
         public string Username { get; set; }
         public string ProfileBio { get; set; }

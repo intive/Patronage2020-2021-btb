@@ -5,6 +5,7 @@ using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.UserProfile;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
+using BTB.Domain.ValueObjects;
 using CryptoExchange.Net.Objects;
 using Moq;
 using System;
@@ -28,8 +29,10 @@ namespace Application.UnitTests.UserProfile.Commands
             var expectedProfileBio = "new_bio";
             var expectedFavouriteTradingPair = "new_pair";
             var userIdentityMock = GetUserIdentityMock(userId);
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(expectedFavouriteTradingPair, "")).Returns(new SymbolPairVO());
 
-            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
+            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
             await sut.Handle(new UpdateUserProfileCommand()
             {
                 Username = expectedUsername,
@@ -51,9 +54,8 @@ namespace Application.UnitTests.UserProfile.Commands
             var userId = "1";
             var tradingPair = "ABCABC";
             var userIdentityMock = GetUserIdentityMock(userId);
-            var binanceClientMock = new Mock<IBinanceClient>();
-            binanceClientMock.Setup(x => x.GetPriceAsync(tradingPair, CancellationToken.None))
-                .Returns(Task.Run(() => WebCallResult<BinancePrice>.CreateErrorResult(new ServerError(404, "pair not found"))));
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(tradingPair, "")).Returns((SymbolPairVO)null);
 
             var command = new UpdateUserProfileCommand()
             {
@@ -68,8 +70,10 @@ namespace Application.UnitTests.UserProfile.Commands
         {
             string userId = null;
             var userIdentityMock = GetUserIdentityMock(userId);
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(null, "")).Returns(new SymbolPairVO());
 
-            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
+            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
 
             await Assert.ThrowsAsync<NotFoundException>(async () => await sut.Handle(new UpdateUserProfileCommand(), CancellationToken.None));
         }

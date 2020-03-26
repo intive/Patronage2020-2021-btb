@@ -27,10 +27,10 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
         {
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
-            private readonly IBinanceClient _client;
+            private readonly IBTBBinanceClient _client;
             private readonly ICurrentUserIdentityService _userIdentity;
 
-            public UpdateAlertCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, ICurrentUserIdentityService userIdentity)
+            public UpdateAlertCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
@@ -40,13 +40,12 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
 
             public async Task<Unit> Handle(UpdateAlertCommand request, CancellationToken cancellationToken)
             {
-                var binanceResponse = await _client.GetPriceAsync(request.Symbol, cancellationToken);
-                if (!binanceResponse.Success)
+                if (_client.GetSymbolNames(request.Symbol) == null)
                 {
                     throw new BadRequestException($"Trading pair symbol '{request.Symbol}' does not exist.");
                 }
 
-                var dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userIdentity.UserId);
+                var dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userIdentity.UserId, cancellationToken);
                 if (dbAlert == null)
                 {
                     throw new NotFoundException($"User (id: {_userIdentity.UserId}) has no alert with id {request.Id}.");

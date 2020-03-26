@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 
 namespace Application.UnitTests.Common
 {
-    public abstract class IBTBClientFactory
+    public abstract class IBTBBinanceClientFactory
     {
-        public static IBTBClient BTBClient
+        public static IBTBBinanceClient BTBClient
         {
             get
             {
@@ -23,17 +23,17 @@ namespace Application.UnitTests.Common
             }
         }
 
-        private static IBTBClient NewBTBClient()
+        private static IBTBBinanceClient NewBTBClient()
         {
-            var _btbClientMock = new Mock<IBTBClient>();
+            var _btbClientMock = new Mock<IBTBBinanceClient>();
             IncludeAllMockMethods(_btbClientMock);
 
             return _btbClientMock.Object;
         }
 
-        private static void IncludeAllMockMethods(Mock<IBTBClient> _btbClientMock)
+        private static void IncludeAllMockMethods(Mock<IBTBBinanceClient> _btbClientMock)
         {
-            var type = typeof(IBTBClientFactory);
+            var type = typeof(IBTBBinanceClientFactory);
             var methods = type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
             foreach (var fun in methods)
@@ -54,7 +54,7 @@ namespace Application.UnitTests.Common
             }
         }
 
-        private static void Mock_Get24HPricesListAsync(ref Mock<IBTBClient> _btbClientMock)
+        private static void Mock_Get24HPricesListAsync(ref Mock<IBTBBinanceClient> _btbClientMock)
         {
 
             var top10list = new List<SimplePriceVO>()
@@ -81,7 +81,7 @@ namespace Application.UnitTests.Common
             );
         }
 
-        private static void Mock_GetKlinesFrom(ref Mock<IBTBClient> _btbClientMock)
+        private static void Mock_GetKlinesFrom(ref Mock<IBTBBinanceClient> _btbClientMock)
         {
 
             var top10list = new List<KlineVO>()

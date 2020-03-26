@@ -23,9 +23,9 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
 
         public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<KlineVO>>
         {
-            private readonly IBTBClient _client;
+            private readonly IBTBBinanceClient _client;
 
-            public GetPriceHistoryQueryHandler(IBTBClient client)
+            public GetPriceHistoryQueryHandler(IBTBBinanceClient client)
             {
                 _client = client;
             }

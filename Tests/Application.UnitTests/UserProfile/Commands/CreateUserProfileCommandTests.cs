@@ -4,6 +4,7 @@ using Binance.Net.Objects;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
+using BTB.Domain.ValueObjects;
 using CryptoExchange.Net.Objects;
 using Moq;
 using System.Linq;
@@ -25,8 +26,11 @@ namespace Application.UnitTests.UserProfile.Commands
             var expectedFavouriteTradingPair = userId + "_pair";
             var userIdentityMock = GetUserIdentityMock(userId);
 
-            var sut = new CreateUserProfileCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
-            await sut.Handle(new CreateUserProfileCommand()
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(expectedFavouriteTradingPair, "")).Returns(new SymbolPairVO());
+
+            var sut = new CreateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
+            var sutResult = await sut.Handle(new CreateUserProfileCommand()
             {
                 Username = expectedUsername,
                 ProfileBio = expectedProfileBio,
@@ -38,6 +42,11 @@ namespace Application.UnitTests.UserProfile.Commands
             Assert.Equal(expectedUsername, result.Username);
             Assert.Equal(expectedProfileBio, result.ProfileBio);
             Assert.Equal(expectedFavouriteTradingPair, result.FavouriteTradingPair);
+
+            Assert.Equal(userId, sutResult.UserId);
+            Assert.Equal(expectedUsername, sutResult.Username);
+            Assert.Equal(expectedProfileBio, sutResult.ProfileBio);
+            Assert.Equal(expectedFavouriteTradingPair, sutResult.FavouriteTradingPair);
         }
 
         [Fact]
@@ -46,9 +55,8 @@ namespace Application.UnitTests.UserProfile.Commands
             var userId = "new_id";
             var tradingPair = "ABCABC";
             var userIdentityMock = GetUserIdentityMock(userId);
-            var binanceClientMock = new Mock<IBinanceClient>();
-            binanceClientMock.Setup(x => x.GetPriceAsync(tradingPair, CancellationToken.None))
-                .Returns(Task.Run(() => WebCallResult<BinancePrice>.CreateErrorResult(new ServerError(404, "pair not found"))));
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(tradingPair, "")).Returns((SymbolPairVO)null);
 
             var command = new CreateUserProfileCommand()
             {
@@ -63,8 +71,10 @@ namespace Application.UnitTests.UserProfile.Commands
         {
             var existingUserId = "1";
             var userIdentityMock = GetUserIdentityMock(existingUserId);
+            var binanceClientMock = new Mock<IBTBBinanceClient>();
+            binanceClientMock.Setup(x => x.GetSymbolNames(null, "")).Returns(new SymbolPairVO());
 
-            var sut = new CreateUserProfileCommandHandler(_context, _mapper, _binanceClient, userIdentityMock.Object);
+            var sut = new CreateUserProfileCommandHandler(_context, _mapper, binanceClientMock.Object, userIdentityMock.Object);
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(new CreateUserProfileCommand(), CancellationToken.None));
         }
