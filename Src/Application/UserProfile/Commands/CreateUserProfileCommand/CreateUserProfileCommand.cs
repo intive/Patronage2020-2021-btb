@@ -2,6 +2,7 @@
 using Binance.Net.Interfaces;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
+using BTB.Application.UserProfile.Common;
 using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -13,20 +14,20 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 {
-    public class CreateUserProfileCommand : IRequest
+    public class CreateUserProfileCommand : IRequest<UserProfileInfoVm>
     {
         public string Username { get; set; }
         public string ProfileBio { get; set; }
         public string FavouriteTradingPair { get; set; }
 
-        public class CreateUserProfileCommandHandler : IRequestHandler<CreateUserProfileCommand>
+        public class CreateUserProfileCommandHandler : IRequestHandler<CreateUserProfileCommand, UserProfileInfoVm>
         {
             private readonly IBTBDbContext _context;
             private readonly IMapper _mapper;
-            private readonly IBinanceClient _client;
+            private readonly IBTBBinanceClient _client;
             private readonly ICurrentUserIdentityService _userIdentity;
 
-            public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBinanceClient client, ICurrentUserIdentityService userIdentity)
+            public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
             {
                 _context = context;
                 _mapper = mapper;
@@ -34,12 +35,11 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
                 _userIdentity = userIdentity;
             }
 
-            public async Task<Unit> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
+            public async Task<UserProfileInfoVm> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
             {
                 if (!string.IsNullOrEmpty(request.FavouriteTradingPair))
                 {
-                    var binanceResponse = await _client.GetPriceAsync(request.FavouriteTradingPair, cancellationToken);
-                    if (!binanceResponse.Success)
+                    if (_client.GetSymbolNames(request.FavouriteTradingPair) == null)
                     {
                         throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
                     }
@@ -58,7 +58,7 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
                 await _context.UserProfileInfo.AddAsync(newUserProfileInfo, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return Unit.Value;
+                return _mapper.Map<UserProfileInfoVm>(newUserProfileInfo);
             }
         }
     }

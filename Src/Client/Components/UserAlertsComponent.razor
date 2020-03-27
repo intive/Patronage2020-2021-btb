@@ -1,9 +1,13 @@
-﻿@using BTB.Client.Pages.Dto
-@using BTB.Domain.Common.Pagination;
-@using BTB.Domain.Extensions;
+﻿@using BTB.Client.Pages
+@using BTB.Client.Pages.Dto
+@using BTB.Domain.Common.Pagination
+@using BTB.Domain.Extensions
 @using Newtonsoft.Json
+@using System.ComponentModel
 @using System.Threading
 @inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
+@inject IJSRuntime jsRuntime
 @implements IDisposable
 
 <SpinLoader IsLoading="@_processingHttpRequest">
@@ -18,36 +22,76 @@
                 <h1>My Alerts</h1>
             </div>
 
-            <div class="mb-2 d-flex flex-row justify-content-between">
-                <div class="d-inline-block">
-                    <div class="btn-group" role="group">
-                        @foreach (var value in Enum<PaginationQuantity>.GetValues())
-                        {
-                            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
-                                    @onclick="@(async () => await SelectedQuantityAsync(value))">
-                                @((int)value)
+            @if (_alertCards.Count() > 0)
+            {
+                <div class="mb-2 d-flex flex-row justify-content-between">
+                    <div class="d-inline-block">
+                        <div class="btn-group" role="group">
+                            @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                            {
+                                <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
+                                        @onclick="@(async () => await SelectedQuantityAsync(value))">
+                                    @((int)value)
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <Pagination TotalPagesQuantity="@_totalPageQuantity"
+                                CurrentPage="@_currentPage"
+                                Radius="2"
+                                SelectedPage="SelectedPageAsync"
+                                PointerEventsStyle="@PointerEventsStyle()">
+                    </Pagination>
+                </div>
+
+                <div class="mb-2 d-flex flex-row justify-content-between">
+                    <div class="dropdown d-flex @(_dropdownButtonCollapsed ? "" : "show")">
+                        <div @onclick="() => _dropdownButtonCollapsed = !_dropdownButtonCollapsed">
+                            <button class="btn btn-secondary dropdown-toggle mr-2" type="button" id="dropdownButton">
+                                Sort By
                             </button>
+                            <div class="dropdown-menu @(_dropdownButtonCollapsed ? "" : "show")" aria-labelledby="dropdownButtonMenu">
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Symbol"))">Symbol</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Condition"))">Condition</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("ValueType"))">Value Type</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Value"))">Value</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Email"))">Email</a>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" @onclick="ReverseCardsOrderAsync">
+                            <span class="oi oi-elevator" aria-hidden="true" />
+                        </button>
+                    </div>
+
+                    <div>
+                        @if (_alertCards.All(card => card.IsCardCollapsed == false))
+                        {
+                            <button class="btn btn-primary" @onclick="() => ResetCollapse(false)" disabled>Expand</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => ResetCollapse(false)">Expand</button>
+                        }
+
+                        @if (_alertCards.All(card => card.IsCardCollapsed == true))
+                        {
+                            <button class="btn btn-primary" @onclick="() => ResetCollapse(true)" disabled>Collapse</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => ResetCollapse(true)">Collapse</button>
                         }
                     </div>
                 </div>
 
-                <Pagination TotalPagesQuantity="@_totalPageQuantity"
-                            CurrentPage="@_currentPage"
-                            Radius="2"
-                            SelectedPage="SelectedPageAsync"
-                            PointerEventsStyle="@PointerEventsStyle()">
-                </Pagination>
-            </div>
-
-            @if (_alertCount > 0)
-            {
-                @for (int i = 0; i < _alertCount; i++)
+                @for (int i = 0; i < _alertCards.Count(); i++)
                 {
                     int alertIndex = i;
-                    var alert = _alerts[alertIndex];
+                    var alert = _alertCards[alertIndex].AlertDto;
 
                     <div class="card mb-2">
-                        <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCollapse(alertIndex)">
+                        <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
                             <div>
                                 <NavLink class="btn btn-link" href="@($"/details/{alert.Symbol}")" @onclick:stopPropagation="true">
                                     @alert.Symbol
@@ -55,17 +99,17 @@
                             </div>
 
                             <div>
-                                <button class="btn btn-link" @onclick:stopPropagation="true">
+                                <button class="btn btn-link" @onclick="() => ShowUpdateAlertModal(alert)" @onclick:stopPropagation="true">
                                     <span class="oi oi-pencil" aria-hidden="true" />
                                 </button>
 
-                                <button class="btn btn-link" @onclick:stopPropagation="true">
+                                <button class="btn btn-link" @onclick="async () => await DeleteAlertAsync(alert.Id)" @onclick:stopPropagation="true">
                                     <span class="oi oi-x" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
 
-                        <div class="@(_collapse[alertIndex] ? "collapse" : "")">
+                        <div class="@(_alertCards[alertIndex].IsCardCollapsed ? "collapse" : "")">
                             <div class="card-body">
 
                                 <div class="row">
@@ -98,29 +142,42 @@
                         </div>
                     </div>
                 }
+
+                <div style="height: 10vh" />
+            }
+            else
+            {
+                <div class="text-center">
+                    <h4>You have no alerts. Go to the <a href="/">dashboard</a> and create some!</h4>
+                </div>
             }
         </div>
     </ContentTemplate>
 </SpinLoader>
 
 @code {
+    private class AlertCard
+    {
+        public AlertDto AlertDto { get; set; }
+        public bool IsCardCollapsed { get; set; }
+    }
+
     private int _totalPageQuantity;
     private int _currentPage = 1;
     private int _currentQuantity = 10;
     private bool _processingHttpRequest = false;
-    private int _alertCount = 0;
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-    private IList<bool> _collapse = new List<bool>();
-    private IList<AlertDto> _alerts = new List<AlertDto>();
+    private IList<AlertCard> _alertCards = new List<AlertCard>();
+    private bool _dropdownButtonCollapsed = true;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadDataAsync();
     }
 
-    private void ToggleCollapse(int alertIndex)
+    private void ToggleCardCollapse(int alertIndex)
     {
-        _collapse[alertIndex] = !_collapse[alertIndex];
+        _alertCards[alertIndex].IsCardCollapsed = !_alertCards[alertIndex].IsCardCollapsed;
     }
 
     private async Task LoadDataAsync()
@@ -128,7 +185,6 @@
         if (!_processingHttpRequest)
         {
             _processingHttpRequest = true;
-
             var response = await Http.GetAsync($"api/alerts?page={_currentPage}&quantity={_currentQuantity}", _tokenSource.Token);
 
             if (_tokenSource.Token.IsCancellationRequested)
@@ -136,19 +192,21 @@
                 return;
             }
 
+            _alertCards = new List<AlertCard>();
+
             if (response.IsSuccessStatusCode)
             {
                 _totalPageQuantity = int.Parse(response.Headers.GetValues("quantity").First());
                 var jsonString = await response.Content.ReadAsStringAsync();
-                _alerts = JsonConvert.DeserializeObject<IList<AlertDto>>(jsonString);
+                var alertDtos = JsonConvert.DeserializeObject<IList<AlertDto>>(jsonString);
+
+                foreach (var dto in alertDtos)
+                {
+                    _alertCards.Add(new AlertCard() { AlertDto = dto, IsCardCollapsed = true });
+                }
             }
 
-            _alertCount = _alerts.Count;
-            for (int i = 0; i < _alertCount; i++)
-            {
-                _collapse.Add(true);
-            }
-
+            ResetCollapse(true);
             _processingHttpRequest = false;
         }
     }
@@ -169,6 +227,50 @@
     private string PointerEventsStyle()
     {
         return _processingHttpRequest ? "pointer-events: none;" : null;
+    }
+
+    private void ShowUpdateAlertModal(AlertDto alert)
+    {
+        var parameters = new ModalParameters();
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+        };
+
+        parameters.Add("ShouldUpdateAlert", true);
+        parameters.Add("Alert", alert);
+        parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); this.StateHasChanged(); }));
+        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+    }
+
+    private async Task DeleteAlertAsync(int alertId)
+    {
+        var confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "Are you sure want to delete this alert?");
+        if (confirmed)
+        {
+            await Http.DeleteAsync($"api/alerts/{alertId}");
+            _alertCards.Remove(_alertCards.Where(card => card.AlertDto.Id == alertId).FirstOrDefault());
+        }
+    }
+
+    private async Task SortCardsAsync(string property)
+    {
+        var propertyDescriptor = TypeDescriptor.GetProperties(typeof(AlertDto)).Find(property, false);
+        _alertCards = await Task.Run(() => _alertCards.OrderBy(card => propertyDescriptor.GetValue(card.AlertDto)).ToList());
+    }
+
+    private async Task ReverseCardsOrderAsync()
+    {
+        _alertCards = await Task.Run(() => _alertCards.Reverse().ToList());
+    }
+
+    private void ResetCollapse(bool collapse)
+    {
+        foreach (var card in _alertCards)
+        {
+            card.IsCardCollapsed = collapse;
+        }
     }
 
     public void Dispose()

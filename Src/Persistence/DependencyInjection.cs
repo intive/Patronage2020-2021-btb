@@ -17,7 +17,7 @@ namespace BTB.Persistence
             services.AddScoped<IBTBDbContext, BTBDbContext>();
 
             services.AddDbContext<BTBDbContext>(options =>
-            {
+            {                
                 options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 

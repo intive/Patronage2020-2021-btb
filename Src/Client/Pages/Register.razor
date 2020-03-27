@@ -2,6 +2,7 @@
 @layout LoginLayout
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
+@using Newtonsoft.Json
 
 <h1 class="h2 font-weight-normal login-title text-center">
     Intive Patronage 2020
@@ -42,6 +43,7 @@
 @functions{
 
     RegisterParametersDto registerParameters { get; set; } = new RegisterParametersDto();
+    dynamic dyn;
     string error { get; set; }
 
     async Task OnSubmit()
@@ -54,7 +56,8 @@
         }
         catch (Exception ex)
         {
-            error = ex.Message;
+            dyn = JsonConvert.DeserializeObject(ex.Message);
+            error = dyn.errorMessage;
         }
     }
 }

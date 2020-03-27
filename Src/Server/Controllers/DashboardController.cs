@@ -17,7 +17,7 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Get list of pairs with pagination!
         /// </summary>
-        /// <returns>List of <see cref="BinanceSimpleElement"/></returns>
+        /// <returns>List of <see cref="SimplePriceVO"/></returns>
         /// <response code="200">If list has been acquired successfully.</response>
         /// <response code="400">If name is not found or page and quantity is out of range. </response>
         /// <response code="500">If error occur during request.</response>
@@ -33,7 +33,7 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Get list of 10 BTC pairs sorted descending by price
         /// </summary>
-        /// <returns>List of <see cref="BinanceSimpleElement"/></returns>
+        /// <returns>List of <see cref="SimplePriceVO"/></returns>
         /// <response code="200">If list has been acquired successfully.</response>
         /// <response code="500">If error occur during request.</response>
         [HttpGet]

@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using BTB.Domain.Common;
 
 namespace BTB.Domain.Entities
 {
     public class Kline
     {
         public int Id { get; set; }
+        public long OpenTimestamp { get; set; }
+        public TimestampInterval DurationTimestamp { get; set; }
+        public decimal OpenPrice { get; set; }
+        public decimal ClosePrice { get; set; }
+        public decimal LowestPrice { get; set; }
+        public decimal HighestPrice { get; set; }
+        public decimal Volume { get; set; }
 
-        public string OpenTimestamp { get; set; }
-        public string CloseTimestamp { get; set; }
-        public string OpenPrice { get; set; }
-        public string ClosePrice { get; set; }
-        public string LowestPrice { get; set; }
-        public string HighestPrice { get; set; }
-
-        public int BuySymbolId { get; set; }
-        public Symbol BuySymbol { get; set; }
-        public int SellSymbolId { get; set; }
-        public Symbol SellSymbol { get; set; }
+        public int SymbolPairId { get; set; }
+        public virtual SymbolPair SymbolPair { get; set; }
     }
 }

@@ -1,4 +1,8 @@
-﻿using BTB.Application.System.Commands.SeedSampleData;
+﻿using Binance.Net.Objects;
+using BTB.Application.Common.Models;
+using BTB.Application.System.Commands.LoadData;
+using BTB.Application.System.Commands.SeedSampleData;
+using BTB.Domain.Common;
 using BTB.Persistence;
 using MediatR;
 using Microsoft.AspNetCore;
@@ -26,7 +30,7 @@ namespace BTB.Server
                 .Replace('\\', '/');
             File.WriteAllText(blazorConfigPath, blazorConfig);
 #endif
-
+            
             var host = CreateWebHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -40,6 +44,7 @@ namespace BTB.Server
 
                     var mediator = services.GetRequiredService<IMediator>();
                     await mediator.Send(new SeedSampleDataCommand(), CancellationToken.None);
+                    await mediator.Send(new LoadSymbolsCommand(), CancellationToken.None);
                 }
                 catch (Exception e)
                 {

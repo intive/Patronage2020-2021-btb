@@ -70,35 +70,33 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("BuySymbolId")
+                    b.Property<decimal>("ClosePrice")
+                        .HasColumnType("decimal(16, 5)");
+
+                    b.Property<int>("DurationTimestamp")
                         .HasColumnType("int");
 
-                    b.Property<string>("ClosePrice")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("HighestPrice")
+                        .HasColumnType("decimal(16, 5)");
 
-                    b.Property<string>("CloseTimestamp")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("LowestPrice")
+                        .HasColumnType("decimal(16, 5)");
 
-                    b.Property<string>("HighestPrice")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("OpenPrice")
+                        .HasColumnType("decimal(16, 5)");
 
-                    b.Property<string>("LowestPrice")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("OpenTimestamp")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("OpenPrice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OpenTimestamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SellSymbolId")
+                    b.Property<int>("SymbolPairId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("decimal(16, 8)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuySymbolId");
-
-                    b.HasIndex("SellSymbolId");
+                    b.HasIndex("SymbolPairId");
 
                     b.ToTable("Klines");
                 });
@@ -118,6 +116,28 @@ namespace BTB.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Symbols");
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.SymbolPair", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BuySymbolId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SellSymbolId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuySymbolId");
+
+                    b.HasIndex("SellSymbolId");
+
+                    b.ToTable("SymbolPairs");
                 });
 
             modelBuilder.Entity("BTB.Domain.Entities.UserProfileInfo", b =>
@@ -372,14 +392,23 @@ namespace BTB.Persistence.Migrations
 
             modelBuilder.Entity("BTB.Domain.Entities.Kline", b =>
                 {
+                    b.HasOne("BTB.Domain.Entities.SymbolPair", "SymbolPair")
+                        .WithMany("Klines")
+                        .HasForeignKey("SymbolPairId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.SymbolPair", b =>
+                {
                     b.HasOne("BTB.Domain.Entities.Symbol", "BuySymbol")
-                        .WithMany("KlinesAsBuy")
+                        .WithMany("BuySymbolPairs")
                         .HasForeignKey("BuySymbolId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BTB.Domain.Entities.Symbol", "SellSymbol")
-                        .WithMany("KlinesAsSell")
+                        .WithMany("SellSymbolPairs")
                         .HasForeignKey("SellSymbolId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();

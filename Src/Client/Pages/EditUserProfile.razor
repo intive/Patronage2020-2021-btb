@@ -6,6 +6,8 @@
 @using System.Net;
 @using System.Net.Http;
 @using System.Text;
+@using FluentValidation;
+@using BTB.Client.Models.Validation;
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
@@ -22,8 +24,7 @@
             </div>
 
             <EditForm Model="@_formModel" OnValidSubmit="HandleValidSubmitAsync">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+                <FluentValidator Validator="_validator" />
 
                 <div class="form-group row">
                     <label class="col-sm-3 col-form-label" for="username">Username</label>
@@ -31,6 +32,7 @@
                         <InputText type="text" class="form-control" id="username" placeholder="Enter username"
                                    @bind-Value="@_formModel.Username"></InputText>
                         <small id="usernameHelp" class="form-text text-muted">A nickname visible to other users.</small>
+                        <ValidationMessage For="@(()=>_formModel.Username)" />
                     </div>
                 </div>
 
@@ -40,6 +42,7 @@
                         <textarea class="form-control" id="profileBio" rows="3" maxlength="255" placeholder="Type here..."
                                   @bind="_formModel.ProfileBio" @bind:event="oninput"></textarea>
                         <small id="profileBioHelp" class="form-text text-muted">Characters left: @(255 - _formModel.ProfileBio.Length)</small>
+                        <ValidationMessage For="@(()=>_formModel.ProfileBio)" />
                     </div>
                 </div>
 
@@ -52,6 +55,7 @@
                         {
                             <small id="profileBioHelp" class="form-text text-danger">Sorry, this trading pair does not exist.</small>
                         }
+                        <ValidationMessage For="@(()=>_formModel.FavouriteTradingPair)" />
                     </div>
                 </div>
 
@@ -73,11 +77,12 @@
     private UserProfileInfoDto _existingUserProfileInfo = null;
     private bool _processingHttpRequest = true;
     private bool _tradingPairDoesNotExist = false;
-    private UserProfileFormModel _formModel = null;
+    private UserProfileInfoFormModel _formModel = null;
+    private UserProfileInfoFormModelValidator _validator = new UserProfileInfoFormModelValidator();
 
     protected override async Task OnInitializedAsync()
     {
-        _formModel = new UserProfileFormModel()
+        _formModel = new UserProfileInfoFormModel()
         {
             Username = "",
             ProfileBio = "",

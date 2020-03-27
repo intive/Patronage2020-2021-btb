@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BTB.Application.Alerts.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
 using BTB.Domain.Common.Pagination;

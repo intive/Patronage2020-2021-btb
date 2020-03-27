@@ -15,7 +15,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +23,7 @@ using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
 using BTB.Server.Services;
+using BTB.Server.Common.CronGeneric;
 
 namespace BTB.Server
 {
@@ -39,6 +39,16 @@ namespace BTB.Server
 
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
+
+        private static IServiceProvider Provider;
+
+        public static IBTBDbContext BTBDbContext
+        {
+            get
+            {
+                return Provider.GetRequiredService<IBTBDbContext>();
+            }
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -63,7 +73,13 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
-            services.AddHostedService<UpdateExchangeService>();
+            Provider = services.BuildServiceProvider();
+
+            services.AddCronJob<UpdateExchangeJob>(c =>
+            {
+                c.TimeZoneInfo = TimeZoneInfo.Local;
+                c.CronExpression = @"*/5 * * * *";
+            });
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -110,6 +126,7 @@ namespace BTB.Server
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICurrentUserIdentityService, CurrentUserIdentityService>();
+            services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

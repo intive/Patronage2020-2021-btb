@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
+using BTB.Application.UserProfile.Common;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
