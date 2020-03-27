@@ -35,6 +35,20 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
+        ///     Loads given amount of klines to DB
+        /// </summary>
+        /// <param name="klineType">
+        ///     Type of kline to be loaded
+        /// </param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<IActionResult> LoadKlines(TimestampInterval klineType, int amount)
+        {
+            return Ok(await Mediator.Send(new LoadKlinesCommand() { KlineType = klineType, Amount = amount }, CancellationToken.None));
+        }
+
+        /// <summary>
         ///     Deletes selected Klines from database, which has OpenTime between given timestamp.    
         /// </summary>
         /// <param name="klineType">

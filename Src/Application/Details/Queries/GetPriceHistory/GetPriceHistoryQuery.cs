@@ -1,10 +1,12 @@
 ﻿using BTB.Application.Common.Exceptions;
+using BTB.Domain.Common.Pagination;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
+using System;
 using Binance.Net.Interfaces;
 using Binance.Net.Objects;
-using BTB.Domain.Entities;
 using MediatR;
 using System.Linq;
 using System;
@@ -19,7 +21,10 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
     public class GetPriceHistoryQuery : IRequest<IEnumerable<KlineVO>>
     {
         public string PairName { get; set; }
+        public int AdditionalRows { get; set; }
         public KlineInterval KlineType { get; set; }
+        public PaginationQuantity PaginationQuantity { get; set; }
+
 
         public class GetPriceHistoryQueryHandler : IRequestHandler<GetPriceHistoryQuery, IEnumerable<KlineVO>>
         {
@@ -32,7 +37,7 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
 
             public async Task<IEnumerable<KlineVO>> Handle(GetPriceHistoryQuery request, CancellationToken cancellationToken)
             {
-                var klines = await _client.GetKlines(TimestampKlineIntervalConv.GetTimestampInterval(request.KlineType), 10, request.PairName);
+                var klines = await _client.GetKlines(TimestampKlineIntervalConv.GetTimestampInterval(request.KlineType), (int)request.PaginationQuantity + request.AdditionalRows, request.PairName);
                
                 if (klines.Any())
                 {

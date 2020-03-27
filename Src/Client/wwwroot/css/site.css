@@ -215,3 +215,7 @@ app {
         transform: scale(1);
     }
 }
+
+#label-btn {
+    pointer-events: none;
+}

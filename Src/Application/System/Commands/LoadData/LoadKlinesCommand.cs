@@ -17,9 +17,7 @@ namespace BTB.Application.System.Commands.LoadData
     public class LoadKlinesCommand : IRequest
     {
         public TimestampInterval KlineType { get; set; }
-        public string ContainSymbol { get; set; }
-        public TimestampInterval UpdateFrom { get; set; }
-        public long UpdateFromMultiplier { get; set; }
+        public int Amount { get; set; }
 
         public class LoadKlinesCommandHandler : IRequestHandler<LoadKlinesCommand>
         {
@@ -32,8 +30,6 @@ namespace BTB.Application.System.Commands.LoadData
             private TimestampInterval _klineType;
             private KlineInterval _klineInterval;
 
-            private bool _loadAll;
-
             public LoadKlinesCommandHandler(IBinanceClient client, IBTBDbContext context)
             {
                 _client = client;
@@ -42,25 +38,18 @@ namespace BTB.Application.System.Commands.LoadData
 
             public async Task<Unit> Handle(LoadKlinesCommand request, CancellationToken cancellationToken)
             {
+                if (request.Amount < 1)
+                    return Unit.Value;
+
                 SetConfigFromRequest(request);
-                LoadKlinesToDb(request.ContainSymbol);
+                LoadKlinesToDb("BTC");
 
                 return Unit.Value;
             }
 
             private void SetConfigFromRequest(LoadKlinesCommand request)
             {
-                if (request.UpdateFrom == default)
-                {
-                    request.UpdateFrom = request.KlineType;
-                }
-
-                long multiplier = request.UpdateFromMultiplier == default ?
-                    1
-                        :
-                    request.UpdateFromMultiplier;
-                
-                _updateFrom = DateTime.UtcNow.AddSeconds(-((double)request.UpdateFrom * multiplier + 60));
+                _updateFrom = DateTime.UtcNow.AddSeconds(-((double)request.KlineType * request.Amount + 60));
                 _klineType = request.KlineType;
                 _klineInterval = TimestampKlineIntervalConv.GetKlineInterval(request.KlineType);
                 _klineCallBuffer = DateTime.UtcNow;                
