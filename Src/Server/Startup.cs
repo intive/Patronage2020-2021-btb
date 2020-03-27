@@ -66,7 +66,7 @@ namespace BTB.Server
                     return result;
                 };
             });
-
+                
             services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
 
             services.AddInfrastructure(Configuration, Environment);
@@ -143,6 +143,11 @@ namespace BTB.Server
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
+                c.IndexStream = () => GetType().Assembly
+                    .GetManifestResourceStream("BTB.Server.SwaggerExtension.index.html");
+                c.InjectStylesheet("/swagger-ui/custom.css");
+                c.InjectJavascript("/swagger-ui/custom.js", "text/javascript");
+
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BTB API V1");
                 c.RoutePrefix = "swagger";
             });
