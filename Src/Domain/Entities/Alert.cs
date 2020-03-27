@@ -1,8 +1,8 @@
-﻿using System;
+﻿using BTB.Domain.Common;
 
 namespace BTB.Domain.Entities
 {
-    public class Alert
+    public class Alert : AuditableEntity
     {
         public int Id { get; set; }
         public string UserId { get; set; }
