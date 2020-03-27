@@ -1,10 +1,11 @@
-﻿using System;
+﻿using BTB.Domain.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BTB.Domain.Entities
 {
-    public class UserProfileInfo
+    public class UserProfileInfo : AuditableEntity
     {
         public int Id { get; set; }
         public string UserId { get; set; }

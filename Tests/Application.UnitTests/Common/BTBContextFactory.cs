@@ -1,6 +1,10 @@
-﻿using BTB.Domain.Entities;
+﻿using BTB.Application.Common.Interfaces;
+using BTB.Common;
+using BTB.Domain.Entities;
+using BTB.Infrastructure;
 using BTB.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +19,10 @@ namespace Application.UnitTests.Common
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            var context = new BTBDbContext(options);
+            var dateTime = DateTimeMockFactory.DateTimeMock;
+            var userIdentity = CurrentUserIdentityServiceMockFactory.UserIdentityMock;
+
+            var context = new BTBDbContext(options, userIdentity.Object, dateTime.Object);
 
             context.Database.EnsureCreated();
 

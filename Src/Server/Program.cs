@@ -58,13 +58,13 @@ namespace BTB.Server
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(new ConfigurationBuilder()
-                    .AddCommandLine(args)
-                    .Build())
-                .ConfigureAppConfiguration((hostContext, config) =>
+                .AddCommandLine(args)
+                .Build())
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    var env = hostContext.HostingEnvironment;
-
-                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    var env = hostingContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                          .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     config.AddEnvironmentVariables();
                 })
                 .UseStartup<Startup>();

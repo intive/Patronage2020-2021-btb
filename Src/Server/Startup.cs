@@ -125,7 +125,7 @@ namespace BTB.Server
             services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
 
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ICurrentUserIdentityService, CurrentUserIdentityService>();
+            services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
             services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
         }
 
