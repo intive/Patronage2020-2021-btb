@@ -5,6 +5,7 @@ namespace BTB.Domain.Entities
     public class SymbolPair
     {
         public virtual IEnumerable<Kline> Klines { get; set; } = new List<Kline>();
+        public virtual IEnumerable<FavoriteSymbolPair> FavoritePairs { get; set; } = new List<FavoriteSymbolPair>();
 
         public int Id { get; set; }
 

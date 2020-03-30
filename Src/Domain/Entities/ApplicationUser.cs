@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Domain.Entities
 {
@@ -9,5 +7,6 @@ namespace BTB.Domain.Entities
     {
         public virtual IList<Alert> Alerts { get; set; } = new List<Alert>();
         public virtual UserProfileInfo ProfileInfo { get; set; }
+        public virtual IEnumerable<FavoriteSymbolPair> FavoritePairs { get; set; } = new List<FavoriteSymbolPair>();
     }
 }
