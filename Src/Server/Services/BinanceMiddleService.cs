@@ -130,11 +130,16 @@ namespace BTB.Server.Services
                 (k.DurationTimestamp == klineType) &&
                 (now - k.OpenTimestamp <= (long)klineType * (long)amount)).ToList();
 
-            var result = KlinesToValueObject(klines);
+            var result = KlinesToValueObject(klines).AsEnumerable();
 
             if (!string.IsNullOrEmpty(filter))
             {
-                return await FilterKlines(filter, result);
+                 result = await FilterKlines(filter, result.ToList());
+            }
+
+            if (result.Count() > amount)
+            {
+                return result.TakeLast(amount);
             }
 
             return result;

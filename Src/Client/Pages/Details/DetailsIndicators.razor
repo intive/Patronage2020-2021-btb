@@ -1,0 +1,280 @@
+﻿@using BTB.Client.Pages.Vms
+@using BTB.Domain.Common.Pagination
+@using Google.DataTable.Net.Wrapper.Extension
+@using Google.DataTable.Net.Wrapper
+@using BTB.Domain.Common.Indicator
+@using System.Net;
+@using BTB.Domain.Extensions
+@using BTB.Client.Pages.Dto.Indicator
+@using Newtonsoft.Json;
+@using System.Text
+@using System.Linq
+@inject IJSRuntime jsRuntime
+@inject HttpClient Http
+
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
+        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Indicators</a>
+        @foreach (var value in Enum<IndicatorType>.GetValues())
+        {
+            <button class="btn btn-primary" type="button" @onclick="@(() => { _indicatorType = value; })">@(value)</button>
+        }
+    </div>
+    @if (IndicatorType.RSI == _indicatorType)
+    {
+        <div class="btn-group" role="group" aria-label="Quantity group">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">RSI timeframe</a>
+            @foreach (var value in Enum<RSITimeframe>.GetValues())
+            {
+                @if (_priceHistory.Count() >= (int)_paginationQuantity + (int)value + 1)
+                {
+                    <button class="btn btn-primary" type="button" @onclick="@( async () => { _rsiTimeframe = value; await RefreshIndicatorView(); } )">@((int)value)</button>
+                }
+                else
+                {
+                    <a href="#" role="button" class="btn btn-secondary btn-xs" id="label-btn" aria-disabled="true" @onclick="@( async () => { _rsiTimeframe = value; await RefreshIndicatorView(); } )">@((int)value)</a>
+                }
+            }
+        </div>
+    }
+    else if (IndicatorType.SMA == _indicatorType)
+    {
+        <div class="btn-group" role="group" aria-label="Quantity group">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">SMA kline price</a>
+            @foreach (var value in Enum<SMAPriceType>.GetValues())
+            {
+                <button class="btn btn-primary" type="button" @onclick="@( async () => { _smaPriceType = value; await RefreshIndicatorView(); } )">@(value)</button>
+            }
+        </div>
+    }
+</div>
+
+<br />
+
+@if (_requestFailed == false)
+{
+    @if (_indicatorType == IndicatorType.RSI)
+    {
+        @if (_priceHistory.Count() >= (int)_paginationQuantity + (int)_rsiTimeframe + 1)
+        {
+            <div id="candlestick_chart_div" style="width: 900px; height: 350px;"></div>
+            <br />
+            <div id="rsi_chart_div" style="width: 900px; height: 240px;"></div>
+        }
+        else
+        {
+            <p>Could not display chart as there are not enough klines in database.</p>
+        }
+    }
+    else if (_indicatorType == IndicatorType.SMA)
+    {
+        @if (_priceHistory.Count() >= (int)_paginationQuantity + (int)_smaTimePeriod)
+        {
+            <div id="sma_chart_div" style="width: 900px; height: 350px;"></div>
+        }
+        else
+        {
+            <p>Could not display chart as there are not enough klines in database.</p>
+        }
+    }
+
+}
+else
+{
+    <p><em>Error...</em></p>
+}
+
+@code {
+
+    [CascadingParameter(Name = "PriceHistory")]
+    private IEnumerable<KlineVO> _priceHistory { get; set; }
+
+    [CascadingParameter(Name = "PaginationQuantity")]
+    private PaginationQuantity _paginationQuantity { get; set; }
+
+    private IndicatorType _indicatorType = IndicatorType.RSI;
+    private RSITimeframe _rsiTimeframe = RSITimeframe.Two;
+    private SMAPriceType _smaPriceType = SMAPriceType.High;
+
+    private List<decimal> _indicatorValues = new List<decimal>();
+
+    private int _smaTimePeriod = 10;
+
+    private bool _requestFailed = false;
+
+    private const string RSITImeframeLabel = "Timeframe:";
+    private const int RSIOverboughtTreshold = 70;
+    private const int RSIOversoldTreshold = 30;
+
+    private readonly Dictionary<IndicatorType, string> IndicatorDictionary = new Dictionary<IndicatorType, string>()
+{
+        { IndicatorType.RSI, "rsi" },
+        { IndicatorType.SMA, "sma" }
+    };
+
+    private bool IsRSIAvailableForGivenTimeframe()
+    {
+        return _priceHistory.Count() >= (int)_paginationQuantity + (int)_rsiTimeframe + 1;
+    }
+
+    private bool IsSMAAvailableForGivenTimePeriod()
+    {
+        return _priceHistory.Count() >= (int)_paginationQuantity + (int)_smaTimePeriod;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await RefreshIndicatorView();
+    }
+
+    private async Task RefreshIndicatorView()
+    {
+        if (_priceHistory != null)
+        {
+            if (_indicatorType == IndicatorType.RSI && IsRSIAvailableForGivenTimeframe() == false)
+                return;
+            if (_indicatorType == IndicatorType.SMA && IsSMAAvailableForGivenTimePeriod() == false)
+                return;
+            var requestMessage = PrepareRequestMessage();
+            var response = await Http.SendAsync(requestMessage);
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                _requestFailed = true;
+            }
+            else
+            {
+                switch (_indicatorType)
+                {
+                    case IndicatorType.RSI:
+                        _indicatorValues = JsonConvert.DeserializeObject<RSIIndicatorVm>(jsonString).RSI;
+                        await DrawCandlestickChart();
+                        await DrawRSIChart();
+                        break;
+                    case IndicatorType.SMA:
+                        _indicatorValues = JsonConvert.DeserializeObject<SMAIndicatorVm>(jsonString).SMA;
+                        await DrawSMAComboChart();
+                        break;
+                    default: // impossible to reach
+                        break;
+                }
+
+            }
+        }
+    }
+
+    private HttpRequestMessage PrepareRequestMessage()
+    {
+        int dataForCalculationCount;
+        string json;
+
+        switch (_indicatorType)
+        {
+            case IndicatorType.RSI:
+                dataForCalculationCount = (int)_paginationQuantity + (int)_rsiTimeframe + 1;
+                json = JsonConvert.SerializeObject(new RSIDto()
+                {
+                    ClosePrices = _priceHistory.Select(p => p.ClosePrice).Take(dataForCalculationCount).ToList(),
+                    Timeframe = _rsiTimeframe
+                });
+                break;
+            case IndicatorType.SMA:
+                dataForCalculationCount = (int)_paginationQuantity + _smaTimePeriod - 1;
+                json = JsonConvert.SerializeObject(new SMADto()
+                {
+                    Prices = _smaPriceType == SMAPriceType.High ? _priceHistory.Select(p => p.HighestPrice).Take(dataForCalculationCount).ToList() :
+                        _smaPriceType == SMAPriceType.Low ? _priceHistory.Select(p => p.LowestPrice).Take(dataForCalculationCount).ToList() :
+                        _smaPriceType == SMAPriceType.Open ? _priceHistory.Select(p => p.OpenPrice).Take(dataForCalculationCount).ToList() :
+                        _priceHistory.Select(p => p.ClosePrice).Take(dataForCalculationCount).ToList(),
+                    TimePeriod = _smaTimePeriod
+                });
+                break;
+            default:
+                json = ""; // impossible to reach
+                break;
+        }
+
+        var requestMessage = new HttpRequestMessage()
+        {
+            Method = new HttpMethod("POST"),
+            RequestUri = new Uri($"/api/indicator/{IndicatorDictionary[_indicatorType]}"),
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+
+        return requestMessage;
+    }
+
+    private async Task DrawSMAComboChart()
+    {
+        var dt = new DataTable();
+        dt.AddColumn(new Column(ColumnType.String, "Date"));
+        dt.AddColumn(new Column(ColumnType.Number, "Low"));
+        dt.AddColumn(new Column(ColumnType.Number, "Open"));
+        dt.AddColumn(new Column(ColumnType.Number, "Close"));
+        dt.AddColumn(new Column(ColumnType.Number, "High"));
+        dt.AddColumn(new Column(ColumnType.Number, "SMA"));
+
+        for (int i = 0; i < _indicatorValues.Count; i++)
+        {
+            Row r = dt.NewRow();
+            r.AddCellRange(new Cell[]
+            {
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].CloseTime.ToString("dd MMM yyyy, HH:mm:ss")),
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].LowestPrice),
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].OpenPrice),
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].ClosePrice),
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].HighestPrice),
+                new Cell(_indicatorValues[i])
+                            });
+            dt.AddRow(r);
+        }
+
+        var jsonData = dt.GetJson();
+
+        await jsRuntime.InvokeVoidAsync("drawSMA", jsonData);
+    }
+
+    private async Task DrawCandlestickChart()
+    {
+        var candlesticks = _priceHistory.Take((int)_paginationQuantity).ToArray().Reverse();
+
+        var jsonData = candlesticks.ToGoogleDataTable()
+            .NewColumn(new Column(ColumnType.String, "Date"), x => x.CloseTime.ToString("dd MMM yyyy, HH:mm:ss"))
+            .NewColumn(new Column(ColumnType.Number, "Low"), x => x.LowestPrice)
+            .NewColumn(new Column(ColumnType.Number, "Open"), x => x.OpenPrice)
+            .NewColumn(new Column(ColumnType.Number, "Close"), x => x.ClosePrice)
+            .NewColumn(new Column(ColumnType.Number, "High"), x => x.HighestPrice)
+            .Build()
+            .GetJson();
+
+        await jsRuntime.InvokeVoidAsync("drawCandlestickChart", jsonData);
+    }
+
+    private async Task DrawRSIChart()
+    {
+        var dt = new DataTable();
+        dt.AddColumn(new Column(ColumnType.String, "Date"));
+        dt.AddColumn(new Column(ColumnType.Number, "Value"));
+        dt.AddColumn(new Column(ColumnType.Number, "Oversold"));
+        dt.AddColumn(new Column(ColumnType.Number, "Overbought"));
+
+        for (int i = 0; i < _indicatorValues.Count; i++)
+        {
+            Row r = dt.NewRow();
+            r.AddCellRange(new Cell[]
+            {
+                new Cell(_priceHistory.ToList()[_indicatorValues.Count - 1 - i].CloseTime.ToString("dd MMM yyyy, HH:mm:ss")),
+                new Cell(_indicatorValues[i]),
+                new Cell(RSIOversoldTreshold),
+                new Cell(RSIOverboughtTreshold)
+                            });
+            dt.AddRow(r);
+        }
+
+        var jsonData = dt.GetJson();
+
+        await jsRuntime.InvokeVoidAsync("drawRSI", jsonData);
+    }
+
+}

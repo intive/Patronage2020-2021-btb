@@ -45,6 +45,13 @@ namespace BTB.Server
                     var mediator = services.GetRequiredService<IMediator>();
                     await mediator.Send(new SeedSampleDataCommand(), CancellationToken.None);
                     await mediator.Send(new LoadSymbolsCommand(), CancellationToken.None);
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.FiveMin, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.FifteenMin, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.OneHour, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.TwoHours, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.FourHours, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.TwelveHours, Amount = 5 });
+                    await mediator.Send(new LoadKlinesCommand() { KlineType = TimestampInterval.OneDay, Amount = 200 });
                 }
                 catch (Exception e)
                 {

@@ -69,7 +69,7 @@ namespace BTB.Server.Services
 
             foreach (TimestampInterval tst in intervals)
             {
-                await handler.Handle(new LoadKlinesCommand() { ContainSymbol = "BTC", KlineType = tst, UpdateFromMultiplier = multiplier }, CancellationToken.None);
+                await handler.Handle(new LoadKlinesCommand() { KlineType = tst, Amount = 1 }, CancellationToken.None);
             }
         }
 
