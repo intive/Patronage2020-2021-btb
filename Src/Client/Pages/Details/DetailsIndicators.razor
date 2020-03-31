@@ -57,9 +57,9 @@
     {
         @if (_priceHistory.Count() >= (int)_paginationQuantity + (int)_rsiTimeframe + 1)
         {
-            <div id="candlestick_chart_div" style="width: 900px; height: 350px;"></div>
+            @*<div id="candlestick_chart_div" style="width: 900px; height: 350px;"></div>
             <br />
-            <div id="rsi_chart_div" style="width: 900px; height: 240px;"></div>
+            <div id="rsi_chart_div" style="width: 900px; height: 240px;"></div>*@
         }
         else
         {
@@ -83,6 +83,8 @@ else
 {
     <p><em>Error...</em></p>
 }
+
+<div id="test_chart_div"></div>
 
 @code {
 
@@ -145,20 +147,23 @@ else
             }
             else
             {
-                switch (_indicatorType)
-                {
-                    case IndicatorType.RSI:
-                        _indicatorValues = JsonConvert.DeserializeObject<RSIIndicatorVm>(jsonString).RSI;
-                        await DrawCandlestickChart();
-                        await DrawRSIChart();
-                        break;
-                    case IndicatorType.SMA:
-                        _indicatorValues = JsonConvert.DeserializeObject<SMAIndicatorVm>(jsonString).SMA;
-                        await DrawSMAComboChart();
-                        break;
-                    default: // impossible to reach
-                        break;
-                }
+                await jsRuntime.InvokeVoidAsync("drawMe");
+
+
+                //switch (_indicatorType)
+                //{
+                //    case IndicatorType.RSI:
+                //        _indicatorValues = JsonConvert.DeserializeObject<RSIIndicatorVm>(jsonString).RSI;
+                //        await DrawCandlestickChart();
+                //        await DrawRSIChart();
+                //        break;
+                //    case IndicatorType.SMA:
+                //        _indicatorValues = JsonConvert.DeserializeObject<SMAIndicatorVm>(jsonString).SMA;
+                //        await DrawSMAComboChart();
+                //        break;
+                //    default: // impossible to reach
+                //        break;
+                //}
 
             }
         }
