@@ -32,11 +32,11 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Returns information about current user's credentials.
         /// </summary>
-        /// <returns>A view model containing information about current user's credentials. <see cref="UserInfoDto"/></returns>
+        /// <returns>A view model containing information about current user's credentials. <see cref="AuthorizationInfoDto"/></returns>
         /// <response code="200">When succesful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<UserInfoDto>> UserInfo()
+        public async Task<ActionResult<AuthorizationInfoDto>> UserInfo()
         {
             var userInfo = await Mediator.Send(new GetUserInfoQuery { User = User });
             return Ok(userInfo);

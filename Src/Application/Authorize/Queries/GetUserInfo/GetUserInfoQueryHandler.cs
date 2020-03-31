@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Authorize.Queries.GetUserInfo
 {
-    public class GetUserInfoQueryHandler : IRequestHandler<GetUserInfoQuery, UserInfoDto>
+    public class GetUserInfoQueryHandler : IRequestHandler<GetUserInfoQuery, AuthorizationInfoDto>
     {
-        public Task<UserInfoDto> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
+        public Task<AuthorizationInfoDto> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
         {
-            var userInfo = new UserInfoDto
+            var userInfo = new AuthorizationInfoDto
             {
                 IsAuthenticated = request.User.Identity.IsAuthenticated,
                 UserName = request.User.Identity.Name,
