@@ -32,7 +32,7 @@ namespace Application.UnitTests.Alerts.Commands
             var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
             var command = new CreateAlertCommand()
             {
-                Symbol = expectedTradingPair,
+                SymbolPair = expectedTradingPair,
                 Condition = expectedCondition,
                 ValueType = expectedValueType,
                 Value = expectedValue,
@@ -44,7 +44,7 @@ namespace Application.UnitTests.Alerts.Commands
 
             var dbResult = _context.Alerts.SingleOrDefault(a => a.UserId == expectedUserId && a.Id == sutResult.Id);
             Assert.NotNull(dbResult);
-            Assert.Equal(expectedTradingPair, dbResult.Symbol);
+            Assert.Equal(expectedTradingPair, dbResult.SymbolPair);
             Assert.Equal(expectedCondition, dbResult.Condition);
             Assert.Equal(expectedValueType, dbResult.ValueType);
             Assert.Equal(expectedValue, dbResult.Value);
@@ -66,7 +66,7 @@ namespace Application.UnitTests.Alerts.Commands
             var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
             var command = new CreateAlertCommand()
             {
-                Symbol = tradingPair
+                SymbolPair = tradingPair
             };
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));

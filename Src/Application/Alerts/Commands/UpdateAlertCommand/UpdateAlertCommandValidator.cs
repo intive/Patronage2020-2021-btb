@@ -9,7 +9,7 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
     {
         public UpdateAlertCommandValidator()
         {
-            RuleFor(a => a.Symbol)
+            RuleFor(a => a.SymbolPair)
                 .MaximumLength(10)
                 .Matches("^$|^([A-Z]{5,10})$")
                 .NotEmpty();

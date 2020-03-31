@@ -12,7 +12,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
 {
     public class CreateAlertCommand : IRequest<AlertVm>
     {
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }
@@ -37,9 +37,9 @@ namespace BTB.Application.Alerts.Commands.CreateAlert
 
             public async Task<AlertVm> Handle(CreateAlertCommand request, CancellationToken cancellationToken)
             {
-                if (_client.GetSymbolNames(request.Symbol) == null)
+                if (_client.GetSymbolNames(request.SymbolPair) == null)
                 {
-                    throw new BadRequestException($"Trading pair symbol '{request.Symbol}' does not exist.");
+                    throw new BadRequestException($"Trading pair symbol '{request.SymbolPair}' does not exist.");
                 }
 
                 var alert = _mapper.Map<Alert>(request);

@@ -10,7 +10,7 @@ namespace BTB.Persistence.Configurations
         {
             builder.HasKey(a => a.Id);
 
-            builder.Property(a => a.Symbol)
+            builder.Property(a => a.SymbolPair)
                 .HasMaxLength(10)
                 .IsRequired();
 

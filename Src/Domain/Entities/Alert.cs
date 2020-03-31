@@ -7,7 +7,7 @@ namespace BTB.Domain.Entities
         public int Id { get; set; }
         public string UserId { get; set; }
         public virtual ApplicationUser User { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }

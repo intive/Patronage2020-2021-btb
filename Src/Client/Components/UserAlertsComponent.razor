@@ -93,8 +93,8 @@
                     <div class="card mb-2">
                         <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
                             <div>
-                                <NavLink class="btn btn-link" href="@($"/details/{alert.Symbol}")" @onclick:stopPropagation="true">
-                                    @alert.Symbol
+                                <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
+                                    @alert.SymbolPair
                                 </NavLink>
                             </div>
 

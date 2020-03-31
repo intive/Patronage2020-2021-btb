@@ -8,7 +8,7 @@
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
     <FluentValidator Validator="_validator"/>
 
-    <h4>Create Alert on @_alertDto.Symbol</h4>
+    <h4>Create Alert on @_alertDto.SymbolPair</h4>
 
     <div class="form-group row mb-0">
         <label for="condition" class="col-sm-6 col-form-label">Select condition</label>
@@ -91,7 +91,7 @@
 
         _formModel = new AlertFormModel()
         {
-            Symbol = _alertDto.Symbol,
+            SymbolPair = _alertDto.SymbolPair,
             Condition = _alertDto.Condition,
             ValueType = _alertDto.ValueType,
             Value = _alertDto.Value,

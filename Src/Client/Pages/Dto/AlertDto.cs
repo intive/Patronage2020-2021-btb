@@ -8,7 +8,7 @@ namespace BTB.Client.Pages.Dto
     public class AlertDto
     {
         public int Id { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }

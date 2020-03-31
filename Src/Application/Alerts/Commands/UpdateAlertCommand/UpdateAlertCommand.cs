@@ -15,7 +15,7 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
     public class UpdateAlertCommand : IRequest
     {
         public int Id { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }
@@ -40,9 +40,9 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
 
             public async Task<Unit> Handle(UpdateAlertCommand request, CancellationToken cancellationToken)
             {
-                if (_client.GetSymbolNames(request.Symbol) == null)
+                if (_client.GetSymbolNames(request.SymbolPair) == null)
                 {
-                    throw new BadRequestException($"Trading pair symbol '{request.Symbol}' does not exist.");
+                    throw new BadRequestException($"Trading pair symbol '{request.SymbolPair}' does not exist.");
                 }
 
                 var dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userIdentity.UserId, cancellationToken);
