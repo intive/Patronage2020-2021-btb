@@ -44,9 +44,9 @@ namespace BTB.Client.Services.Implementations
             result.EnsureSuccessStatusCode();
         }
 
-        public async Task<UserInfoDto> GetUserInfo()
+        public async Task<AuthorizationInfoDto> GetAuthorizationInfo()
         {
-            var result = await _httpClient.GetJsonAsync<UserInfoDto>("api/Authorize/UserInfo");
+            var result = await _httpClient.GetJsonAsync<AuthorizationInfoDto>("api/Authorize/GetAuthorizationInfo");
             return result;
         }
     }

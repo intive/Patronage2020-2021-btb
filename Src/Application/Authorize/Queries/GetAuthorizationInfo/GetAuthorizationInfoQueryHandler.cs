@@ -6,18 +6,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.Authorize.Queries.GetUserInfo
+namespace BTB.Application.Authorize.Queries.GetAuthorizationInfo
 {
-    public class GetUserInfoQueryHandler : IRequestHandler<GetUserInfoQuery, AuthorizationInfoDto>
+    public class GetAuthorizationInfoQueryHandler : IRequestHandler<GetAuthorizationInfoQuery, AuthorizationInfoDto>
     {
         private readonly IMapper _mapper;
 
-        public GetUserInfoQueryHandler(IMapper _mapper)
+        public GetAuthorizationInfoQueryHandler(IMapper _mapper)
         {
             this._mapper = _mapper;
         }
 
-        public Task<AuthorizationInfoDto> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
+        public Task<AuthorizationInfoDto> Handle(GetAuthorizationInfoQuery request, CancellationToken cancellationToken)
         {
             var authInfo = new AuthorizationInfo
             {

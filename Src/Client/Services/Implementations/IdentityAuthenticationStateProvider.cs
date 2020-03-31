@@ -11,7 +11,7 @@ namespace BTB.Client.States
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private UserInfoDto _userInfoCache;
+        private AuthorizationInfoDto _authInfoCache;
         private readonly IAuthorizeApi _authorizeApi;
 
         public IdentityAuthenticationStateProvider(IAuthorizeApi authorizeApi)
@@ -34,15 +34,15 @@ namespace BTB.Client.States
         public async Task Logout()
         {
             await _authorizeApi.Logout();
-            _userInfoCache = null;
+            _authInfoCache = null;
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
-        private async Task<UserInfoDto> GetUserInfo()
+        private async Task<AuthorizationInfoDto> GetAuthorizationInfo()
         {
-            if (_userInfoCache != null && _userInfoCache.IsAuthenticated) return _userInfoCache;
-            _userInfoCache = await _authorizeApi.GetUserInfo();
-            return _userInfoCache;
+            if (_authInfoCache != null && _authInfoCache.IsAuthenticated) return _authInfoCache;
+            _authInfoCache = await _authorizeApi.GetAuthorizationInfo();
+            return _authInfoCache;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -50,10 +50,10 @@ namespace BTB.Client.States
             var identity = new ClaimsIdentity();
             try
             {
-                var userInfo = await GetUserInfo();
+                var userInfo = await GetAuthorizationInfo();
                 if (userInfo.IsAuthenticated)
                 {
-                    var claims = new[] { new Claim(ClaimTypes.Name, _userInfoCache.UserName) }.Concat(_userInfoCache.ExposedClaims.Select(c => new Claim(c.Key, c.Value)));
+                    var claims = new[] { new Claim(ClaimTypes.Name, _authInfoCache.UserName) }.Concat(_authInfoCache.ExposedClaims.Select(c => new Claim(c.Key, c.Value)));
                     identity = new ClaimsIdentity(claims, "Server authentication");
                 }
             }

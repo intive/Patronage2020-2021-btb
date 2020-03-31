@@ -2,9 +2,9 @@
 using MediatR;
 using System.Security.Claims;
 
-namespace BTB.Application.Authorize.Queries.GetUserInfo
+namespace BTB.Application.Authorize.Queries.GetAuthorizationInfo
 {
-    public class GetUserInfoQuery : IRequest<AuthorizationInfoDto>
+    public class GetAuthorizationInfoQuery : IRequest<AuthorizationInfoDto>
     {
         public ClaimsPrincipal User { get; set; }
     }

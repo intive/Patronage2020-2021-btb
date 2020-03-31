@@ -2,7 +2,7 @@
 
 namespace BTB.Client.Pages.Dto.Authorization
 {
-    public class UserInfoDto
+    public class AuthorizationInfoDto
     {
         public bool IsAuthenticated { get; set; }
         public string UserName { get; set; }

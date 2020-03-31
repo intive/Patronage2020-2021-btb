@@ -2,7 +2,7 @@
 using BTB.Application.Authorize.Commands.Logout;
 using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Authorize.Common;
-using BTB.Application.Authorize.Queries.GetUserInfo;
+using BTB.Application.Authorize.Queries.GetAuthorizationInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,10 +36,10 @@ namespace BTB.Server.Controllers
         /// <response code="200">When succesful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<AuthorizationInfoDto>> UserInfo()
+        public async Task<ActionResult<AuthorizationInfoDto>> GetAuthorizationInfo()
         {
-            var userInfo = await Mediator.Send(new GetUserInfoQuery { User = User });
-            return Ok(userInfo);
+            var authInfo = await Mediator.Send(new GetAuthorizationInfoQuery { User = User });
+            return Ok(authInfo);
         }
 
         /// <summary>
