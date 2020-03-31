@@ -12,7 +12,6 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
             CreateMap<Alert, AlertVm>();
-            CreateMap<AuthorizationInfo, AuthorizationInfoDto>();
         }
     }
 }

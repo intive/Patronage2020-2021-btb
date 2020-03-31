@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Authorize\Commands\" />
     <Folder Include="UserProfile\Commands\" />
     <Folder Include="UserProfile\Queries\" />
   </ItemGroup>
