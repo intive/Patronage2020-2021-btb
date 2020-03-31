@@ -1,14 +1,11 @@
 ﻿using Binance.Net.Interfaces;
 using Binance.Net.Objects;
-using BTB.Domain.Entities;
 using CryptoExchange.Net.Objects;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,14 +25,14 @@ namespace Application.UnitTests.Common
 
         private static void IncludeAllMockMethods(Mock<IBinanceClient> _binanceClientMock)
         {
-            Type type = typeof(BinanceClientMockFactory);
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+            var type = typeof(BinanceClientMockFactory);
+            var methods = type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
             foreach (var fun in methods)
             {
                 try
                 {
-                    string name = fun.Name.Substring(0, 5);
+                    var name = fun.Name.Substring(0, 5);
 
                     if (String.Equals(name, "Mock_"))
                     {
@@ -44,7 +41,7 @@ namespace Application.UnitTests.Common
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                }            
+                }
             }
         }
 
@@ -80,7 +77,7 @@ namespace Application.UnitTests.Common
 
             binanceClientMock
                 .Setup(client => client.GetKlinesAsync(It.IsAny<string>(), It.IsAny<KlineInterval>(), null, null, null, CancellationToken.None))
-                .Returns( Task.Run(() => new WebCallResult<IEnumerable<BinanceKline>>(HttpStatusCode.OK, null, historyList, null)));
+                .Returns(Task.Run(() => new WebCallResult<IEnumerable<BinanceKline>>(HttpStatusCode.OK, null, historyList, null)));
         }
 
         private static void Mock_GetPriceAsync(ref Mock<IBinanceClient> binanceClientMock)
@@ -90,5 +87,5 @@ namespace Application.UnitTests.Common
             binanceClientMock.Setup(client => client.GetPriceAsync(It.IsAny<string>(), CancellationToken.None))
                 .Returns(Task.Run(() => new WebCallResult<BinancePrice>(HttpStatusCode.OK, null, price, null)));
         }
-    } 
+    }
 }
