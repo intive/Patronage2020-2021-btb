@@ -16,7 +16,7 @@ namespace BTB.Client.States
 
         public IdentityAuthenticationStateProvider(IAuthorizeApi authorizeApi)
         {
-            this._authorizeApi = authorizeApi;
+            _authorizeApi = authorizeApi;
         }
 
         public async Task Login(LoginParametersDto loginParameters)
@@ -38,10 +38,10 @@ namespace BTB.Client.States
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
-        private async Task<AuthorizationInfoDto> GetAuthorizationInfo()
+        private async Task<AuthorizationInfoDto> AuthorizationInfo()
         {
             if (_authInfoCache != null && _authInfoCache.IsAuthenticated) return _authInfoCache;
-            _authInfoCache = await _authorizeApi.GetAuthorizationInfo();
+            _authInfoCache = await _authorizeApi.AuthorizationInfo();
             return _authInfoCache;
         }
 
@@ -50,7 +50,7 @@ namespace BTB.Client.States
             var identity = new ClaimsIdentity();
             try
             {
-                var userInfo = await GetAuthorizationInfo();
+                var userInfo = await AuthorizationInfo();
                 if (userInfo.IsAuthenticated)
                 {
                     var claims = new[] { new Claim(ClaimTypes.Name, _authInfoCache.UserName) }.Concat(_authInfoCache.ExposedClaims.Select(c => new Claim(c.Key, c.Value)));

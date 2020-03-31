@@ -36,7 +36,7 @@ namespace BTB.Server.Controllers
         /// <response code="200">When succesful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<AuthorizationInfoDto>> GetAuthorizationInfo()
+        public async Task<ActionResult<AuthorizationInfoDto>> AuthorizationInfo()
         {
             var authInfo = await Mediator.Send(new GetAuthorizationInfoQuery { User = User });
             return Ok(authInfo);

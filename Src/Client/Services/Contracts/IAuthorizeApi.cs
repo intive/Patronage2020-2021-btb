@@ -11,6 +11,6 @@ namespace BTB.Client.Services.Contracts
 
         Task Logout();
 
-        Task<AuthorizationInfoDto> GetAuthorizationInfo();
+        Task<AuthorizationInfoDto> AuthorizationInfo();
     }
 }
