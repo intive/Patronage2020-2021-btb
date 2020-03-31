@@ -1,4 +1,4 @@
-﻿namespace BTB.Application.Authorize.Commands.Login
+﻿namespace BTB.Application.Authorize.Common
 {
     public class LoginParametersDto
     {

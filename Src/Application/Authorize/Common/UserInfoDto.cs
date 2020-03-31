@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace BTB.Application.Authorize.Queries.GetUserInfo
+namespace BTB.Application.Authorize.Common
 {
-    public class UserInfoVm
+    public class UserInfoDto
     {
         public bool IsAuthenticated { get; set; }
         public string UserName { get; set; }
