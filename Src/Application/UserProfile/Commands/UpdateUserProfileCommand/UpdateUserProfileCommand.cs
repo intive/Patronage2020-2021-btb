@@ -2,6 +2,7 @@
 using Binance.Net.Interfaces;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -43,8 +44,8 @@ namespace BTB.Application.UserProfile.Commands.UpdateUserProfileCommand
                     }
                 }
 
-                var userId = _userIdentity.UserId;
-                var dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
+                string userId = _userIdentity.UserId;
+                UserProfileInfo dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
                 if (dbUserProfileInfo == null)
                 {

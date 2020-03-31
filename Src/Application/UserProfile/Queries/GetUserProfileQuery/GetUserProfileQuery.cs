@@ -2,6 +2,7 @@
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.UserProfile.Common;
+using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +30,8 @@ namespace BTB.Application.UserProfile.Queries.GetUserProfileQuery
 
             public async Task<UserProfileInfoVm> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
             {
-                var userId = _userIdentity.UserId;
-                var userProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
+                string userId = _userIdentity.UserId;
+                UserProfileInfo userProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
                 if (userProfileInfo == null)
                 {

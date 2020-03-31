@@ -45,8 +45,8 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
                     }
                 }
 
-                var userId = _userIdentity.UserId;
-                var dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
+                string userId = _userIdentity.UserId;
+                UserProfileInfo dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
                 if (dbUserProfileInfo != null)
                 {
