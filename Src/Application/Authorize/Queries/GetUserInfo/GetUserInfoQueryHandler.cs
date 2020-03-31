@@ -1,4 +1,6 @@
-﻿using BTB.Application.Authorize.Common;
+﻿using AutoMapper;
+using BTB.Application.Authorize.Common;
+using BTB.Domain.Entities;
 using MediatR;
 using System.Linq;
 using System.Threading;
@@ -8,9 +10,16 @@ namespace BTB.Application.Authorize.Queries.GetUserInfo
 {
     public class GetUserInfoQueryHandler : IRequestHandler<GetUserInfoQuery, AuthorizationInfoDto>
     {
+        private readonly IMapper _mapper;
+
+        public GetUserInfoQueryHandler(IMapper _mapper)
+        {
+            this._mapper = _mapper;
+        }
+
         public Task<AuthorizationInfoDto> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
         {
-            var userInfo = new AuthorizationInfoDto
+            var authInfo = new AuthorizationInfo
             {
                 IsAuthenticated = request.User.Identity.IsAuthenticated,
                 UserName = request.User.Identity.Name,
@@ -18,7 +27,9 @@ namespace BTB.Application.Authorize.Queries.GetUserInfo
                     .ToDictionary(c => c.Type, c => c.Value)
             };
 
-            return Task.FromResult(userInfo);
+            var authInfoDto = _mapper.Map<AuthorizationInfoDto>(authInfo);
+
+            return Task.FromResult(authInfoDto);
         }
     }
 }

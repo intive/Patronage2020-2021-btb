@@ -32,7 +32,7 @@ namespace BTB.Server.Controllers
         /// <summary>
         /// Returns information about current user's credentials.
         /// </summary>
-        /// <returns>A view model containing information about current user's credentials. <see cref="AuthorizationInfoDto"/></returns>
+        /// <returns>A data transfer object containing information about current user's credentials. <see cref="AuthorizationInfoDto"/></returns>
         /// <response code="200">When succesful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
