@@ -33,15 +33,18 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
             public async Task<IEnumerable<SimplePriceVO>> Handle(GetListQuery request, CancellationToken cancellationToken)
             {
                 var result = await _client.Get24HPricesListAsync();
+                var klinesVOs = new List<KlineVO>();
 
                 if (request.Name != null)
                 {
                     result = await _client.FilterKlines(request.Name, result.ToList());
                 }
 
+                klinesVOs = _client.KlinesToValueObject(result.ToList());
+
                 if (result.Any())
                 {
-                    var prices = await _client.ToSimplePrices(result.ToList());
+                    var prices = await _client.ToSimplePrices(klinesVOs.ToList());
                     var selectedData = prices.AsQueryable();
 
                     _httpContextAccessor.HttpContext.InsertPaginationParameterInResponseHeader(selectedData.Count(),

@@ -50,26 +50,22 @@ namespace BTB.Server.Services
             _context = Startup.BTBDbContext;
             var handler = new LoadKlinesCommandHandler(_client, _context);
 
-            long multiplier = 1;
+            int amount = 1;
             if (_initialCall)
             {
                 _initialCall = false;
-                multiplier = 10;
+               //amount = 155;
             }
-
-            var test = Stopwatch.StartNew();
-            await LoadKlines(_klinesToUpdate, multiplier);
-
-            test.Stop();
+            await LoadKlines(_klinesToUpdate, amount);
         }        
 
-        private async Task LoadKlines(List<TimestampInterval> intervals, long multiplier)
+        private async Task LoadKlines(List<TimestampInterval> intervals, int amount)
         {
             var handler = new LoadKlinesCommandHandler(_client, _context);
 
             foreach (TimestampInterval tst in intervals)
             {
-                await handler.Handle(new LoadKlinesCommand() { KlineType = tst, Amount = 1 }, CancellationToken.None);
+                await handler.Handle(new LoadKlinesCommand() { KlineType = tst, Amount = amount }, CancellationToken.None);
             }
         }
 

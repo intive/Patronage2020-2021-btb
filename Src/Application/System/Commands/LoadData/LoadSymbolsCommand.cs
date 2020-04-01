@@ -24,7 +24,8 @@ namespace BTB.Application.System.Commands.LoadData
             private Hashtable _symbolsTemp;
             private Action<Hashtable, string> _tableChecker;
 
-            private List<string> _allowedBuySymbols;
+            private List<string> _allowedSymbols;
+            private const int MaxSymbolPairsCount = 25;
 
             public LoadSymbolsCommandHandler(IBTBDbContext context, IBinanceClient client)
             {
@@ -66,8 +67,8 @@ namespace BTB.Application.System.Commands.LoadData
 
             private void SetAllowedSymbols()
             {
-                _allowedBuySymbols = new List<string>();
-                _allowedBuySymbols.Add("BTC");
+                _allowedSymbols = new List<string>();
+                _allowedSymbols.Add("BTC");
             }
 
             private bool AreSymbolsAdded()
@@ -126,7 +127,10 @@ namespace BTB.Application.System.Commands.LoadData
                     symbolBuy = _context.Symbols.First(x => x.SymbolName == symb.BaseAsset);
                     symbolSell = _context.Symbols.First(x => x.SymbolName == symb.QuoteAsset);
 
-                    if (_allowedBuySymbols.FirstOrDefault(a => string.Equals(a, symbolBuy.SymbolName)) == default)
+                    if (
+                        !(_allowedSymbols.Contains(symbolBuy.SymbolName) ||
+                        _allowedSymbols.Contains(symbolSell.SymbolName))    
+                       )
                         continue;
 
                     symbolPairs.Add(new SymbolPair()
@@ -134,6 +138,11 @@ namespace BTB.Application.System.Commands.LoadData
                         BuySymbol = symbolBuy,
                         SellSymbol = symbolSell
                     });
+
+                    if (symbolPairs.Count > MaxSymbolPairsCount)
+                    {
+                        break;
+                    }
                 }
 
                 await _context.SymbolPairs.AddRangeAsync(symbolPairs.ToArray());

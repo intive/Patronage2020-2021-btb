@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace BTB.Application.System.Commands.LoadData
     {
         public TimestampInterval KlineType { get; set; }
         public int Amount { get; set; }
+        public bool InitialCall { get; set; }
 
         public class LoadKlinesCommandHandler : IRequestHandler<LoadKlinesCommand>
         {
@@ -38,11 +40,19 @@ namespace BTB.Application.System.Commands.LoadData
 
             public async Task<Unit> Handle(LoadKlinesCommand request, CancellationToken cancellationToken)
             {
+                if (request.InitialCall)
+                {
+                    if (_context.Klines.Where(k => k.DurationTimestamp == request.KlineType).ToList().Any())
+                    {
+                        return Unit.Value;
+                    }
+                }
+
                 if (request.Amount < 1)
                     return Unit.Value;
 
                 SetConfigFromRequest(request);
-                LoadKlinesToDb("BTC");
+                await LoadKlinesToDb("");
 
                 return Unit.Value;
             }
@@ -55,7 +65,7 @@ namespace BTB.Application.System.Commands.LoadData
                 _klineCallBuffer = DateTime.UtcNow;                
             }
 
-            private void LoadKlinesToDb(string buySymbolFilter)
+            private async Task LoadKlinesToDb(string buySymbolFilter)
             {
                 var result = _context.SymbolPairs.ToList();                
 
@@ -83,8 +93,13 @@ namespace BTB.Application.System.Commands.LoadData
                         continue;
 
                     string pairName = string.Concat(buySymbol.SymbolName, sellSymbol.SymbolName);
-                    var response = _client.GetKlines(pairName, _klineInterval, _updateFrom, _klineCallBuffer);
+                    var response = await _client.GetKlinesAsync(pairName, _klineInterval, _updateFrom, _klineCallBuffer);
                     var klineList = response.Data;
+
+                    if (response.ResponseStatusCode == HttpStatusCode.TooManyRequests)
+                    {
+                        Thread.Sleep(1000 * 30);
+                    }
 
                     foreach (BinanceKline kline in klineList)
                     {
@@ -121,6 +136,7 @@ namespace BTB.Application.System.Commands.LoadData
                     }
                 }
                 stopWatch.Stop();
+                
                 _context.Klines.AddRange(klines.ToArray());
                 _context.SaveChanges();
             }
