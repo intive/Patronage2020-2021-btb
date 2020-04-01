@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="FavoriteSymbolPairs\Queries\GetAllFavoriteSymbolPairs\" />
     <Folder Include="UserProfile\Commands\" />
     <Folder Include="UserProfile\Queries\" />
   </ItemGroup>
