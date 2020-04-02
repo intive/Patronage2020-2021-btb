@@ -19,8 +19,8 @@ namespace BTB.Client.Models.Validation
                 .MaximumLength(256).WithMessage("Profile bio cannot be longer than 256 characters.");
 
             RuleFor(i => i.FavouriteTradingPair)
-                .MaximumLength(10).WithMessage("Trading pair symbol cannot be longer than 10 characters.")
-                .Matches("^$|^([A-Z]{5,10})$").WithMessage("Trading pair format is incorrect.");
+                .MaximumLength(20).WithMessage("Trading pair symbol cannot be longer than 20 characters.")
+                .Matches("^$|^([A-Z]{5,20})$").WithMessage("Trading pair format is incorrect.");
         }
     }
 }

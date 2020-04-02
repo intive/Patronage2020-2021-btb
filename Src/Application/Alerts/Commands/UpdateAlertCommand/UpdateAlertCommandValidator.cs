@@ -10,8 +10,8 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
         public UpdateAlertCommandValidator()
         {
             RuleFor(a => a.SymbolPair)
-                .MaximumLength(10)
-                .Matches("^$|^([A-Z]{5,10})$")
+                .MaximumLength(20)
+                .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
             RuleFor(a => a.Condition)

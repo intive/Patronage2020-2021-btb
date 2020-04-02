@@ -10,6 +10,11 @@ namespace BTB.Client.Models.Validation
     {
         public AlertFormModelValidator()
         {
+            RuleFor(i => i.SymbolPair)
+                .MaximumLength(20).WithMessage("Symbol pair cannot be longer than 20 characters.")
+                .Matches("^$|^([A-Z]{5,20})$").WithMessage("Trading pair format is incorrect.")
+                .NotEmpty();
+
             RuleFor(a => a.Condition)
                 .NotEmpty().WithMessage("Please choose a condition.");
 
