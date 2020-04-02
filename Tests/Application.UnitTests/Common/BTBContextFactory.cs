@@ -1,5 +1,6 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Common;
+using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Infrastructure;
 using BTB.Persistence;
@@ -39,6 +40,27 @@ namespace Application.UnitTests.Common
                 new Alert() { Id = 4, UserId = "2", SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "price", Value = 4000.0d, SendEmail = false, Email = null, Message = null },
                 new Alert() { Id = 5, UserId = "3", SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "volume", Value = 5000.0d, SendEmail = true, Email = "alert5@alert5.com", Message = "alert id: 5, user id: 3" },
                 new Alert() { Id = 6, UserId = "3", SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "price", Value = 6000.0d, SendEmail = false, Email = null, Message = null }
+            );
+
+            context.Klines.AddRange
+            (
+                new Kline() { Id = 1 , SymbolPairId = 1, DurationTimestamp = TimestampInterval.OneDay, ClosePrice = 1, OpenPrice = 1, Volume = 1 }
+            );
+
+            context.Symbols.AddRange
+            (
+                new Symbol() { Id = 1 , SymbolName = "BTC"},
+                new Symbol() { Id = 2 , SymbolName = "USDT" }
+            );
+
+            context.SymbolPairs.AddRange
+            (
+                new SymbolPair() { Id = 1, BuySymbolId = 1, SellSymbolId = 2},
+                new SymbolPair() { Id = 2, BuySymbolId = 1, SellSymbolId = 2}          
+            );
+
+            context.FavoriteSymbolPairs.AddRange(
+                new FavoriteSymbolPair() { ApplicationUserId = "userId", SymbolPairId = 1}
             );
 
             context.SaveChanges();

@@ -24,6 +24,11 @@ using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
 using BTB.Server.Services;
 using BTB.Server.Common.CronGeneric;
+using BTB.Domain.Common;
+using System.Collections.Generic;
+using BTB.Application.System.Commands.LoadData;
+using MediatR;
+using System.Threading;
 
 namespace BTB.Server
 {
@@ -38,7 +43,7 @@ namespace BTB.Server
         }
 
         public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Environment { get; }
+        public static IWebHostEnvironment Environment { get; internal set; }
 
         private static IServiceProvider Provider;
 
@@ -74,13 +79,11 @@ namespace BTB.Server
             services.AddApplication();
 
             Provider = services.BuildServiceProvider();
-
             services.AddCronJob<UpdateExchangeJob>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
                 c.CronExpression = @"*/5 * * * *";
             });
-
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;

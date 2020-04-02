@@ -2,6 +2,7 @@
 using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
 using BTB.Domain.Common;
+using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;
 using Moq;
 using System;
@@ -50,22 +51,19 @@ namespace Application.UnitTests.Common
 
         private static void Mock_Get24HPricesListAsync(ref Mock<IBTBBinanceClient> binanceClientMock)
         {
-            var top10list = new List<SimplePriceVO>()
+            var top10listentity = new List<Kline>()
             {
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "NGN", ClosePrice = 10 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "RUB", ClosePrice = 9 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "TRY", ClosePrice = 8 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "USDS", ClosePrice = 7 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "PAX", ClosePrice = 6 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "USDC", ClosePrice = 5 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "BUSD", ClosePrice = 4 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "TUSD", ClosePrice = 3 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "USDT", ClosePrice = 2 },
-                new SimplePriceVO { BuySymbolName = "BTC", SellSymbolName = "EUR", ClosePrice = 1 }
+                new Kline { OpenPrice = 1, ClosePrice = 1, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 2, ClosePrice = 2, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 3, ClosePrice = 3, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 4, ClosePrice = 4, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 5, ClosePrice = 5, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 6, ClosePrice = 6, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 7, ClosePrice = 7, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin }
             };
 
             binanceClientMock.Setup(client => client.Get24HPricesListAsync())
-                .Returns(Task.Run(() => (IEnumerable<KlineVO>)top10list));
+                .Returns(Task.Run(() => (IEnumerable<Kline>)top10listentity));
         }
 
         private static void Mock_GetKlinesFrom(ref Mock<IBTBBinanceClient> binanceClientMock)
@@ -84,8 +82,19 @@ namespace Application.UnitTests.Common
                 new KlineVO { BuySymbolName = "BTC", SellSymbolName = "EUR", OpenPrice = 10, ClosePrice = 10, OpenTime = DateTime.UtcNow, CloseTime = DateTime.UtcNow }
             };
 
+            var top10listentity = new List<Kline>()
+            {
+                new Kline { OpenPrice = 1, ClosePrice = 1, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 2, ClosePrice = 2, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 3, ClosePrice = 3, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 4, ClosePrice = 4, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 5, ClosePrice = 5, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 6, ClosePrice = 6, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin },
+                new Kline { OpenPrice = 7, ClosePrice = 7, OpenTimestamp = 123, DurationTimestamp = TimestampInterval.FiveMin }
+            };
+
             binanceClientMock.Setup(client => client.GetKlinesFrom(It.IsAny<TimestampInterval>(), It.IsAny<TimestampInterval>()))
-                .Returns(Task.Run(() => top10list));
+                .Returns(Task.Run(() => top10listentity));
 
             binanceClientMock.Setup(client => client.GetKlines(It.IsAny<TimestampInterval>(),It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(Task.Run(() => (IEnumerable<KlineVO>)top10list));
