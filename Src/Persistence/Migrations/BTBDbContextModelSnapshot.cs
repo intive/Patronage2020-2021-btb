@@ -52,7 +52,7 @@ namespace BTB.Persistence.Migrations
                     b.Property<bool>("SendEmail")
                         .HasColumnType("bit");
 
-                    b.Property<string>("SymbolPair")
+                    b.Property<string>("Symbol")
                         .IsRequired()
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
