@@ -4,6 +4,7 @@ using BTB.Application.Alerts.Common;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Linq;
 using System.Threading;
@@ -42,9 +43,13 @@ namespace Application.UnitTests.Alerts.Commands
             };
             var sutResult = await sut.Handle(command, CancellationToken.None);
 
-            var dbResult = _context.Alerts.SingleOrDefault(a => a.UserId == expectedUserId && a.Id == sutResult.Id);
+            var dbResult = _context.Alerts
+                .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
+                .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
+                .SingleOrDefault(a => a.UserId == expectedUserId && a.Id == sutResult.Id);
+
             Assert.NotNull(dbResult);
-            Assert.Equal(expectedTradingPair, dbResult.SymbolPair);
+            Assert.Equal(expectedTradingPair, dbResult.SymbolPair.PairName);
             Assert.Equal(expectedCondition, dbResult.Condition);
             Assert.Equal(expectedValueType, dbResult.ValueType);
             Assert.Equal(expectedValue, dbResult.Value);

@@ -14,7 +14,9 @@ namespace BTB.Application.Common.Mappings
         public EntitiesToDtosMappings()
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
-            CreateMap<Alert, AlertVm>();
+            CreateMap<Alert, AlertVm>()
+                .ForMember(a => a.SymbolPair, opt => opt.MapFrom(src => src.SymbolPair.PairName));
+
             CreateMap<AuditTrail, AuditTrailVm>();
             CreateMap<SymbolPair, SimplePriceVO>()
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))

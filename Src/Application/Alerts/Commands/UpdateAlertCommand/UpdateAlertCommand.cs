@@ -53,6 +53,9 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
                 }
 
                 _mapper.Map(request, dbAlert);
+                SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
+                dbAlert.SymbolPairId = symbolPair.Id;
+
                 await _context.SaveChangesAsync(cancellationToken);
                 return Unit.Value;
             }

@@ -14,11 +14,14 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<CreateUserProfileCommand, UserProfileInfo>();
             CreateMap<UpdateUserProfileCommand, UserProfileInfo>();
-            CreateMap<CreateAlertCommand, Alert>();
             CreateMap<CreateFavoriteSymbolPairCommand, FavoriteSymbolPair>();
 
+            CreateMap<CreateAlertCommand, Alert>()
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
+
             CreateMap<UpdateAlertCommand, Alert>()
-                .ForMember(aler => aler.Id, opt => opt.Ignore());
+                .ForMember(alert => alert.Id, opt => opt.Ignore())
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
         }
     }
 }

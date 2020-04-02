@@ -33,11 +33,16 @@ namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
 
             public async Task<PaginatedResult<AlertVm>> Handle(GetAllAlertsQuery request, CancellationToken cancellationToken)
             {
-                IQueryable<AlertVm> allUserAlerts = _context.Alerts
-                    .Where(alert => alert.UserId == _userIdentity.UserId)
-                    .Select(alert => _mapper.Map<AlertVm>(alert));
+                IQueryable<AlertVm> allUserAlerts =
+                    from alert in _context.Alerts
+                    .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
+                    .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
+                    where alert.UserId == _userIdentity.UserId
+                    select _mapper.Map<AlertVm>(alert);
 
                 int allUserAlertsCount = await allUserAlerts.CountAsync(cancellationToken);
+
+                var list = allUserAlerts.ToList();
 
                 return new PaginatedResult<AlertVm>()
                 {

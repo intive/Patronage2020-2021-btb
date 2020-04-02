@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200402135924_RenamedSymbolToSymbolPairInAlertEntity")]
-    partial class RenamedSymbolToSymbolPairInAlertEntity
+    [Migration("20200402163624_AddedRelationshipBetweenAlertAndSymbolPair")]
+    partial class AddedRelationshipBetweenAlertAndSymbolPair
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,10 +54,8 @@ namespace BTB.Persistence.Migrations
                     b.Property<bool>("SendEmail")
                         .HasColumnType("bit");
 
-                    b.Property<string>("SymbolPair")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                    b.Property<int>("SymbolPairId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -71,6 +69,8 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SymbolPairId");
 
                     b.HasIndex("UserId");
 
@@ -462,6 +462,12 @@ namespace BTB.Persistence.Migrations
 
             modelBuilder.Entity("BTB.Domain.Entities.Alert", b =>
                 {
+                    b.HasOne("BTB.Domain.Entities.SymbolPair", "SymbolPair")
+                        .WithMany("Alerts")
+                        .HasForeignKey("SymbolPairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BTB.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserId")
