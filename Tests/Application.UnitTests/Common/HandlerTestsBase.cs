@@ -2,7 +2,9 @@
 using AutoMapper;
 using Binance.Net.Interfaces;
 using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using BTB.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,8 @@ namespace Application.UnitTests
     {
         protected readonly Mock<IBinanceClient> _binanceClientMock;
         protected readonly Mock<IBTBBinanceClient> _btbBinanceClientMock;
+        protected readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
+        protected readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
 

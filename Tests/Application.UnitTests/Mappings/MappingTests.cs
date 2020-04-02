@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using BTB.Application.Authorize.Common;
-using BTB.Application.UserProfile.Common;
 using BTB.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Application.UnitTests.Mappings

@@ -4,9 +4,6 @@ using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.Common.Mappings
 {
