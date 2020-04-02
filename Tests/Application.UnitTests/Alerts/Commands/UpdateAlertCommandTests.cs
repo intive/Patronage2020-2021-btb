@@ -2,14 +2,10 @@
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Commands.UpdateAlertCommand.UpdateAlertCommand;
 
 namespace Application.UnitTests.Alerts.Commands
 {

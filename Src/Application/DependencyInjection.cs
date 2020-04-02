@@ -1,4 +1,4 @@
-﻿using BTB.Application.Alerts.Commands.CreateAlert;
+﻿using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Common.Behaviours;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;

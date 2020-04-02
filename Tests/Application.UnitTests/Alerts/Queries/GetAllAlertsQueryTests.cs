@@ -1,14 +1,11 @@
 ﻿using BTB.Application.Alerts.Common;
 using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
 using BTB.Domain.Common.Pagination;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Queries.GetAllAlertsQuery.GetAllAlertsQuery;
 
 namespace Application.UnitTests.Alerts.Queries
 {

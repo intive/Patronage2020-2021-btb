@@ -1,10 +1,10 @@
-﻿using MediatR;
+﻿using BTB.Application.Alerts.Common;
+using MediatR;
 
-namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
+namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 {
-    public class UpdateAlertCommand : IRequest
+    public class CreateAlertCommand : IRequest<AlertVm>
     {
-        public int Id { get; set; }
         public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }

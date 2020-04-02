@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace BTB.Application.Alerts.Commands.CreateAlert
+namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 {
     class CreateAlertCommandValidator : AbstractValidator<CreateAlertCommand>
     {

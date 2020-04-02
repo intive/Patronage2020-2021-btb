@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BTB.Application.Alerts.Commands.CreateAlert;
+using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Alerts.Commands.DeleteAlertCommand;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.Alerts.Common;

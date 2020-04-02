@@ -1,16 +1,5 @@
-﻿using AutoMapper;
-using Binance.Net.Interfaces;
-using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.UserProfile.Common;
-using BTB.Domain.Entities;
+﻿using BTB.Application.UserProfile.Common;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
 {
@@ -19,47 +8,5 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
         public string Username { get; set; }
         public string ProfileBio { get; set; }
         public string FavouriteTradingPair { get; set; }
-
-        public class CreateUserProfileCommandHandler : IRequestHandler<CreateUserProfileCommand, UserProfileInfoVm>
-        {
-            private readonly IBTBDbContext _context;
-            private readonly IMapper _mapper;
-            private readonly IBTBBinanceClient _client;
-            private readonly ICurrentUserIdentityService _userIdentity;
-
-            public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
-            {
-                _context = context;
-                _mapper = mapper;
-                _client = client;
-                _userIdentity = userIdentity;
-            }
-
-            public async Task<UserProfileInfoVm> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
-            {
-                if (!string.IsNullOrEmpty(request.FavouriteTradingPair))
-                {
-                    if (_client.GetSymbolNames(request.FavouriteTradingPair) == null)
-                    {
-                        throw new BadRequestException($"Trading pair symbol '{request.FavouriteTradingPair}' does not exist.");
-                    }
-                }
-
-                string userId = _userIdentity.UserId;
-                UserProfileInfo dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
-
-                if (dbUserProfileInfo != null)
-                {
-                    throw new BadRequestException($"User has already created a profile.");
-                }
-
-                var newUserProfileInfo = _mapper.Map<UserProfileInfo>(request);
-                newUserProfileInfo.UserId = userId;
-                await _context.UserProfileInfo.AddAsync(newUserProfileInfo, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return _mapper.Map<UserProfileInfoVm>(newUserProfileInfo);
-            }
-        }
     }
 }

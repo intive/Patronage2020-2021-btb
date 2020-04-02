@@ -1,16 +1,11 @@
 ﻿using Application.UnitTests.Common;
-using BTB.Application.Alerts.Commands.CreateAlert;
-using BTB.Application.Alerts.Common;
+using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
-using BTB.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Commands.CreateAlert.CreateAlertCommand;
 
 namespace Application.UnitTests.Alerts.Commands
 {
