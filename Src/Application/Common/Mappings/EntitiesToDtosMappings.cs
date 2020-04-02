@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BTB.Application.Alerts.Common;
+using BTB.Application.System.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -14,7 +15,7 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
             CreateMap<Alert, AlertVm>();
-
+            CreateMap<AuditTrail, AuditTrailVm>();
             CreateMap<SymbolPair, SimplePriceVO>()
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))
                 .ForMember(s => s.SellSymbolName, opts => opts.MapFrom(src => src.SellSymbol.SymbolName))
