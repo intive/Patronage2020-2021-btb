@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Xunit;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
-using static BTB.Application.UserProfile.Queries.GetUserProfileQuery.GetUserProfileQuery;
-using Moq;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using System.Threading;
 using BTB.Application.Common.Exceptions;
-using BTB.Application.UserProfile;
-using BTB.Application.Common.Interfaces;
 
 namespace Application.UnitTests.UserProfile.Queries
 {

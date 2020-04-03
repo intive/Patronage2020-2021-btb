@@ -1,14 +1,11 @@
-﻿using BTB.Application.Alerts.Common;
-using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
+﻿using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
 using BTB.Domain.Common.Pagination;
-using System;
+using BTB.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Queries.GetAllAlertsQuery.GetAllAlertsQuery;
 
 namespace Application.UnitTests.Alerts.Queries
 {
@@ -18,10 +15,10 @@ namespace Application.UnitTests.Alerts.Queries
         public async Task Handle_ShouldReturnAllAlertsBelongingToUser()
         {
             var userId = "2";
-            var expectedUserAlerts = new List<AlertVm>()
+            var expectedUserAlerts = new List<AlertVO>()
             {
-                new AlertVm() { Id = 3, Symbol = "BTCUSDT", Condition = "crossing", ValueType = "volume", Value = 3000.0d, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
-                new AlertVm() { Id = 4, Symbol = "BTCUSDT", Condition = "crossing", ValueType = "price", Value = 4000.0d, SendEmail = false, Email = null, Message = null },
+                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "volume", Value = 3000.0d, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
+                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "price", Value = 4000.0d, SendEmail = false, Email = null, Message = null },
             };
             var expectedAllRecordsCount = 2;
             var userIdentityMock = GetUserIdentityMock(userId);
@@ -44,7 +41,7 @@ namespace Application.UnitTests.Alerts.Queries
                 var single = resultAlerts.SingleOrDefault(
                     resultAlert =>
                     resultAlert.Id == alert.Id && 
-                    resultAlert.Symbol == alert.Symbol &&
+                    resultAlert.SymbolPair == alert.SymbolPair &&
                     resultAlert.Condition == alert.Condition &&
                     resultAlert.ValueType == alert.ValueType &&
                     resultAlert.Value     == alert.Value &&

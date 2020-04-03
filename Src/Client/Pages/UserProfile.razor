@@ -66,7 +66,7 @@
         var response = await Http.GetAsync($"api/userprofile");
         if (response.IsSuccessStatusCode)
         {
-            var jsonString = await response.Content.ReadAsStringAsync();
+            string jsonString = await response.Content.ReadAsStringAsync();
             _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
         }
 

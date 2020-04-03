@@ -1,15 +1,11 @@
 ﻿using Application.UnitTests.Common;
-using BTB.Application.Alerts.Commands.CreateAlert;
-using BTB.Application.Alerts.Common;
+using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
-using BTB.Domain.ValueObjects;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Commands.CreateAlert.CreateAlertCommand;
 
 namespace Application.UnitTests.Alerts.Commands
 {
@@ -32,7 +28,7 @@ namespace Application.UnitTests.Alerts.Commands
             var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
             var command = new CreateAlertCommand()
             {
-                Symbol = expectedTradingPair,
+                SymbolPair = expectedTradingPair,
                 Condition = expectedCondition,
                 ValueType = expectedValueType,
                 Value = expectedValue,
@@ -42,9 +38,13 @@ namespace Application.UnitTests.Alerts.Commands
             };
             var sutResult = await sut.Handle(command, CancellationToken.None);
 
-            var dbResult = _context.Alerts.SingleOrDefault(a => a.UserId == expectedUserId && a.Id == sutResult.Id);
+            var dbResult = _context.Alerts
+                .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
+                .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
+                .SingleOrDefault(a => a.UserId == expectedUserId && a.Id == sutResult.Id);
+
             Assert.NotNull(dbResult);
-            Assert.Equal(expectedTradingPair, dbResult.Symbol);
+            Assert.Equal(expectedTradingPair, dbResult.SymbolPair.PairName);
             Assert.Equal(expectedCondition, dbResult.Condition);
             Assert.Equal(expectedValueType, dbResult.ValueType);
             Assert.Equal(expectedValue, dbResult.Value);
@@ -66,7 +66,7 @@ namespace Application.UnitTests.Alerts.Commands
             var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
             var command = new CreateAlertCommand()
             {
-                Symbol = tradingPair
+                SymbolPair = tradingPair
             };
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BTB.Application.Alerts.Common;
 using BTB.Application.System.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Domain.Common;
@@ -14,7 +13,9 @@ namespace BTB.Application.Common.Mappings
         public EntitiesToDtosMappings()
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
-            CreateMap<Alert, AlertVm>();
+            CreateMap<Alert, AlertVO>()
+                .ForMember(a => a.SymbolPair, opt => opt.MapFrom(src => src.SymbolPair.PairName));
+
             CreateMap<AuditTrail, AuditTrailVm>();
             CreateMap<SymbolPair, SimplePriceVO>()
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))

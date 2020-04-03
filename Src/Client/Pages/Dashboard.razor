@@ -100,7 +100,7 @@
         };
 
         parameters.Add("ShouldUpdateAlert", false);
-        parameters.Add("Alert", new AlertDto() { Symbol = symbol });
+        parameters.Add("Alert", new AlertVO() { SymbolPair = symbol });
         parameters.Add("OnModalClosedAsync", null);
         Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
     }

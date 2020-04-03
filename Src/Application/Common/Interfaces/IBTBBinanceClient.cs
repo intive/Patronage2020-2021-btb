@@ -20,5 +20,6 @@ namespace BTB.Application.Common.Interfaces
         List<KlineVO> KlinesToValueObject(List<Kline> klines);
         Task<IEnumerable<SimplePriceVO>> ToSimplePrices(List<KlineVO> klines);
         SymbolPairVO GetSymbolNames(string pairName, string wantedBuySymbol = "");
+        Task<SymbolPair> GetSymbolPairByName(string pairName);
     }
 }

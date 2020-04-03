@@ -108,5 +108,11 @@ namespace Application.UnitTests.Common
             binanceClientMock.Setup(client => client.GetSymbolNames(null, ""))
                 .Returns((SymbolPairVO)null);
         }
+
+        private static void Mock_GetSymbolPairByName(ref Mock<IBTBBinanceClient> binanceClientMock)
+        {
+            binanceClientMock.Setup(client => client.GetSymbolPairByName("BTCUSDT"))
+                .Returns(Task.Run(() => new SymbolPair() { Id = 1 }));
+        }
     }
 }

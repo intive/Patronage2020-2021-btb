@@ -2,13 +2,9 @@
 using BTB.Application.Alerts.Commands.DeleteAlertCommand;
 using BTB.Application.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.Alerts.Commands.DeleteAlertCommand.DeleteAlertCommand;
 
 namespace Application.UnitTests.Alerts.Commands
 {

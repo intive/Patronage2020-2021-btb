@@ -4,6 +4,7 @@ using BTB.Application.Common.Models;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -277,6 +278,19 @@ namespace BTB.Server.Services
             }
 
             return result;
+        }
+
+        public async Task<SymbolPair> GetSymbolPairByName(string name)
+        {
+            return await
+            (
+                from pair in _context.SymbolPairs
+                    .Include(pair => pair.SellSymbol)
+                    .Include(pair => pair.BuySymbol)
+                let pairName = pair.BuySymbol.SymbolName + pair.SellSymbol.SymbolName
+                where pairName == name
+                select pair
+            ).SingleOrDefaultAsync();
         }
 
         /* Please do not delete - maybe we can use it to calculate 15m-4h klines
