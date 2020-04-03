@@ -5,71 +5,81 @@
 @inject HttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
 
+<style>
+    @@media screen and (min-width: 480px) {
+        #innerDiv {
+            min-width: 420px
+        }
+    }
+</style>
+
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
     <FluentValidator Validator="_validator"/>
 
-    <h4>Create Alert on @_alertDto.SymbolPair</h4>
+    <div id="innerDiv">
+        <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertDto.SymbolPair</h3>
 
-    <div class="form-group row mb-0">
-        <label for="condition" class="col-sm-6 col-form-label">Select condition</label>
-        <div class="col-sm-6">
-            <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
-                <option disabled selected>select</option>
-                <option value="crossing">Crossing</option>
-            </InputSelect>
-            <ValidationMessage For="@(()=>_formModel.Condition)" style="font-size:12px; margin-bottom:10px" />
+        <div class="form-group row mb-0">
+            <label for="condition" class="col-sm-4 col-form-label">Select condition</label>
+            <div class="col-sm-8">
+                <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
+                    <option disabled selected>select</option>
+                    <option value="crossing">Crossing</option>
+                </InputSelect>
+                <ValidationMessage For="@(()=>_formModel.Condition)" style="font-size: 14px; margin-bottom: 10px" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group row mb-0">
-        <label for="valueType" class="col-sm-6 col-form-label">Select value type</label>
-        <div class="col-sm-6">
-            <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm" id="valueType" placeholder="">
-                <option disabled selected>select</option>
-                <option value="volume">Volume</option>
-                <option value="price">Price</option>
-                <option value="tradeCount">Trade Count</option>
-            </InputSelect>
-            <ValidationMessage For="@(()=>_formModel.ValueType)" style="font-size:12px; margin-bottom:10px" />
+        <div class="form-group row mb-0">
+            <label for="valueType" class="col-sm-4 col-form-label">Select value type</label>
+            <div class="col-sm-8">
+                <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm" id="valueType" placeholder="">
+                    <option disabled selected>select</option>
+                    <option value="volume">Volume</option>
+                    <option value="price">Price</option>
+                    <option value="tradeCount">Trade Count</option>
+                </InputSelect>
+                <ValidationMessage For="@(()=>_formModel.ValueType)" style="font-size:14px; margin-bottom:10px" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group row mb-4">
-        <label for="value" class="col-sm-6 col-form-label">Value</label>
-        <div class="col-sm-6">
-            <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
-            <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" style="font-size:12px; margin-bottom:10px" />
+        <div class="form-group row mb-4">
+            <label for="value" class="col-sm-4 col-form-label">Value</label>
+            <div class="col-sm-8">
+                <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
+                <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+            </div>
         </div>
-    </div>
 
-    <h4>Alert Actions:</h4>
+        <h3>Alert Actions:</h3>
 
-    <div class="form-group row mb-0">
-        <label for="sendEmail" class="col-7">Send Email</label>
-        <div class="col-5">
-            <InputCheckbox @bind-Value="_formModel.SendEmail" id="sendEmail" />
+        <div class="form-group row mb-0">
+            <label for="sendEmail" class="col-4">Send Email</label>
+            <div class="col-8">
+                <InputCheckbox @bind-Value="_formModel.SendEmail" id="sendEmail" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group row mb-0">
-        <label for="email" class="col-sm-4 col-form-label">Email</label>
-        <div class="col-sm-8">
-            <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
-            <ValidationMessage For="@(()=>_formModel.Email)" style="font-size:12px; margin-bottom:10px" />
+        <div class="form-group row mb-0">
+            <label for="email" class="col-sm-4 col-form-label">Email</label>
+            <div class="col-sm-8">
+                <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
+                <ValidationMessage For="@(()=>_formModel.Email)" style="font-size:14px; margin-bottom:10px" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group row mb-2">
-        <label for="message" class="col-sm-4 col-form-label">Message</label>
-        <div class="col-sm-8">
-            <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm" id="message" disabled="@(!_formModel.SendEmail)" />
-            <ValidationMessage For="@(()=>_formModel.Message)" style="font-size:12px; margin-bottom:10px" />
+        <div class="form-group row mb-2">
+            <label for="message" class="col-sm-4 col-form-label">Message</label>
+            <div class="col-sm-8">
+                <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm" id="message" disabled="@(!_formModel.SendEmail)" />
+                <ValidationMessage For="@(()=>_formModel.Message)" style="font-size:14px; margin-bottom:10px" />
+            </div>
         </div>
-    </div>
 
-    <div class="text-right">
-        <button class="btn btn-danger btn-sm" type="reset" @onclick="CancelModal">Cancel</button>
-        <button class="btn btn-success btn-sm" type="submit">Confirm</button>
+        <div class="text-right">
+            <button class="btn btn-danger btn-sm" type="reset" @onclick="CancelModal">Cancel</button>
+            <button class="btn btn-success btn-sm" type="submit">Confirm</button>
+        </div>
     </div>
 
 </EditForm>
@@ -121,7 +131,7 @@
             }
 
             if (_onModalClosedAsync != null)
-            { 
+            {
                 await _onModalClosedAsync();
             }
 
