@@ -52,7 +52,7 @@
                                 Sort By
                             </button>
                             <div class="dropdown-menu @(_dropdownButtonCollapsed ? "" : "show")" aria-labelledby="dropdownButtonMenu">
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Symbol"))">Symbol</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("SymbolPair"))">Symbol</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Condition"))">Condition</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("ValueType"))">Value Type</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Value"))">Value</a>

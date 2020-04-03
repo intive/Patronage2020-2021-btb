@@ -1,7 +1,6 @@
 ﻿@using BTB.Client.Models;
-@using BTB.Client.Pages.Dto;
-@using FluentValidation;
 @using BTB.Client.Models.Validation;
+@using FluentValidation;
 @inject HttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
 
@@ -24,7 +23,7 @@
             <div class="col-sm-8">
                 <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
                     <option disabled selected>select</option>
-                    <option value="crossing">Crossing</option>
+                    <option value="Crossing">Crossing</option>
                 </InputSelect>
                 <ValidationMessage For="@(()=>_formModel.Condition)" style="font-size: 14px; margin-bottom: 10px" />
             </div>
@@ -35,9 +34,9 @@
             <div class="col-sm-8">
                 <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm" id="valueType" placeholder="">
                     <option disabled selected>select</option>
-                    <option value="volume">Volume</option>
-                    <option value="price">Price</option>
-                    <option value="tradeCount">Trade Count</option>
+                    <option value="Price">Price</option>
+                    <option value="Volume">Volume</option>
+                    <option value="TradeCount" disabled>Trade Count</option>
                 </InputSelect>
                 <ValidationMessage For="@(()=>_formModel.ValueType)" style="font-size:14px; margin-bottom:10px" />
             </div>
@@ -121,6 +120,8 @@
 
         if (editContext.Validate())
         {
+
+
             if (_shouldUpdateAlert)
             {
                 await SendUpdateAlertRequestAsync(_alertVO.Id);

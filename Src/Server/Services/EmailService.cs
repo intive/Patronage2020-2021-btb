@@ -23,6 +23,18 @@ namespace BTB.Server.Common
             _configurator = new EmailConfigurator();
         }
 
+        public EmailService() // temporary
+        {
+            _client = _configurator.Configure(new EmailConfig()
+            {
+                smtpServer = "smtp.gmail.com",
+                port = 587,
+                login = "patronagebtb@gmail.com",
+                password = "patronage2020",
+                enableSsl = true
+            });
+        }
+
         public EmailService(IOptions<EmailConfig> config)
         {
             _client = _configurator.Configure(config.Value);

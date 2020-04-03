@@ -82,8 +82,9 @@ namespace BTB.Server
             services.AddCronJob<UpdateExchangeJob>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
-                c.CronExpression = @"*/5 * * * *";
+                c.CronExpression = @"*/1 * * * *"; // was: @"*/5 * * * *"
             });
+
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;

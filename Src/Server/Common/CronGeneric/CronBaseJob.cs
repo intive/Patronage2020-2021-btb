@@ -40,7 +40,7 @@ namespace BTB.Server.Services
 
                     if (!cancellationToken.IsCancellationRequested)
                     {
-                        await DoWork(cancellationToken);
+                      await DoWork(cancellationToken);
                     }
 
                     if (!cancellationToken.IsCancellationRequested)

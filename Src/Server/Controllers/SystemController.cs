@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Binance.Net.Objects;
 using BTB.Application.Common.Models;
+using BTB.Application.System.Commands.Alerts.AddKlineCommand;
+using BTB.Application.System.Commands.Alerts.SendEmailCommand;
 using BTB.Application.System.Commands.ClearData;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Queries.GetAuditTrail;
@@ -82,6 +84,26 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> GetAudits(int count)
         {
             return Ok(await Mediator.Send(new GetAuditsQuery { Count = count }, CancellationToken.None));
+        }
+
+        /// <summary>
+        /// Sends a test email message. If the recipient's address is left empty, then
+        /// the message will be sent to "patronagebtb@gmail.com".
+        /// </summary>
+        /// <param name="command">An object containing email data.</param>
+        /// <response code="200">When successfull.</response>
+        [Route("email")]
+        [HttpPost]
+        public async Task SendEmail(SendEmailCommand command, CancellationToken cancellationToken)
+        {
+            await Mediator.Send(command, cancellationToken);
+        }
+
+        [Route("kline")]
+        [HttpPost]
+        public async Task AddKline(AddKlineCommand command, CancellationToken cancellationToken)
+        {
+            await Mediator.Send(command, cancellationToken);
         }
     }
 }

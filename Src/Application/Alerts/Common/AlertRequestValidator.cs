@@ -22,7 +22,7 @@ namespace BTB.Application.Alerts.Common
 
             RuleFor(a => a.Value)
                 .NotEmpty()
-                .GreaterThan(0);
+                .GreaterThan(0.0m);
 
             RuleFor(a => a.SendEmail)
                 .NotNull();

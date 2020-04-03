@@ -14,7 +14,9 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
             CreateMap<Alert, AlertVO>()
-                .ForMember(a => a.SymbolPair, opt => opt.MapFrom(src => src.SymbolPair.PairName));
+                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(alert => alert.SymbolPair.PairName))
+                .ForMember(vo => vo.Condition, opt => opt.MapFrom(alert => alert.Condition.ToString()))
+                .ForMember(vo => vo.ValueType, opt => opt.MapFrom(alert => alert.ValueType.ToString()));
 
             CreateMap<AuditTrail, AuditTrailVm>();
             CreateMap<SymbolPair, SimplePriceVO>()

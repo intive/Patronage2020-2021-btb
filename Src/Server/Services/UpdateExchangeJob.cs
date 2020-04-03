@@ -54,9 +54,12 @@ namespace BTB.Server.Services
             if (_initialCall)
             {
                 _initialCall = false;
-               //amount = 155;
+                //amount = 155;
             }
             await LoadKlines(_klinesToUpdate, amount);
+
+            var emailAlertsHandler = new EmailAlertsHandler(_context);
+            await emailAlertsHandler.Handle();
         }        
 
         private async Task LoadKlines(List<TimestampInterval> intervals, int amount)
