@@ -15,6 +15,7 @@ using System.Reflection;
 using AutoMapper;
 using MediatR;
 using BTB.Application.Authorize.Commands.Register;
+using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 
 namespace BTB.Application
 {
@@ -39,6 +40,7 @@ namespace BTB.Application
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
             services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();
+            services.AddTransient<IValidator<UpdateAlertCommand>, UpdateAlertCommandValidator>();
             services.AddTransient<IValidator<CreateUserProfileCommand>, CreateUserProfileCommandValidator>();
             services.AddTransient<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();

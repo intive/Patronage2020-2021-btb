@@ -2,7 +2,7 @@
 
 namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 {
-    class CreateAlertCommandValidator : AbstractValidator<CreateAlertCommand>
+    public class CreateAlertCommandValidator : AbstractValidator<CreateAlertCommand>
     {
         public CreateAlertCommandValidator()
         {

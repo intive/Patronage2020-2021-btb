@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
 {
-    class UpdateAlertCommandValidator : AbstractValidator<UpdateAlertCommand>
+    public class UpdateAlertCommandValidator : AbstractValidator<UpdateAlertCommand>
     {
         public UpdateAlertCommandValidator()
         {
