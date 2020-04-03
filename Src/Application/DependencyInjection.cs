@@ -16,6 +16,8 @@ using AutoMapper;
 using MediatR;
 using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
+using BTB.Application.Alerts.Common;
+using BTB.Application.UserProfile.Common;
 
 namespace BTB.Application
 {
@@ -39,10 +41,10 @@ namespace BTB.Application
             });
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
-            services.AddTransient<IValidator<CreateAlertCommand>, CreateAlertCommandValidator>();
-            services.AddTransient<IValidator<UpdateAlertCommand>, UpdateAlertCommandValidator>();
-            services.AddTransient<IValidator<CreateUserProfileCommand>, CreateUserProfileCommandValidator>();
-            services.AddTransient<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
+            services.AddTransient<IValidator<CreateAlertCommand>, AlertRequestValidator>();
+            services.AddTransient<IValidator<UpdateAlertCommand>, AlertRequestValidator>();
+            services.AddTransient<IValidator<CreateUserProfileCommand>, UserProfileInfoRequestValidator>();
+            services.AddTransient<IValidator<UpdateUserProfileCommand>, UserProfileInfoRequestValidator>();
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
 
             services.AddHttpContextAccessor();

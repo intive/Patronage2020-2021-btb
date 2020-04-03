@@ -1,10 +1,13 @@
 ﻿using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace BTB.Application.Alerts.Commands.CreateAlertCommand
+namespace BTB.Application.Alerts.Common
 {
-    public class CreateAlertCommandValidator : AbstractValidator<CreateAlertCommand>
+    public class AlertRequestValidator : AbstractValidator<AlertRequestBase>
     {
-        public CreateAlertCommandValidator()
+        public AlertRequestValidator()
         {
             RuleFor(a => a.SymbolPair)
                 .MaximumLength(20)

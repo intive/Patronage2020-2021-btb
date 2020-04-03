@@ -1,10 +1,13 @@
 ﻿using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
+namespace BTB.Application.UserProfile.Common
 {
-    internal class CreateUserProfileCommandValidator : AbstractValidator<CreateUserProfileCommand>
+    public class UserProfileInfoRequestValidator : AbstractValidator<UserProfileInfoRequestBase>
     {
-        public CreateUserProfileCommandValidator()
+        public UserProfileInfoRequestValidator()
         {
             RuleFor(command => command.Username)
                 .NotEmpty()
