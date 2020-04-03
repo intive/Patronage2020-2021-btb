@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BTB.Application.Alerts.Common;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 {
-    public class CreateAlertCommandHandler : IRequestHandler<CreateAlertCommand, AlertVm>
+    public class CreateAlertCommandHandler : IRequestHandler<CreateAlertCommand, AlertVO>
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
@@ -25,7 +24,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlertCommand
             _userIdentity = userIdentity;
         }
 
-        public async Task<AlertVm> Handle(CreateAlertCommand request, CancellationToken cancellationToken)
+        public async Task<AlertVO> Handle(CreateAlertCommand request, CancellationToken cancellationToken)
         {
             SymbolPairVO names = _client.GetSymbolNames(request.SymbolPair);
             if (names == null)
@@ -40,7 +39,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 
             await _context.Alerts.AddAsync(alert, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-            return _mapper.Map<AlertVm>(alert);
+            return _mapper.Map<AlertVO>(alert);
         }
     }
 }

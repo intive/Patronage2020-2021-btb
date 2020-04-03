@@ -1,18 +1,17 @@
 ﻿using AutoMapper;
-using BTB.Application.Alerts.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
 using BTB.Domain.Extensions;
+using BTB.Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
 {
-    public class GetAllAlertsQueryHandler : IRequestHandler<GetAllAlertsQuery, PaginatedResult<AlertVm>>
+    public class GetAllAlertsQueryHandler : IRequestHandler<GetAllAlertsQuery, PaginatedResult<AlertVO>>
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
@@ -25,20 +24,20 @@ namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
             _userIdentity = userIdentity;
         }
 
-        public async Task<PaginatedResult<AlertVm>> Handle(GetAllAlertsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<AlertVO>> Handle(GetAllAlertsQuery request, CancellationToken cancellationToken)
         {
-            IQueryable<AlertVm> allUserAlerts =
+            IQueryable<AlertVO> allUserAlerts =
                 from alert in _context.Alerts
                 .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
                 .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
                 where alert.UserId == _userIdentity.UserId
-                select _mapper.Map<AlertVm>(alert);
+                select _mapper.Map<AlertVO>(alert);
 
             int allUserAlertsCount = await allUserAlerts.CountAsync(cancellationToken);
 
             var list = allUserAlerts.ToList();
 
-            return new PaginatedResult<AlertVm>()
+            return new PaginatedResult<AlertVO>()
             {
                 Result = allUserAlerts.Paginate(request.Pagination),
                 AllRecorsCount = allUserAlertsCount,

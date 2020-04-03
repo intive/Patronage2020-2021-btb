@@ -1,9 +1,9 @@
-﻿using BTB.Application.Alerts.Common;
+﻿using BTB.Domain.ValueObjects;
 using MediatR;
 
 namespace BTB.Application.Alerts.Commands.CreateAlertCommand
 {
-    public class CreateAlertCommand : IRequest<AlertVm>
+    public class CreateAlertCommand : IRequest<AlertVO>
     {
         public string SymbolPair { get; set; }
         public string Condition { get; set; }

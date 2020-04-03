@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Alerts.Commands.DeleteAlertCommand;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
-using BTB.Application.Alerts.Common;
 using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
 using BTB.Domain.Common.Pagination;
 using BTB.Domain.Extensions;
+using BTB.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace BTB.Server.Controllers
         /// Returns all alerts belonging to the currently logged in user.
         /// </summary>
         /// <param name="pagination">Pagination DTO.</param>
-        /// <returns>A paginated list of alert DTOs. <see cref="AlertVm" /></returns>
+        /// <returns>A paginated list of alert DTOs. <see cref="AlertVO" /></returns>
         /// <response code="200">When successful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

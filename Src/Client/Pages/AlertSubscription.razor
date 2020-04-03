@@ -15,9 +15,9 @@
 
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
     <FluentValidator Validator="_validator"/>
-
+    
     <div id="innerDiv">
-        <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertDto.SymbolPair</h3>
+        <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertVO.SymbolPair</h3>
 
         <div class="form-group row mb-0">
             <label for="condition" class="col-sm-4 col-form-label">Select condition</label>
@@ -88,7 +88,7 @@
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
     private bool _shouldUpdateAlert = false;
-    private AlertDto _alertDto = null;
+    private AlertVO _alertVO = null;
     private AlertFormModel _formModel = null;
     private Func<Task> _onModalClosedAsync = null;
     private AlertFormModelValidator _validator = new AlertFormModelValidator();
@@ -96,18 +96,18 @@
     protected override void OnInitialized()
     {
         _shouldUpdateAlert = Parameters.Get<bool>("ShouldUpdateAlert");
-        _alertDto = Parameters.Get<AlertDto>("Alert");
+        _alertVO = Parameters.Get<AlertVO>("Alert");
         _onModalClosedAsync = Parameters.Get<Func<Task>>("OnModalClosedAsync");
 
         _formModel = new AlertFormModel()
         {
-            SymbolPair = _alertDto.SymbolPair,
-            Condition = _alertDto.Condition,
-            ValueType = _alertDto.ValueType,
-            Value = _alertDto.Value,
-            SendEmail = _alertDto.SendEmail,
-            Email = _alertDto.Email,
-            Message = _alertDto.Message
+            SymbolPair = _alertVO.SymbolPair,
+            Condition = _alertVO.Condition,
+            ValueType = _alertVO.ValueType,
+            Value = _alertVO.Value,
+            SendEmail = _alertVO.SendEmail,
+            Email = _alertVO.Email,
+            Message = _alertVO.Message
         };
     }
 
@@ -123,7 +123,7 @@
         {
             if (_shouldUpdateAlert)
             {
-                await SendUpdateAlertRequestAsync(_alertDto.Id);
+                await SendUpdateAlertRequestAsync(_alertVO.Id);
             }
             else
             {
