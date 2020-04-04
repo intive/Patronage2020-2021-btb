@@ -9,10 +9,22 @@
 @using BTB.Domain.Extensions
 @using BTB.Domain.ValueObjects
 @inject HttpClient Http
-@inject Blazored.Modal.Services.IModalService Modal
+@inject IModalService Modal
 @implements IDisposable
 
+@inject IToastService Toast
+@inject NavigationManager navigationManager
+
+@using Microsoft.AspNetCore.SignalR.Client
+
 <h1>Dashboard</h1>
+
+<button class="btn btn-sucess"
+        @onclick="async () => await ConnectToSignalRAsync()"
+        @disabled="@isConnected">
+    Connect
+</button>
+<h3>Connected? @isConnected </h3>
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -78,6 +90,9 @@
 </table>
 
 @code {
+    private bool isConnected = false;
+    private HubConnection _connection { get; set; } = null;
+
     private IEnumerable<SimplePriceVO> _dashboardElements { get; set; }
 
     private FilterModel _filter = new FilterModel();
@@ -107,6 +122,7 @@
 
     private async Task Filter()
     {
+
         _currentPage = 1;
         _currentQuantity = 10;
 
@@ -189,5 +205,38 @@
     public void Dispose()
     {
         _tokenSource.Cancel();
+    }
+
+    private async Task ConnectToSignalRAsync()
+    {
+        Toast.ShowToast(ToastLevel.Info,
+           $"You have sucessfully connected to SignalR!");
+
+        var url = Flurl.Url.Combine(navigationManager.BaseUri, "/notificationhub");
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl(url)
+            // .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.Zero, TimeSpan.FromSeconds(10) })
+            .Build();
+
+        await _connection.StartAsync();
+
+        isConnected = true;
+
+        // if connection closed reconnect
+        _connection.Closed += async (exception) =>
+        {
+            isConnected = false;
+            await _connection.StartAsync();
+            isConnected = true;
+        };
+
+        // use later after connection
+        //_connection.On<string>("notifications", responseString =>
+        //{
+        //    Toast.ShowToast(ToastLevel.Info,
+        //    $"Alert {responseString}!");
+        //});
+
     }
 }

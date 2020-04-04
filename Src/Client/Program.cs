@@ -8,6 +8,8 @@ using BTB.Client.States;
 using Microsoft.AspNetCore.Components.Authorization;
 using BTB.Client.Services.Implementations;
 using BTB.Client.Services.Contracts;
+using Blazored.Modal.Services;
+using Blazored.Toast.Services;
 
 namespace BTB.Client
 {
@@ -22,7 +24,8 @@ namespace BTB.Client
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
             builder.Services.AddScoped<IAuthorizeApi, AuthorizeApi>();
             builder.RootComponents.Add<App>("app");
-            builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
+            builder.Services.AddSingleton<IModalService, ModalService>();
+            builder.Services.AddSingleton<IToastService, ToastService>();
             await builder.Build().RunAsync();
         }
     }

@@ -24,11 +24,7 @@ using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
 using BTB.Server.Services;
 using BTB.Server.Common.CronGeneric;
-using BTB.Domain.Common;
-using System.Collections.Generic;
-using BTB.Application.System.Commands.LoadData;
-using MediatR;
-using System.Threading;
+using BTB.Infrastructure.Hubs;
 
 namespace BTB.Server
 {
@@ -57,6 +53,18 @@ namespace BTB.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
+            services.AddSignalR();
+
             services.AddControllers(options =>
             {
                 options.Filters.Add(new HttpResponseExceptionFilter());
@@ -135,6 +143,8 @@ namespace BTB.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("CorsPolicy");
+
             app.UseResponseCompression();
 
             if (env.IsDevelopment())
@@ -159,6 +169,7 @@ namespace BTB.Server
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<NotificationHub>("/notificationhub");
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Program>("index.html");
             });

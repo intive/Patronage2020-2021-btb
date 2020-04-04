@@ -2,7 +2,10 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
+@using Blazored.Toast.Configuration
+
 <BlazoredModal />
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" />
 <AuthorizeView>
     <Authorized>
         <div class="sidebar">
@@ -25,6 +28,7 @@
 
     [CascadingParameter]
     Task<AuthenticationState> AuthenticationState { get; set; }
+
 
     protected override async Task OnParametersSetAsync()
     {
