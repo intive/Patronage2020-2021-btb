@@ -1,7 +1,9 @@
 ﻿using Binance.Net.Interfaces;
 using Binance.Net.Objects;
 using BTB.Application.Common.Interfaces;
+using BTB.Domain.Common;
 using BTB.Domain.Entities;
+using BTB.Domain.Extensions;
 using MediatR;
 using System;
 using System.Collections;
@@ -24,8 +26,8 @@ namespace BTB.Application.System.Commands.LoadData
             private Hashtable _symbolsTemp;
             private Action<Hashtable, string> _tableChecker;
 
-            private List<string> _allowedSymbols;
-            private const int MaxSymbolPairsCount = 25;
+            private Dictionary<string, int> _allowedSymbols;
+            private const int PerSymbolLimit = 6;
 
             public LoadSymbolsCommandHandler(IBTBDbContext context, IBinanceClient client)
             {
@@ -67,8 +69,15 @@ namespace BTB.Application.System.Commands.LoadData
 
             private void SetAllowedSymbols()
             {
-                _allowedSymbols = new List<string>();
-                _allowedSymbols.Add("BTC");
+                _allowedSymbols = new Dictionary<string, int>();
+                
+                foreach (var filter in Enum<CurrencyFilter>.GetValues())
+                {
+                    if (filter != CurrencyFilter.ALL)
+                    {
+                        _allowedSymbols.Add(filter.ToString(), PerSymbolLimit);
+                    }
+                }
             }
 
             private bool AreSymbolsAdded()
@@ -127,22 +136,39 @@ namespace BTB.Application.System.Commands.LoadData
                     symbolBuy = _context.Symbols.First(x => x.SymbolName == symb.BaseAsset);
                     symbolSell = _context.Symbols.First(x => x.SymbolName == symb.QuoteAsset);
 
-                    if (
-                        !(_allowedSymbols.Contains(symbolBuy.SymbolName) ||
-                        _allowedSymbols.Contains(symbolSell.SymbolName))    
-                       )
+                    bool CanAddSymbolPair = false;
+
+                    if (_allowedSymbols.ContainsKey(symbolBuy.SymbolName))
+                    {
+                        int curAmount = _allowedSymbols[symbolBuy.SymbolName];
+                        if (curAmount > 0)
+                        {
+                            curAmount--;
+                            CanAddSymbolPair = true;
+                            _allowedSymbols[symbolBuy.SymbolName] = curAmount;
+                        }
+                    }
+                    else if (_allowedSymbols.ContainsKey(symbolSell.SymbolName))
+                    {
+                        int curAmount = _allowedSymbols[symbolSell.SymbolName];
+                        if (curAmount > 0)
+                        {
+                            curAmount--;
+                            CanAddSymbolPair = true;
+                            _allowedSymbols[symbolSell.SymbolName] = curAmount;
+                        }
+                    }
+
+                    if (!CanAddSymbolPair)
+                    {
                         continue;
+                    }
 
                     symbolPairs.Add(new SymbolPair()
                     {
                         BuySymbol = symbolBuy,
                         SellSymbol = symbolSell
                     });
-
-                    if (symbolPairs.Count > MaxSymbolPairsCount)
-                    {
-                        break;
-                    }
                 }
 
                 await _context.SymbolPairs.AddRangeAsync(symbolPairs.ToArray());

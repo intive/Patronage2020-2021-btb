@@ -4,6 +4,7 @@
 @using System.Text.RegularExpressions
 @using System.Threading
 @using BTB.Client.Models
+@using BTB.Domain.Common
 @using BTB.Client.Pages.Dto
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
@@ -18,7 +19,7 @@
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
         @foreach (var value in Enum<PaginationQuantity>.GetValues())
         {
-            <button style="@PointerEventsStyle()" class="btn btn-primary mr-2" type="button" @onclick="@(() => SelectedQuantity(value))">@((int) value)</button>
+            <button style="@PointerEventsStyle()" class="btn btn-primary mr-2" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
         }
     </div>
 </div>
@@ -28,9 +29,14 @@
 <EditForm class="form-group" Model="_filter" OnValidSubmit="@Filter">
     <DataAnnotationsValidator />
     <ValidationMessage For="@(() => _filter.SymbolName)" />
-    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-3 mb-2 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
+    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
     <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
-    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-1" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
+    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
+
+    @foreach (var value in Enum<CurrencyFilter>.GetValues())
+    {
+        <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
+    }
 </EditForm>
 
 <table class="table">
@@ -110,11 +116,17 @@
         _currentPage = 1;
         _currentQuantity = 10;
 
-        if (string.IsNullOrEmpty(_filter.SymbolName) ||
-        string.IsNullOrWhiteSpace(_filter.SymbolName) ||
+
+
+        if (string.IsNullOrWhiteSpace(_filter.SymbolName) ||
         !Regex.IsMatch(_filter.SymbolName, @"^[a-zA-Z]+$"))
         {
             return;
+        }
+
+        if (string.Equals(_filter.SymbolName, CurrencyFilter.ALL.ToString()))
+        {
+            _filter.SymbolName = string.Empty;
         }
 
         await LoadDashboardTableAsync();
