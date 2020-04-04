@@ -56,7 +56,7 @@ namespace BTB.Server.Services
                 _initialCall = false;
                 //amount = 155;
             }
-            await LoadKlines(_klinesToUpdate, amount);
+            //await LoadKlines(_klinesToUpdate, amount);
 
             var emailAlertsHandler = new EmailAlertsHandler(_context);
             await emailAlertsHandler.Handle();

@@ -33,7 +33,6 @@ namespace BTB.Server.Services
             {
                 await LoadPairsToDictionaryAsync();
                 _arePairsLoaded = true;
-                await CheckAlertsAsync();
             }
             else
             {
