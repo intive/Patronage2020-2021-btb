@@ -1,6 +1,4 @@
-﻿using Binance.Net.Objects;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.Common.Models;
+﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;
@@ -8,8 +6,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.UnitTests.Common

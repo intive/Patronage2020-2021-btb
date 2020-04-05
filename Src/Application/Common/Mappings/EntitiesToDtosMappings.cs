@@ -17,7 +17,8 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(a => a.SymbolPair, opt => opt.MapFrom(src => src.SymbolPair.PairName));
 
             CreateMap<AuditTrail, AuditTrailVm>();
-            CreateMap<SymbolPair, SimplePriceVO>()
+            CreateMap<SymbolPair, DashboardPairVO>()
+                .ForMember(s => s.Id, opts => opts.MapFrom(src => src.Id))
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))
                 .ForMember(s => s.SellSymbolName, opts => opts.MapFrom(src => src.SellSymbol.SymbolName))
                 .ForMember(s => s.ClosePrice, opts => opts.MapFrom(src => src.Klines.Where(k => k.DurationTimestamp == TimestampInterval.OneDay).OrderBy(k => k.DurationTimestamp).LastOrDefault().ClosePrice))

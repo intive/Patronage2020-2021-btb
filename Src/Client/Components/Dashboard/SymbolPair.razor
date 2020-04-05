@@ -1,0 +1,68 @@
+﻿@using BTB.Client.Pages
+@using BTB.Client.Pages.Dashboard.Common
+@inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
+
+<tr>
+    <td>
+        @if (Type == DashboardType.SymbolPair)
+        {
+            if (@DashboardPairVO.IsFavorite)
+            {
+                <a><span style="color:darkgoldenrod; cursor: pointer" @onclick="@(() => RemoveFromFavorite(@DashboardPairVO.Id))">★</span></a>
+            }
+            else
+            {
+                <a><span style="cursor: pointer" @onclick="@(() => AddToFavorite(@DashboardPairVO.Id))">☆</span></a>
+            }
+        }
+        else if (Type == DashboardType.FavoriteSymbolPair)
+        {
+            <a><span style="color:red; cursor: pointer" @onclick="@(() => RemoveFromFavorite(@DashboardPairVO.Id))">✖</span></a>
+        }
+    </td>
+    <td>
+        <NavLink href="@($"/details/{@DashboardPairVO.PairName}")">@DashboardPairVO.PairName</NavLink>
+    </td>
+    <td>@DashboardPairVO.ClosePrice</td>
+    <td>@DashboardPairVO.Volume</td>
+    <td><button type="button" class="btn btn-primary" @onclick="@(() => HandleOnSelected(@DashboardPairVO.PairName))">Subscribe</button></td>
+</tr>
+
+@code {
+
+    [Parameter]
+    public DashboardPairVO DashboardPairVO { get; set; }
+    [Parameter]
+    public EventCallback<int> OnChangeFavorite { get; set; }
+    [Parameter]
+    public DashboardType Type { get; set; }
+
+    private void HandleOnSelected(string symbol)
+    {
+        var parameters = new ModalParameters();
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+        };
+
+        parameters.Add("ShouldUpdateAlert", false);
+        parameters.Add("Alert", new AlertVO() { SymbolPair = symbol });
+        parameters.Add("OnModalClosedAsync", null);
+        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+    }
+
+    public async Task AddToFavorite(int itemId)
+    {
+        await Http.SendJsonAsync(HttpMethod.Post, $"api/favoritesymbolpairs/{itemId}", new { SymbolPairId = itemId });
+        await OnChangeFavorite.InvokeAsync(itemId);
+    }
+
+    public async Task RemoveFromFavorite(int itemId)
+    {
+        await Http.SendJsonAsync(HttpMethod.Delete, $"api/favoritesymbolpairs/{itemId}", new { SymbolPairId = itemId });
+        await OnChangeFavorite.InvokeAsync(itemId);
+    }
+
+}

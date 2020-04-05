@@ -5,8 +5,6 @@ using BTB.Application.Common.Interfaces;
 using BTB.Persistence;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.UnitTests
 {
@@ -25,6 +23,7 @@ namespace Application.UnitTests
 
             _binanceClientMock = BinanceClientMockFactory.ClientMock;
             _btbBinanceClientMock = BTBBinanceClientMockFactory.ClientMock;
+
         }
 
         public void Dispose()

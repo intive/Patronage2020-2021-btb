@@ -22,9 +22,9 @@ namespace BTB.Server.Controllers
         /// <response code="200">When successful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, [FromQuery] string name, CancellationToken cancellationToken)
         {
-            var paginatedResult = await Mediator.Send(new GetAllFavoriteSymbolPairsQuery() { Pagination = pagination }, cancellationToken);
+            var paginatedResult = await Mediator.Send(new GetAllFavoriteSymbolPairsQuery() { Pagination = pagination, Name = name}, cancellationToken);
             HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecorsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);
         }

@@ -1,19 +1,13 @@
-﻿@page "/"
-@using BTB.Domain.Entities
-@using System.Text.Json
+﻿@using System.Text.Json
 @using System.Text.RegularExpressions
 @using System.Threading
 @using BTB.Client.Models
 @using BTB.Domain.Common
-@using BTB.Client.Pages.Dto
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
-@using BTB.Domain.ValueObjects
+@using BTB.Client.Pages.Dashboard.Common
 @inject HttpClient Http
-@inject Blazored.Modal.Services.IModalService Modal
 @implements IDisposable
-
-<h1>Dashboard</h1>
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -42,10 +36,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 25%">Symbol</th>
+            <th style="width: 10%">Favorite</th>
+            <th style="width: 20%">Symbol</th>
             <th style="width: 25%">Price</th>
             <th style="width: 25%">Volume</th>
-            <th style="width: 25%">Subscribe</th>
+            <th style="width: 20%">Subscribe</th>
         </tr>
     </thead>
     <tbody>
@@ -62,12 +57,14 @@
                 {
                     @foreach (var item in _dashboardElements)
                     {
-                        <tr>
-                            <td><NavLink href="@($"/details/{@item.PairName}")">@item.PairName</NavLink></td>
-                            <td>@item.ClosePrice</td>
-                            <td>@item.Volume</td>
-                            <td><button type="button" class="btn btn-primary" @onclick="@(() => HandleOnSelected(@item.PairName))">Subscribe</button></td>
-                        </tr>
+                        if (Type == DashboardType.SymbolPair)
+                        {
+                            <SymbolPair DashboardPairVO="item" OnChangeFavorite="@DeleteElement" Type="@Type" />
+                        }
+                        else if (Type == DashboardType.FavoriteSymbolPair && item.IsFavorite)
+                        {
+                            <SymbolPair DashboardPairVO="item" OnChangeFavorite="@DeleteElement" Type="@Type" />
+                        }
                     }
                 }
                 else
@@ -84,7 +81,11 @@
 </table>
 
 @code {
-    private IEnumerable<SimplePriceVO> _dashboardElements { get; set; }
+
+    [Parameter]
+    public DashboardType Type { get; set; } = DashboardType.SymbolPair;
+
+    private IEnumerable<DashboardPairVO> _dashboardElements { get; set; }
 
     private FilterModel _filter = new FilterModel();
 
@@ -95,21 +96,6 @@
     private bool _isRequestRunning = false;
 
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-
-    private void HandleOnSelected(string symbol)
-    {
-        var parameters = new ModalParameters();
-        var options = new ModalOptions()
-        {
-            HideCloseButton = true,
-            HideHeader = true
-        };
-
-        parameters.Add("ShouldUpdateAlert", false);
-        parameters.Add("Alert", new AlertVO() { SymbolPair = symbol });
-        parameters.Add("OnModalClosedAsync", null);
-        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
-    }
 
     private async Task Filter()
     {
@@ -154,7 +140,7 @@
 
             _isRequestRunning = true;
 
-            var httpResponse = await Http.GetAsync($"api/dashboard?page={_currentPage}&quantity={_currentQuantity}&name={_filter.SymbolName}", _tokenSource.Token);
+            var httpResponse = await Http.GetAsync($"{Type.ApiPath}?page={_currentPage}&quantity={_currentQuantity}&name={_filter.SymbolName}", _tokenSource.Token);
 
             if (_tokenSource.Token.IsCancellationRequested)
             {
@@ -166,12 +152,12 @@
                 _totalPageQuantity = int.Parse(httpResponse.Headers.GetValues("quantity").First());
                 var responseString = await httpResponse.Content.ReadAsStringAsync();
 
-                _dashboardElements = JsonSerializer.Deserialize<IEnumerable<SimplePriceVO>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                _dashboardElements = JsonSerializer.Deserialize<IEnumerable<DashboardPairVO>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
             else
             {
                 _totalPageQuantity = 1;
-                _dashboardElements = new List<SimplePriceVO>();
+                _dashboardElements = new List<DashboardPairVO>();
             }
 
             _isRequestRunning = false;
@@ -202,4 +188,17 @@
     {
         _tokenSource.Cancel();
     }
+
+    public void DeleteElement(int itemId)
+    {
+        var elementToDelete = _dashboardElements.ToList().Find(e => e.Id == itemId);
+        elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
+        if (Type == DashboardType.FavoriteSymbolPair)
+        {
+            _dashboardElements.ToList().Remove(elementToDelete);
+        }
+
+        StateHasChanged();
+    }
+
 }

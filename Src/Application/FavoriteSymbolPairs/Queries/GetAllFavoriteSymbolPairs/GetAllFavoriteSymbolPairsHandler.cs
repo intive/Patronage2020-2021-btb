@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
-using BTB.Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using BTB.Domain.Extensions;
 using System.Threading.Tasks;
 using System.Threading;
+using BTB.Domain.ValueObjects;
 
 namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
 {
-    public class GetAllFavoriteSymbolPairsHandler : IRequestHandler<GetAllFavoriteSymbolPairsQuery, PaginatedResult<SimplePriceVO>>
+    public class GetAllFavoriteSymbolPairsHandler : IRequestHandler<GetAllFavoriteSymbolPairsQuery, PaginatedResult<DashboardPairVO>>
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
@@ -24,20 +24,29 @@ namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
             _userIdentity = userIdentity;
         }
 
-        public async Task<PaginatedResult<SimplePriceVO>> Handle(GetAllFavoriteSymbolPairsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<DashboardPairVO>> Handle(GetAllFavoriteSymbolPairsQuery request, CancellationToken cancellationToken)
         {
             var userFavoriteSymbolPairs = _context.FavoriteSymbolPairs
-                .Include(s => s.SymbolPair.BuySymbol)
-                .Include(s => s.SymbolPair.SellSymbol)
-                .Include(s => s.SymbolPair.Klines)
-                .Where(pair => pair.ApplicationUserId == _userIdentity.UserId)
-                .Select(pair => _mapper.Map<SimplePriceVO>(pair.SymbolPair));
+                .Include(p => p.SymbolPair.BuySymbol)
+                .Include(p => p.SymbolPair.SellSymbol)
+                .Include(p => p.SymbolPair.Klines)
+                .Where(p => p.ApplicationUserId == _userIdentity.UserId)
+                .Select(p => _mapper.Map<DashboardPairVO>(p.SymbolPair))
+                .ToList();
 
-            var userFavoriteSymbolPairsCount = await userFavoriteSymbolPairs.CountAsync(cancellationToken);
+            userFavoriteSymbolPairs.ForEach(p => p.IsFavorite = !(_context.FavoriteSymbolPairs.Find(_userIdentity.UserId, p.Id) == null));
 
-            return new PaginatedResult<SimplePriceVO>()
+            if (request.Name != null)
             {
-                Result = userFavoriteSymbolPairs.ToList().Paginate(request.Pagination),
+                userFavoriteSymbolPairs = userFavoriteSymbolPairs
+                    .Where(pair => pair.PairName.Contains(request.Name.ToUpper())).ToList();
+            }
+          
+            var userFavoriteSymbolPairsCount = await Task.Run(() => userFavoriteSymbolPairs.Count());
+
+            return new PaginatedResult<DashboardPairVO> ()
+            {
+                Result = userFavoriteSymbolPairs.Paginate(request.Pagination),
                 AllRecorsCount = userFavoriteSymbolPairsCount,
                 RecordsPerPage = (int)request.Pagination.Quantity
             };

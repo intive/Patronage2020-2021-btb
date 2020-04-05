@@ -5,8 +5,9 @@ using MediatR;
 
 namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
 {
-    public class GetAllFavoriteSymbolPairsQuery : IRequest<PaginatedResult<SimplePriceVO>>
+    public class GetAllFavoriteSymbolPairsQuery : IRequest<PaginatedResult<DashboardPairVO>>
     {
         public PaginationDto Pagination { get; set; }
+        public string Name { get; set; }
     }
 }
