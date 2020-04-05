@@ -22,7 +22,7 @@ namespace BTB.Infrastructure.Hubs
 
         public async Task SendAsync(string method, string message)
         {
-            await Clients.All.SendAsync("inbrowser", message);
+            await SendAsync("inbrowser", message);
         }
     }
 }
