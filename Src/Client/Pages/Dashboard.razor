@@ -19,12 +19,10 @@
 
 <h1>Dashboard</h1>
 
-<button class="btn btn-sucess"
-        @onclick="async () => await ConnectToSignalRAsync()"
-        @disabled="@isConnected">
-    Connect
+<button class="btn btn-outline-primary"
+        @onclick="() => CheckConnection()">
+    Check Connection
 </button>
-<h3>Connected? @isConnected </h3>
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -90,8 +88,7 @@
 </table>
 
 @code {
-    private bool isConnected = false;
-    private HubConnection _connection { get; set; } = null;
+    private HubConnection _connection;
 
     private IEnumerable<SimplePriceVO> _dashboardElements { get; set; }
 
@@ -148,6 +145,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDashboardTableAsync();
+        await ConnectToSignalRAsync();
     }
 
     private async Task LoadDashboardTableAsync()
@@ -209,34 +207,50 @@
 
     private async Task ConnectToSignalRAsync()
     {
+        try
+        {
+            _connection = new HubConnectionBuilder()
+                .WithUrl(navigationManager.ToAbsoluteUri("/hub/notifications"))
+                //.WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.Zero, TimeSpan.FromSeconds(10) })
+                .Build();
+        }
+        catch (Exception e)
+        {
+            Toast.ShowToast(ToastLevel.Error,
+           $"{e.Message}");
+        }
+
+        try
+        {
+            await _connection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            Toast.ShowToast(ToastLevel.Error,
+           $"{e.Message}");
+        }
+
         Toast.ShowToast(ToastLevel.Info,
-           $"You have sucessfully connected to SignalR!");
+          $"You have sucessfully connected to SignalR!");
 
-        var url = Flurl.Url.Combine(navigationManager.BaseUri, "/notificationhub");
-
-        _connection = new HubConnectionBuilder()
-            .WithUrl(url)
-            // .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.Zero, TimeSpan.FromSeconds(10) })
-            .Build();
-
-        await _connection.StartAsync();
-
-        isConnected = true;
-
-        // if connection closed reconnect
         _connection.Closed += async (exception) =>
         {
-            isConnected = false;
             await _connection.StartAsync();
-            isConnected = true;
         };
 
-        // use later after connection
-        //_connection.On<string>("notifications", responseString =>
-        //{
-        //    Toast.ShowToast(ToastLevel.Info,
-        //    $"Alert {responseString}!");
-        //});
+        _connection.On<string>("inbrowser", response =>
+        {
+            Toast.ShowToast(ToastLevel.Info,
+         $"Alert {response}!");
+        });
+    }
 
+    private void CheckConnection()
+    {
+        if (_connection != null)
+        {
+            Toast.ShowToast(ToastLevel.Info,
+                $"{_connection.State}, {_connection.ConnectionId}");
+        }
     }
 }

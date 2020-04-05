@@ -12,20 +12,21 @@ namespace BTB.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
-    public class NotificationsController : ControllerBase
+    public class NotificationController : ControllerBase
     {
         private readonly IHubContext<NotificationHub> _hubcontext;
         private readonly ICurrentUserIdentityService _currentUserIdentity;
 
-        public NotificationsController(IHubContext<NotificationHub> hubContext, ICurrentUserIdentityService currentUserIdentity)
+        public NotificationController(IHubContext<NotificationHub> hubContext, ICurrentUserIdentityService currentUserIdentity)
             => (_hubcontext, _currentUserIdentity) = (hubContext, currentUserIdentity);
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromQuery] string message)
+        public async Task<IActionResult> PostInBrowser([FromQuery] string message)
         {
-            await _hubcontext.Clients.All.SendAsync("notifications", $"{message}");
-            return Ok("Sent!");
+            await _hubcontext.Clients.All.SendAsync("inbrowser", 
+                $"{message} for {_currentUserIdentity.UserId}");
+
+            return Ok($"Sent { message} for { _currentUserIdentity.UserId}");
         }
     }
 }

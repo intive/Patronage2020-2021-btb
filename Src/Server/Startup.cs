@@ -63,7 +63,10 @@ namespace BTB.Server
                 });
             });
 
-            services.AddSignalR();
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
 
             services.AddControllers(options =>
             {
@@ -87,6 +90,7 @@ namespace BTB.Server
             services.AddApplication();
 
             Provider = services.BuildServiceProvider();
+
             services.AddCronJob<UpdateExchangeJob>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
@@ -169,8 +173,8 @@ namespace BTB.Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<NotificationHub>("/notificationhub");
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapHub<NotificationHub>("/hub/notifications");
                 endpoints.MapFallbackToClientSideBlazor<Client.Program>("index.html");
             });
         }
