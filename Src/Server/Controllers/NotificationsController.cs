@@ -23,7 +23,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostInBrowser([FromQuery] string message)
         {
-            await _hubcontext.Clients.All.SendAsync("inbrowser", 
+            await _hubcontext.Clients.User(_currentUserIdentity.UserId).SendAsync("inbrowser", 
                 $"{message} for {_currentUserIdentity.UserId}");
 
             return Ok($"Sent { message} for { _currentUserIdentity.UserId}");
