@@ -4,10 +4,9 @@ using System.Text;
 
 namespace BTB.Application.Alerts.Common
 {
-    public class AlertVm
+    public class AlertRequestBase
     {
-        public int Id { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }

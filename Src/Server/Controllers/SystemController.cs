@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Binance.Net.Objects;
 using BTB.Application.Common.Models;
 using BTB.Application.System.Commands.ClearData;
-using BTB.Application.System.Commands.GetData;
 using BTB.Application.System.Commands.LoadData;
+using BTB.Application.System.Queries.GetAuditTrail;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -75,14 +75,13 @@ namespace BTB.Server.Controllers
         /// </summary>
         /// <param name="count"> maximum number of audits to return </param>
         /// <response code="200">If successful.</response>
-        /// <response code="404">If no audits exist.</response>
         /// <response code="500">If error occur during request.</response>
         /// <returns> List of <see cref="AuditTrail"/> </returns>
         [Route("audits")]
         [HttpGet]
         public async Task<IActionResult> GetAudits(int count)
         {
-            return Ok(await Mediator.Send(new GetAuditsCommand { Count = count }, CancellationToken.None));
+            return Ok(await Mediator.Send(new GetAuditsQuery { Count = count }, CancellationToken.None));
         }
     }
 }

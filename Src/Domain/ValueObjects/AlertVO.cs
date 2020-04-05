@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace BTB.Client.Pages.Dto
+namespace BTB.Domain.ValueObjects
 {
-    public class AlertDto
+    public class AlertVO
     {
         public int Id { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }

@@ -1,21 +1,10 @@
 ﻿using Application.UnitTests.Common;
-using Binance.Net.Interfaces;
-using Binance.Net.Objects;
 using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.UserProfile;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
-using BTB.Domain.ValueObjects;
-using CryptoExchange.Net.Objects;
-using Moq;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static BTB.Application.UserProfile.Commands.UpdateUserProfileCommand.UpdateUserProfileCommand;
 
 namespace Application.UnitTests.UserProfile.Commands
 {

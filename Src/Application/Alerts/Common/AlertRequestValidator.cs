@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace BTB.Application.Alerts.Commands.CreateAlert
+namespace BTB.Application.Alerts.Common
 {
-    class CreateAlertCommandValidator : AbstractValidator<CreateAlertCommand>
+    public class AlertRequestValidator : AbstractValidator<AlertRequestBase>
     {
-        public CreateAlertCommandValidator()
+        public AlertRequestValidator()
         {
-            RuleFor(a => a.Symbol)
-                .MaximumLength(10)
-                .Matches("^$|^([A-Z]{5,10})$")
+            RuleFor(a => a.SymbolPair)
+                .MaximumLength(20)
+                .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
             RuleFor(a => a.Condition)

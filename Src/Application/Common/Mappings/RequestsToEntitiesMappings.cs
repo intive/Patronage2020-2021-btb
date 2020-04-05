@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using BTB.Application.Alerts.Commands.CreateAlert;
+using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
+using BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.Common.Mappings
 {
@@ -16,10 +14,14 @@ namespace BTB.Application.Common.Mappings
         {
             CreateMap<CreateUserProfileCommand, UserProfileInfo>();
             CreateMap<UpdateUserProfileCommand, UserProfileInfo>();
-            CreateMap<CreateAlertCommand, Alert>();
+            CreateMap<CreateFavoriteSymbolPairCommand, FavoriteSymbolPair>();
+
+            CreateMap<CreateAlertCommand, Alert>()
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
 
             CreateMap<UpdateAlertCommand, Alert>()
-                .ForMember(aler => aler.Id, opt => opt.Ignore());
+                .ForMember(alert => alert.Id, opt => opt.Ignore())
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
         }
     }
 }

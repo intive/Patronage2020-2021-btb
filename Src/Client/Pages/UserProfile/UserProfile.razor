@@ -1,7 +1,12 @@
 ﻿@page "/userprofile"
 @using BTB.Client.Pages.Dto;
+@using BTB.Client.Components.Dashboard;
 @using Newtonsoft.Json;
+@using BTB.Client.Pages.UserProfile.Enums
+@using BTB.Client.Pages.Dashboard.Common
 @inject HttpClient Http
+
+
 
 <SpinLoader IsLoading="@_processingHttpRequest">
     <LoadingTemplate>
@@ -52,21 +57,37 @@
                 </div>
             }
         </div>
-    
-        <UserAlertsComponent />
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="Table">
+                <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Current view</a>
+                <button type="button" class="btn btn-primary" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Alerts)">Alerts</button>
+                <button type="button" class="btn btn-primary" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Favorites)">Favorites</button>
+            </div>
+        </div>
+        @if (_currentUserProfileView == CurrentUserProfileView.Favorites)
+        {
+            <br/>
+            <DashboardBody Type="DashboardType.FavoriteSymbolPair" />
+        }
+        else if (_currentUserProfileView == CurrentUserProfileView.Alerts)
+        {
+            <UserAlertsComponent />
+        }
     </ContentTemplate>
 </SpinLoader>
 
 @code {
+
     private UserProfileInfoDto _userProfileInfo = null;
     private bool _processingHttpRequest = true;
+    private CurrentUserProfileView _currentUserProfileView = CurrentUserProfileView.Favorites; 
 
     protected override async Task OnInitializedAsync()
     {
         var response = await Http.GetAsync($"api/userprofile");
         if (response.IsSuccessStatusCode)
         {
-            var jsonString = await response.Content.ReadAsStringAsync();
+            string jsonString = await response.Content.ReadAsStringAsync();
             _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
         }
 

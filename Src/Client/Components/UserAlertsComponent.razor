@@ -88,14 +88,15 @@
                 @for (int i = 0; i < _alertCards.Count(); i++)
                 {
                     int alertIndex = i;
-                    var alert = _alertCards[alertIndex].AlertDto;
+                    AlertVO alert = _alertCards[alertIndex].AlertVO;
 
                     <div class="card mb-2">
                         <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
                             <div>
-                                <NavLink class="btn btn-link" href="@($"/details/{alert.Symbol}")" @onclick:stopPropagation="true">
-                                    @alert.Symbol
+                                <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
+                                    @alert.SymbolPair
                                 </NavLink>
+                                @alert.Condition @alert.Value
                             </div>
 
                             <div>
@@ -158,7 +159,7 @@
 @code {
     private class AlertCard
     {
-        public AlertDto AlertDto { get; set; }
+        public AlertVO AlertVO { get; set; }
         public bool IsCardCollapsed { get; set; }
     }
 
@@ -197,12 +198,12 @@
             if (response.IsSuccessStatusCode)
             {
                 _totalPageQuantity = int.Parse(response.Headers.GetValues("quantity").First());
-                var jsonString = await response.Content.ReadAsStringAsync();
-                var alertDtos = JsonConvert.DeserializeObject<IList<AlertDto>>(jsonString);
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var alertDtos = JsonConvert.DeserializeObject<IList<AlertVO>>(jsonString);
 
                 foreach (var dto in alertDtos)
                 {
-                    _alertCards.Add(new AlertCard() { AlertDto = dto, IsCardCollapsed = true });
+                    _alertCards.Add(new AlertCard() { AlertVO = dto, IsCardCollapsed = true });
                 }
             }
 
@@ -229,7 +230,7 @@
         return _processingHttpRequest ? "pointer-events: none;" : null;
     }
 
-    private void ShowUpdateAlertModal(AlertDto alert)
+    private void ShowUpdateAlertModal(AlertVO alert)
     {
         var parameters = new ModalParameters();
         var options = new ModalOptions()
@@ -250,14 +251,14 @@
         if (confirmed)
         {
             await Http.DeleteAsync($"api/alerts/{alertId}");
-            _alertCards.Remove(_alertCards.Where(card => card.AlertDto.Id == alertId).FirstOrDefault());
+            _alertCards.Remove(_alertCards.Where(card => card.AlertVO.Id == alertId).FirstOrDefault());
         }
     }
 
     private async Task SortCardsAsync(string property)
     {
-        var propertyDescriptor = TypeDescriptor.GetProperties(typeof(AlertDto)).Find(property, false);
-        _alertCards = await Task.Run(() => _alertCards.OrderBy(card => propertyDescriptor.GetValue(card.AlertDto)).ToList());
+        PropertyDescriptor propertyDescriptor = TypeDescriptor.GetProperties(typeof(AlertVO)).Find(property, false);
+        _alertCards = await Task.Run(() => _alertCards.OrderBy(card => propertyDescriptor.GetValue(card.AlertVO)).ToList());
     }
 
     private async Task ReverseCardsOrderAsync()

@@ -4,7 +4,7 @@ namespace BTB.Client.Models
 {
     public class AlertFormModel
     {
-        public string Symbol { get; set; }
+        public string SymbolPair { get; set; }
         public string Condition { get; set; }
         public string ValueType { get; set; }
         public double Value { get; set; }

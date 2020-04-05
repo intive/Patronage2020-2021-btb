@@ -10,10 +10,6 @@ namespace BTB.Persistence.Configurations
         {
             builder.HasKey(a => a.Id);
 
-            builder.Property(a => a.Symbol)
-                .HasMaxLength(10)
-                .IsRequired();
-
             builder.Property(a => a.Condition)
                 .IsRequired();
 
@@ -24,6 +20,9 @@ namespace BTB.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(a => a.UserId)
+                .IsRequired();
+
+            builder.Property(a => a.SymbolPairId)
                 .IsRequired();
 
             builder.Property(a => a.SendEmail)
@@ -39,6 +38,12 @@ namespace BTB.Persistence.Configurations
             builder.HasOne(a => a.User)
                 .WithMany(u => u.Alerts)
                 .HasForeignKey(a => a.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(a => a.SymbolPair)
+                .WithMany(s => s.Alerts)
+                .HasForeignKey(a => a.SymbolPairId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }

@@ -52,10 +52,8 @@ namespace BTB.Persistence.Migrations
                     b.Property<bool>("SendEmail")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                    b.Property<int>("SymbolPairId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -69,6 +67,8 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SymbolPairId");
 
                     b.HasIndex("UserId");
 
@@ -131,19 +131,19 @@ namespace BTB.Persistence.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("ClosePrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<int>("DurationTimestamp")
                         .HasColumnType("int");
 
                     b.Property<decimal>("HighestPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<decimal>("LowestPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<decimal>("OpenPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<long>("OpenTimestamp")
                         .HasColumnType("bigint");
@@ -152,11 +152,16 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Volume")
-                        .HasColumnType("decimal(16, 8)");
+                        .HasColumnType("decimal(18, 9)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.HasIndex("SymbolPairId");
+                    b.HasIndex("DurationTimestamp")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("SymbolPairId")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("Klines");
                 });
@@ -455,6 +460,12 @@ namespace BTB.Persistence.Migrations
 
             modelBuilder.Entity("BTB.Domain.Entities.Alert", b =>
                 {
+                    b.HasOne("BTB.Domain.Entities.SymbolPair", "SymbolPair")
+                        .WithMany("Alerts")
+                        .HasForeignKey("SymbolPairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BTB.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserId")

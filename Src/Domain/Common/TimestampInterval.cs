@@ -13,7 +13,7 @@ namespace BTB.Domain.Common
         TwoHours = 2 * OneHour,
         FourHours = 2 * TwoHours,
         TwelveHours = 3 * FourHours,
-        OneDay = 24 * OneHour,
+        OneDay = 2 * TwelveHours,
         TwoWeeks = 14 * OneDay
     }
 }

@@ -4,6 +4,7 @@ using BTB.Application.Common.Models;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +106,72 @@ namespace BTB.Server.Services
             return result;
         }
 
-        private List<KlineVO> KlinesToValueObject(List<Kline> klines)
+        public async Task<IEnumerable<KlineVO>> GetKlines(TimestampInterval klineType, int amount, string filter ="")
+        {
+            long now = DateTimestampConv.GetTimestamp(DateTime.UtcNow);
+
+            long timeBack = (long)klineType * amount;
+            var klines = _context.Klines.Where(k =>
+                (k.DurationTimestamp == klineType) &&
+                (now - k.OpenTimestamp <= (long)klineType * (long)amount)).ToList();
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                klines = await FilterKlines(filter, klines.ToList());
+            }
+
+            var result = KlinesToValueObject(klines);
+
+            if (result.Count() > amount)
+            {
+                return result.TakeLast(amount);
+            }
+
+            return result;
+        }
+
+        public async Task<List<Kline>> FilterKlines(string filter, List<Kline> klines)
+        {
+            var result = new List<Kline>();
+            filter = filter.ToUpper();
+
+            var symbolPairs = _context.SymbolPairs.ToList();
+
+            Dictionary<int, string> pairNames = new Dictionary<int, string>();
+
+            Action<int> AddToDictionary = (id) =>
+            {
+                if (!pairNames.ContainsKey(id))
+                {
+                    pairNames.Add(id, GetSymbolPairName(id));
+                }
+            };
+
+            foreach (SymbolPair pair in symbolPairs)
+            {
+                AddToDictionary(pair.Id);
+            }
+
+            Action<Kline> CheckIfKlineMatchFilter = (kline) =>
+            {
+                if (pairNames.ContainsKey(kline.SymbolPairId))
+                {
+                    if (pairNames[kline.SymbolPairId].Contains(filter))
+                    {
+                        result.Add(kline);
+                    } 
+                }
+            };
+
+            foreach (Kline kline in klines)
+            {
+                CheckIfKlineMatchFilter(kline);
+            }
+
+            return result;
+        }
+
+        public List<KlineVO> KlinesToValueObject(List<Kline> klines)
         {
             return klines.Select(k => new KlineVO()
             {
@@ -121,31 +187,13 @@ namespace BTB.Server.Services
             }).ToList();
         }
 
-        public async Task<IEnumerable<KlineVO>> GetKlines(TimestampInterval klineType, int amount, string filter ="")
+        public string GetSymbolPairName(int pairId)
         {
-            long now = DateTimestampConv.GetTimestamp(DateTime.UtcNow);
-
-            long timeBack = (long)klineType * amount;
-            var klines = _context.Klines.Where(k =>
-                (k.DurationTimestamp == klineType) &&
-                (now - k.OpenTimestamp <= (long)klineType * (long)amount)).ToList();
-
-            var result = KlinesToValueObject(klines).AsEnumerable();
-
-            if (!string.IsNullOrEmpty(filter))
-            {
-                 result = await FilterKlines(filter, result.ToList());
-            }
-
-            if (result.Count() > amount)
-            {
-                return result.TakeLast(amount);
-            }
-
-            return result;
+            var pair = _context.SymbolPairs.FirstOrDefault(p => p.Id == pairId);
+            return string.Concat(GetSymbolName(pair.BuySymbolId), GetSymbolName(pair.SellSymbolId));
         }
 
-        public async Task<List<KlineVO>> GetKlinesFrom(TimestampInterval klineType, TimestampInterval fromNow)
+        public async Task<List<Kline>> GetKlinesFrom(TimestampInterval klineType, TimestampInterval fromNow)
         {
             long now = DateTimestampConv.GetTimestamp(DateTime.UtcNow);
 
@@ -155,32 +203,12 @@ namespace BTB.Server.Services
                     (now - k.OpenTimestamp <= (long)fromNow)
                 )).ToList();
 
-            var result = KlinesToValueObject(klines);
-
-            return result;
+            return klines;
         }
 
-        public async Task<IEnumerable<KlineVO>> Get24HPricesListAsync()
+        public async Task<IEnumerable<Kline>> Get24HPricesListAsync()
         {
             return await GetKlinesFrom(TimestampInterval.OneDay, TimestampInterval.OneDay);
-        }
-
-        public async Task<IEnumerable<KlineVO>> FilterKlines(string filter, List<KlineVO> klines)
-        {
-            var result = new List<KlineVO>();
-            filter = filter.ToUpper();
-
-            foreach (KlineVO kline in klines)
-            {
-                if (
-                    kline.BuySymbolName.Contains(filter) ||
-                    kline.SellSymbolName.Contains(filter) ||
-                    kline.PairName.Contains(filter)
-                   )
-                    result.Add(kline);
-            }
-
-            return result.AsEnumerable();
         }
 
         public async Task<IEnumerable<SimplePriceVO>> ToSimplePrices(List<KlineVO> klines)
@@ -250,6 +278,19 @@ namespace BTB.Server.Services
             }
 
             return result;
+        }
+
+        public async Task<SymbolPair> GetSymbolPairByName(string name)
+        {
+            return await
+            (
+                from pair in _context.SymbolPairs
+                    .Include(pair => pair.SellSymbol)
+                    .Include(pair => pair.BuySymbol)
+                let pairName = pair.BuySymbol.SymbolName + pair.SellSymbol.SymbolName
+                where pairName == name
+                select pair
+            ).SingleOrDefaultAsync();
         }
 
         /* Please do not delete - maybe we can use it to calculate 15m-4h klines

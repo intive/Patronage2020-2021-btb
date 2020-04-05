@@ -14,10 +14,12 @@ namespace BTB.Application.Common.Interfaces
         string GetSymbolName(int pairId, TradeSide tradeSide =TradeSide.Buy);
         IEnumerable<SymbolPair> GetSymbolPairs(string symbolName, TradeSide tradeSide);
         Task<IEnumerable<KlineVO>> GetKlines(TimestampInterval klineType, int amount, string filter = "");
-        Task<List<KlineVO>> GetKlinesFrom(TimestampInterval klineType, TimestampInterval fromNow);
-        Task<IEnumerable<KlineVO>> Get24HPricesListAsync();
-        Task<IEnumerable<KlineVO>> FilterKlines(string filter, List<KlineVO> klines);
+        Task<List<Kline>> GetKlinesFrom(TimestampInterval klineType, TimestampInterval fromNow);
+        Task<IEnumerable<Kline>> Get24HPricesListAsync();
+        Task<List<Kline>> FilterKlines(string filter, List<Kline> klines);
+        List<KlineVO> KlinesToValueObject(List<Kline> klines);
         Task<IEnumerable<SimplePriceVO>> ToSimplePrices(List<KlineVO> klines);
         SymbolPairVO GetSymbolNames(string pairName, string wantedBuySymbol = "");
+        Task<SymbolPair> GetSymbolPairByName(string pairName);
     }
 }
