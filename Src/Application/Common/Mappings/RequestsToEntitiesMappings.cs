@@ -22,15 +22,13 @@ namespace BTB.Application.Common.Mappings
 
             CreateMap<CreateAlertCommand, Alert>()
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
-                //.ForMember(alert => alert.Condition, opt => opt.MapFrom(command => command.Condition))
-                //.ForMember(alert => alert.ValueType, opt => opt.MapFrom(command => command.ValueType))
 
             CreateMap<UpdateAlertCommand, Alert>()
                 .ForMember(alert => alert.Id, opt => opt.Ignore())
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
 
             CreateMap<AddKlineCommand, Kline>()
-                .ForMember(kline => kline.OpenTimestamp, opt => opt.MapFrom(command => DateTimestampConv.GetTimestamp(DateTime.Now)))
+                .ForMember(kline => kline.OpenTimestamp, opt => opt.MapFrom(command => DateTimestampConv.GetTimestamp(DateTime.Now.AddMinutes(5.0d))))
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
         }
     }

@@ -1,38 +1,33 @@
-﻿using Binance.Net;
-using Binance.Net.Interfaces;
-using Binance.Net.Objects;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.System.Commands.Alerts.SendNotificationsCommand;
+﻿using BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Domain.Common;
 using BTB.Server.Common.CronGeneric;
 using MediatR;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using static BTB.Application.System.Commands.LoadData.LoadKlinesCommand;
 
 namespace BTB.Server.Services
 {
     public class UpdateExchangeJob : CronBaseJob
     {
         private readonly IMediator _mediator;
+
         private static List<TimestampInterval> _klinesToUpdate;
         private static bool _initialCall = true;
 
         static UpdateExchangeJob()
         {
             _klinesToUpdate = new List<TimestampInterval>()
-                {
-                    TimestampInterval.FiveMin,
-                    TimestampInterval.FifteenMin,
-                    TimestampInterval.OneHour,
-                    TimestampInterval.TwoHours,
-                    TimestampInterval.FourHours,
-                    TimestampInterval.TwelveHours,
-                    TimestampInterval.OneDay
-                };
+            {
+                TimestampInterval.FiveMin,
+                TimestampInterval.FifteenMin,
+                TimestampInterval.OneHour,
+                TimestampInterval.TwoHours,
+                TimestampInterval.FourHours,
+                TimestampInterval.TwelveHours,
+                TimestampInterval.OneDay
+            };
         }
 
         public UpdateExchangeJob(IScheduleConfig<UpdateExchangeJob> config) : base(config.CronExpression, config.TimeZoneInfo)
@@ -54,20 +49,20 @@ namespace BTB.Server.Services
                 //amount = 155;
             }
 
-            //await LoadKlinesAsync(_klinesToUpdate, amount);
-            await SendNotificationsAsync();
+            await LoadKlinesAsync(_klinesToUpdate, amount, cancellationToken);
+            await SendNotificationsAsync(cancellationToken);
         }        
 
-        private async Task SendNotificationsAsync()
+        private Task SendNotificationsAsync(CancellationToken cancellationToken)
         {
-            await _mediator.Send(new SendNotificationsCommand());
+            return _mediator.Send(new SendEmailNotificationsCommand(), cancellationToken);
         }
 
-        private async Task LoadKlinesAsync(List<TimestampInterval> intervals, int amount)
+        private async Task LoadKlinesAsync(List<TimestampInterval> intervals, int amount, CancellationToken cancellationToken)
         {
             foreach (TimestampInterval tst in intervals)
             {
-                await _mediator.Send(new LoadKlinesCommand() { KlineType = tst, Amount = amount });
+                await _mediator.Send(new LoadKlinesCommand() { KlineType = tst, Amount = amount }, cancellationToken);
             }
         }
 

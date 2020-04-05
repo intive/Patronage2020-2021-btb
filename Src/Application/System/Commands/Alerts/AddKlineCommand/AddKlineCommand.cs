@@ -9,6 +9,6 @@ namespace BTB.Application.System.Commands.Alerts.AddKlineCommand
     {
         public string SymbolPair { get; set; }
         public decimal Volume { get; set; }
-        public decimal OpenPrice { get; set; }
+        public decimal ClosePrice { get; set; }
     }
 }

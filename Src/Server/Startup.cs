@@ -47,14 +47,6 @@ namespace BTB.Server
 
         private static IServiceProvider Provider;
 
-        public static IBTBDbContext BTBDbContext
-        {
-            get
-            {
-                return Provider.GetRequiredService<IBTBDbContext>();
-            }
-        }
-
         public static IMediator Mediator
         {
             get
@@ -86,11 +78,10 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
-            Provider = services.BuildServiceProvider();
             services.AddCronJob<UpdateExchangeJob>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
-                c.CronExpression = @"*/1 * * * *"; // was: @"*/5 * * * *"
+                c.CronExpression = @"*/5 * * * *";
             });
 
             services.Configure<ApiBehaviorOptions>(options =>
@@ -139,6 +130,8 @@ namespace BTB.Server
             services.AddScoped<IEmailService, EmailService>();
             services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
             services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
+
+            Provider = services.BuildServiceProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

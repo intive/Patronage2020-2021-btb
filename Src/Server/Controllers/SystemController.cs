@@ -91,19 +91,28 @@ namespace BTB.Server.Controllers
         /// the message will be sent to "patronagebtb@gmail.com".
         /// </summary>
         /// <param name="command">An object containing email data.</param>
-        /// <response code="200">When successfull.</response>
+        /// <response code="200">When successful.</response>
         [Route("email")]
         [HttpPost]
-        public async Task SendEmail(SendEmailCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> SendEmail(SendEmailCommand command, CancellationToken cancellationToken)
         {
             await Mediator.Send(command, cancellationToken);
+            return Ok();
         }
 
+        /// <summary>
+        /// Creates a dummy kline in the database for a specific trading pair.
+        /// Five minutes will be added to the kline timestamp so that it will be
+        /// treated as newer compared to klines that are loaded every five minutes from Binance API.
+        /// </summary>
+        /// <param name="command">An object containing kline data.</param>
+        /// <response code="200">When successful.</response>
         [Route("kline")]
         [HttpPost]
-        public async Task AddKline(AddKlineCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddKline(AddKlineCommand command, CancellationToken cancellationToken)
         {
             await Mediator.Send(command, cancellationToken);
+            return Ok();
         }
     }
 }
