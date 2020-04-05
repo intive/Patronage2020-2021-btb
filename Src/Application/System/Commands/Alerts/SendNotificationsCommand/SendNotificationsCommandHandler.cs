@@ -1,34 +1,32 @@
-﻿using Binance.Net;
-using Binance.Net.Interfaces;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.System.Commands.Alerts.SendEmailCommand;
+﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using BTB.Domain.Enums;
-using BTB.Server.Common;
-using BTB.Server.Common.CronGeneric;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Server.Services
+namespace BTB.Application.System.Commands.Alerts.SendNotificationsCommand
 {
-    public class EmailAlertsHandler
+    public class SendNotificationsCommandHandler : IRequestHandler<SendNotificationsCommand>
     {
         private readonly IBTBDbContext _context;
-        private readonly IEmailService _emailService = new EmailService(); // this is temporary, didnt know how to inject this
-        
-        private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap = new Dictionary<int, Kline>(); // must be static for now
+        private readonly IEmailService _emailService;
+        private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap = new Dictionary<int, Kline>();
         private static bool _arePairsLoaded = false;
 
-        public EmailAlertsHandler(IBTBDbContext context)
+        public SendNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
-        public async Task Handle()
-        {        
+        public async Task<Unit> Handle(SendNotificationsCommand request, CancellationToken cancellationToken)
+        {
             if (!_arePairsLoaded)
             {
                 await LoadPairsToDictionaryAsync();
@@ -38,6 +36,8 @@ namespace BTB.Server.Services
             {
                 await CheckAlertsAsync();
             }
+
+            return Unit.Value;
         }
 
         private async Task LoadPairsToDictionaryAsync()
@@ -61,23 +61,16 @@ namespace BTB.Server.Services
                 Kline lastDbKline = await GetLastKlineBySymbolPairId(alert.SymbolPairId);
                 Kline lastCachedKline = _pairIdToLastKlineMap[alert.SymbolPairId];
 
-                // value types switch
                 if (alert.ValueType == AlertValueType.Volume)
                 {
-                    // conditions switch
+
                     if (alert.Condition == AlertCondition.Crossing)
                     {
-                        // actual condition detection
+
                         if (lastDbKline.Volume > alert.Value && alert.Value > lastCachedKline.Volume ||
                             lastDbKline.Volume < alert.Value && alert.Value < lastCachedKline.Volume)
                         {
-                            var handler = new SendEmailCommandHandler(_emailService);
-                            await handler.Handle(new SendEmailCommand()
-                            {
-                                To = alert.Email,
-                                EmailTitle = "BTB trading pair alert",
-                                EmailContent = alert.Message
-                            }, CancellationToken.None);
+                            _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message);
                         }
                     }
                 }
@@ -86,7 +79,6 @@ namespace BTB.Server.Services
             }
         }
 
-        // probably a method to be added to BinanceMiddleService
         private async Task<Kline> GetLastKlineBySymbolPairId(int symbolPairId)
         {
             return await _context.Klines

@@ -55,6 +55,14 @@ namespace BTB.Server
             }
         }
 
+        public static IMediator Mediator
+        {
+            get
+            {
+                return Provider.GetRequiredService<IMediator>();
+            }
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(options =>
