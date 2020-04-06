@@ -8,7 +8,7 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailCommand
     public class SendEmailCommand : IRequest
     {
         public string To { get; set; }
-        public string EmailTitle { get; set; }
-        public string EmailContent { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
     }
 }

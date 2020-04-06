@@ -92,12 +92,7 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
 
         private bool Crossed(decimal newValue, decimal oldvalue, decimal threshold)
         {
-            if (newValue > threshold && threshold > oldvalue || newValue < threshold && threshold < oldvalue)
-            {
-                return true;
-            }
-
-            return false;
+            return newValue > threshold && threshold > oldvalue || newValue < threshold && threshold < oldvalue;
         }
 
         private Task<Kline> GetLastKlineBySymbolPairIdAsync(int symbolPairId)

@@ -24,7 +24,7 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailCommand
                 request.To = "patronagebtb@gmail.com";
             }
 
-            _emailService.Send(request.To, request.EmailTitle, request.EmailContent);
+            _emailService.Send(request.To, request.Title, request.Content);
             return Unit.Value;
         }
     }
