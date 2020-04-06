@@ -60,9 +60,9 @@ namespace BTB.Server.Services
 
         private async Task LoadKlinesAsync(List<TimestampInterval> intervals, int amount, CancellationToken cancellationToken)
         {
-            foreach (var tst in intervals)
+            foreach (var interval in intervals)
             {
-                await _mediator.Send(new LoadKlinesCommand() { KlineType = tst, Amount = amount }, cancellationToken);
+                await _mediator.Send(new LoadKlinesCommand() { KlineType = interval, Amount = amount }, cancellationToken);
             }
         }
 
