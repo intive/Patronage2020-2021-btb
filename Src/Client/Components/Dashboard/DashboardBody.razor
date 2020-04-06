@@ -13,7 +13,7 @@
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
         @foreach (var value in Enum<PaginationQuantity>.GetValues())
         {
-            <button style="@PointerEventsStyle()" class="btn btn-primary mr-2" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
+            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
         }
     </div>
 </div>
