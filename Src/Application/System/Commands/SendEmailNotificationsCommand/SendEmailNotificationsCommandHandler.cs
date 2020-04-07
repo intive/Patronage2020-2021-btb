@@ -1,5 +1,6 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
+using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -96,7 +97,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId);
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == TimestampInterval.FiveMin);
         }
     }
 }
