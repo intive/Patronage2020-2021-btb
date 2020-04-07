@@ -1,6 +1,6 @@
 ﻿using BTB.Application.Common.Interfaces;
+using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Entities;
-using BTB.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,8 +17,16 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
 
-        private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap = new Dictionary<int, Kline>();
-        private static bool _pairsNotLoaded = true;
+        private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap;
+        private static bool _pairsNotLoaded;
+        private static readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crosssingConditionDetector;
+
+        static SendEmailNotificationsCommandHandler()
+        {
+            _pairsNotLoaded = true;
+            _pairIdToLastKlineMap = new Dictionary<int, Kline>();
+            _crosssingConditionDetector = new CrossingConditionDetector();
+        }
 
         public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
         {
@@ -68,31 +76,15 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
 
         private async Task<bool> AreConditionsMet(Alert alert)
         {
-            bool areConditionsMet = false;
+            Kline lastDbKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
+            Kline lastCachedKline = _pairIdToLastKlineMap[alert.SymbolPairId];
+            _pairIdToLastKlineMap[alert.SymbolPairId] = lastDbKline;
 
-            switch (alert.Condition)
+            if (_crosssingConditionDetector.IsConditionMet(alert, new CrossingConditionDetectorParameters()
             {
-                case AlertCondition.Crossing:
-                    Kline lastDbKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
-                    Kline lastCachedKline = _pairIdToLastKlineMap[alert.SymbolPairId];
-
-                    areConditionsMet = alert.ValueType switch
-                    {
-                        AlertValueType.Volume => Crossed(lastDbKline.Volume, lastCachedKline.Volume, alert.Value),
-                        AlertValueType.Price => Crossed(lastDbKline.ClosePrice, lastCachedKline.ClosePrice, alert.Value),
-                        AlertValueType.TradeCount => throw new NotImplementedException()
-                    };
-                    
-                    _pairIdToLastKlineMap[alert.SymbolPairId] = lastDbKline;
-                    break;
-            }
-
-            return areConditionsMet;
-        }
-
-        private bool Crossed(decimal newValue, decimal oldvalue, decimal threshold)
-        {
-            if (newValue > threshold && threshold > oldvalue || newValue < threshold && threshold < oldvalue)
+                NewKline = lastDbKline,
+                OldKline = lastCachedKline
+            }))
             {
                 return true;
             }
