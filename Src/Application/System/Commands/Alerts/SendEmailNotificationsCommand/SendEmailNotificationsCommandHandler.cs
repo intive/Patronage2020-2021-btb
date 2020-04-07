@@ -18,7 +18,7 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
         private readonly IEmailService _emailService;
 
         private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap = new Dictionary<int, Kline>();
-        private static bool _arePairsLoaded = false;
+        private static bool _pairsNotLoaded = true;
 
         public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
         {
@@ -28,10 +28,10 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
 
         public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
         {
-            if (!_arePairsLoaded)
+            if (_pairsNotLoaded)
             {
                 await LoadPairsToDictionaryAsync();
-                _arePairsLoaded = true;
+                _pairsNotLoaded = false;
             }
             else
             {
@@ -92,15 +92,19 @@ namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
 
         private bool Crossed(decimal newValue, decimal oldvalue, decimal threshold)
         {
-            return newValue > threshold && threshold > oldvalue || newValue < threshold && threshold < oldvalue;
+            if (newValue > threshold && threshold > oldvalue || newValue < threshold && threshold < oldvalue)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private Task<Kline> GetLastKlineBySymbolPairIdAsync(int symbolPairId)
         {
             return _context.Klines
-                .Where(kline => kline.SymbolPairId == symbolPairId)
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId);
         }
     }
 }

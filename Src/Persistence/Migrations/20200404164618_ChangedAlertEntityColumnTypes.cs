@@ -6,6 +6,8 @@ namespace BTB.Persistence.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM Alerts;", true);
+
             migrationBuilder.AlterColumn<int>(
                 name: "ValueType",
                 table: "Alerts",
@@ -31,6 +33,8 @@ namespace BTB.Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM Alerts;", true);
+
             migrationBuilder.AlterColumn<string>(
                 name: "ValueType",
                 table: "Alerts",
