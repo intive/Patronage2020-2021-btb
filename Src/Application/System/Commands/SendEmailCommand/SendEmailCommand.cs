@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BTB.Application.System.Commands.Alerts.SendEmailCommand
+namespace BTB.Application.System.Commands.SendEmailCommand
 {
     public class SendEmailCommand : IRequest
     {

@@ -1,4 +1,4 @@
-﻿using BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand;
+﻿using BTB.Application.System.Commands.SendEmailNotificationsCommand;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Domain.Common;
 using BTB.Server.Common.CronGeneric;

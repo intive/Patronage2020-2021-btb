@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.System.Commands.Alerts.SendEmailNotificationsCommand
+namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 {
     public class SendEmailNotificationsCommandHandler : IRequestHandler<SendEmailNotificationsCommand>
     {

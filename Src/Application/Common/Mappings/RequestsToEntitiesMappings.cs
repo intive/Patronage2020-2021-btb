@@ -2,7 +2,7 @@
 using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair;
-using BTB.Application.System.Commands.Alerts.AddKlineCommand;
+using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Domain.Common;

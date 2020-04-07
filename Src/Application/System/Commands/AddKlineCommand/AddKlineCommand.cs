@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BTB.Application.System.Commands.Alerts.AddKlineCommand
+namespace BTB.Application.System.Commands.AddKlineCommand
 {
     public class AddKlineCommand : IRequest
     {

@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.System.Commands.Alerts.AddKlineCommand
+namespace BTB.Application.System.Commands.AddKlineCommand
 {
     public class AddKlineCommandHandler : IRequestHandler<AddKlineCommand>
     {

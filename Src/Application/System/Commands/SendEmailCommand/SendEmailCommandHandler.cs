@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.System.Commands.Alerts.SendEmailCommand
+namespace BTB.Application.System.Commands.SendEmailCommand
 {
     public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand>
     {
