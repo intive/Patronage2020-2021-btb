@@ -16,10 +16,10 @@
             <tr>
                 <td>@item.OpenTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
                 <td>@item.CloseTime.AddHours(1).ToString("dd MMM yyyy, HH:mm:ss")</td>
-                <td>@Math.Round(item.OpenPrice, 5)</td>
-                <td>@Math.Round(item.ClosePrice, 5)</td>
-                <td>@Math.Round(item.LowestPrice, 5)</td>
-                <td>@Math.Round(item.HighestPrice, 5)</td>
+                <td>@item.OpenPrice</td>
+                <td>@item.ClosePrice</td>
+                <td>@item.LowestPrice</td>
+                <td>@item.HighestPrice</td>
             </tr>
         }
     </tbody>

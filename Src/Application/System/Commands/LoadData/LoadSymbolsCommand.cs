@@ -22,12 +22,13 @@ namespace BTB.Application.System.Commands.LoadData
             private readonly IBTBDbContext _context;
             private readonly IBinanceClient _client;
 
-            IEnumerable<BinanceSymbol> _exchangeData;
+            private IEnumerable<BinanceSymbol> _exchangeData;
+            private List<Binance24HPrice> _prices24hList;
             private Hashtable _symbolsTemp;
             private Action<Hashtable, string> _tableChecker;
 
             private Dictionary<string, int> _allowedSymbols;
-            private const int PerSymbolLimit = 6;
+            private const int PerSymbolLimit = 7;
 
             public LoadSymbolsCommandHandler(IBTBDbContext context, IBinanceClient client)
             {
@@ -58,8 +59,10 @@ namespace BTB.Application.System.Commands.LoadData
                     success++;
                 }
 
-                if (!arePairsAdded())
+                if (!ArePairsAdded())
                 {
+                    _prices24hList = _client.Get24HPricesList().Data.ToList();
+
                     await LoadPairsToDb();
                     success += 2;
                 }
@@ -85,7 +88,7 @@ namespace BTB.Application.System.Commands.LoadData
                 return _context.Symbols.FirstOrDefault() != default(Symbol);
             }
 
-            private bool arePairsAdded()
+            private bool ArePairsAdded()
             {
                 return _context.SymbolPairs.FirstOrDefault() != default(SymbolPair);
             }
@@ -138,41 +141,57 @@ namespace BTB.Application.System.Commands.LoadData
 
                     bool CanAddSymbolPair = false;
 
-                    if (_allowedSymbols.ContainsKey(symbolBuy.SymbolName))
+                    if (IsSymbolAllowed(symbolBuy.SymbolName) || IsSymbolAllowed(symbolSell.SymbolName))
                     {
-                        int curAmount = _allowedSymbols[symbolBuy.SymbolName];
-                        if (curAmount > 0)
+                        if (!IsSymbolPairEmpty(symbolBuy.SymbolName, symbolSell.SymbolName))
                         {
-                            curAmount--;
-                            CanAddSymbolPair = true;
-                            _allowedSymbols[symbolBuy.SymbolName] = curAmount;
+                            symbolPairs.Add(new SymbolPair()
+                            {
+                                BuySymbol = symbolBuy,
+                                SellSymbol = symbolSell
+                            });
                         }
                     }
-                    else if (_allowedSymbols.ContainsKey(symbolSell.SymbolName))
-                    {
-                        int curAmount = _allowedSymbols[symbolSell.SymbolName];
-                        if (curAmount > 0)
-                        {
-                            curAmount--;
-                            CanAddSymbolPair = true;
-                            _allowedSymbols[symbolSell.SymbolName] = curAmount;
-                        }
-                    }
-
-                    if (!CanAddSymbolPair)
-                    {
-                        continue;
-                    }
-
-                    symbolPairs.Add(new SymbolPair()
-                    {
-                        BuySymbol = symbolBuy,
-                        SellSymbol = symbolSell
-                    });
                 }
 
                 await _context.SymbolPairs.AddRangeAsync(symbolPairs.ToArray());
                 _context.SaveChanges();
+            }
+
+            private bool IsSymbolAllowed(string symbolName)
+            {
+                bool result = false;
+
+                if (_allowedSymbols.ContainsKey(symbolName))
+                {
+                    int curAmount = _allowedSymbols[symbolName];
+                    if (curAmount > 0)
+                    {
+                        curAmount--;
+                        _allowedSymbols[symbolName] = curAmount;
+                        result = true;
+                    }
+                }
+
+                return result;
+            }
+
+            private bool IsSymbolPairEmpty(string buySymbolName, string sellSymbolName)
+            {
+                string pairName = string.Concat(buySymbolName, sellSymbolName);
+                bool isEmpty = true;
+
+                var price = _prices24hList.FirstOrDefault(p => p.Symbol == pairName);
+
+                if (price != default(Binance24HPrice))
+                {
+                    if (price.LastPrice != decimal.Zero)
+                    {
+                        isEmpty = false;
+                    }
+                }
+
+                return isEmpty;
             }
         }
     }

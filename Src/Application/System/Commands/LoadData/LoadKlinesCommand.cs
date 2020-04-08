@@ -52,7 +52,7 @@ namespace BTB.Application.System.Commands.LoadData
                     return Unit.Value;
 
                 SetConfigFromRequest(request);
-                await LoadKlinesToDb("");
+                await LoadKlinesToDb();
 
                 return Unit.Value;
             }
@@ -65,27 +65,16 @@ namespace BTB.Application.System.Commands.LoadData
                 _klineCallBuffer = DateTime.UtcNow;                
             }
 
-            private async Task LoadKlinesToDb(string buySymbolFilter)
+            private async Task LoadKlinesToDb()
             {
                 var result = _context.SymbolPairs.ToList();                
 
                 List<Kline> klines = new List<Kline>();
 
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
                 foreach (SymbolPair pair in result)
                 {
                     Symbol buySymbol = _context.Symbols.FirstOrDefault(a => a.Id == pair.BuySymbolId);
                     Symbol sellSymbol = _context.Symbols.FirstOrDefault(a => a.Id == pair.SellSymbolId);
-
-                    if (!string.IsNullOrEmpty(buySymbolFilter))
-                    {
-                        if (!string.Equals(buySymbol.SymbolName, buySymbolFilter))
-                        {
-                            continue;
-                        }
-                    }
                     
                     bool symbolsExist = (buySymbol != default(Symbol) && sellSymbol != default(Symbol));
 
@@ -122,7 +111,7 @@ namespace BTB.Application.System.Commands.LoadData
                             var newKline = new Kline()
                             {
                                 SymbolPairId = pair.Id,
-                                OpenTimestamp = Timestamp(kline.OpenTime),
+                                OpenTimestamp = DateTimestampConv.GetTimestamp(kline.OpenTime),
                                 DurationTimestamp = _klineType,
                                 OpenPrice = kline.Open,
                                 ClosePrice = kline.Close,
@@ -134,16 +123,10 @@ namespace BTB.Application.System.Commands.LoadData
                             klines.Add(newKline);
                         }
                     }
-                }
-                stopWatch.Stop();
+                }     
                 
                 _context.Klines.AddRange(klines.ToArray());
                 _context.SaveChanges();
-            }
-
-            private long Timestamp(DateTime time)
-            {
-                return ((DateTimeOffset)time).ToUnixTimeSeconds();
             }
         }
     }
