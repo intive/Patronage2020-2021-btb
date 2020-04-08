@@ -18,6 +18,8 @@ using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.Alerts.Common;
 using BTB.Application.UserProfile.Common;
+using BTB.Application.System.Commands.SendEmailCommand;
+using BTB.Application.System.Commands.AddKlineCommand;
 
 namespace BTB.Application
 {
@@ -46,6 +48,8 @@ namespace BTB.Application
             services.AddTransient<IValidator<CreateUserProfileCommand>, UserProfileInfoRequestValidator>();
             services.AddTransient<IValidator<UpdateUserProfileCommand>, UserProfileInfoRequestValidator>();
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
+            services.AddTransient<IValidator<SendEmailCommand>, SendEmailCommandValidator>();
+            services.AddTransient<IValidator<AddKlineCommand>, AddKlineCommandValidator>();
 
             services.AddHttpContextAccessor();
 

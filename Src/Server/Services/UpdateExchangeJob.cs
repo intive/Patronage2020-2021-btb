@@ -55,7 +55,7 @@ namespace BTB.Server.Services
 
         private Task SendNotificationsAsync(CancellationToken cancellationToken)
         {
-            return _mediator.Send(new SendEmailNotificationsCommand(), cancellationToken);
+            return _mediator.Send(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
         }
 
         private async Task LoadKlinesAsync(List<TimestampInterval> intervals, int amount, CancellationToken cancellationToken)

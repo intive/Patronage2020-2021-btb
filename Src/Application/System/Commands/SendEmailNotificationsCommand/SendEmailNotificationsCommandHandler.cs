@@ -22,6 +22,8 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         private static bool _pairsNotLoaded;
         private static readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crosssingConditionDetector;
 
+        private TimestampInterval _klineInterval;
+
         static SendEmailNotificationsCommandHandler()
         {
             _pairsNotLoaded = true;
@@ -37,6 +39,8 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
         public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
         {
+            _klineInterval = request.KlineInterval;
+
             if (_pairsNotLoaded)
             {
                 await LoadPairsToDictionaryAsync();
@@ -99,7 +103,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == TimestampInterval.FiveMin);
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == _klineInterval);
         }
     }
 }
