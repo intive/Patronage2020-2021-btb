@@ -34,6 +34,7 @@ namespace BTB.Application.System.Commands.AddKlineCommand
 
             SymbolPair pair = await _client.GetSymbolPairByName(request.SymbolPair);
             var kline = _mapper.Map<Kline>(request);
+            kline.OpenTimestamp = DateTimestampConv.GetTimestamp(DateTime.Now);
             kline.DurationTimestamp = TimestampInterval.FiveMin;
             kline.SymbolPairId = pair.Id;
 

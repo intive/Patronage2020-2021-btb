@@ -81,11 +81,13 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             Kline lastCachedKline = _pairIdToLastKlineMap[alert.SymbolPairId];
             _pairIdToLastKlineMap[alert.SymbolPairId] = lastDbKline;
 
-            if (_crosssingConditionDetector.IsConditionMet(alert, new CrossingConditionDetectorParameters()
+            var crossingParameters = new CrossingConditionDetectorParameters()
             {
                 NewKline = lastDbKline,
                 OldKline = lastCachedKline
-            }))
+            };
+
+            if (_crosssingConditionDetector.IsConditionMet(alert, crossingParameters))
             {
                 return true;
             }

@@ -9,6 +9,7 @@ using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.System.Commands.ClearData;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Commands.SendEmailCommand;
+using BTB.Application.System.Commands.SendEmailNotificationsCommand;
 using BTB.Application.System.Queries.GetAuditTrail;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -101,9 +102,9 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
+        /// For testing purposes only!
         /// Creates a dummy kline in the database for a specific trading pair.
-        /// Five minutes will be added to the kline timestamp so that it will be
-        /// treated as newer compared to klines that are loaded every five minutes from Binance API.
+        /// This endpoint also triggers the email alert to make testing easy.
         /// </summary>
         /// <param name="command">An object containing kline data.</param>
         /// <response code="200">When successful.</response>
@@ -112,6 +113,7 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> AddKline(AddKlineCommand command, CancellationToken cancellationToken)
         {
             await Mediator.Send(command, cancellationToken);
+            await Mediator.Send(new SendEmailNotificationsCommand(), cancellationToken);
             return Ok();
         }
     }

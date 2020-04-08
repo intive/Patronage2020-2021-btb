@@ -28,7 +28,6 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
 
             CreateMap<AddKlineCommand, Kline>()
-                .ForMember(kline => kline.OpenTimestamp, opt => opt.MapFrom(command => DateTimestampConv.GetTimestamp(DateTime.Now.AddMinutes(5.0d))))
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
         }
     }
