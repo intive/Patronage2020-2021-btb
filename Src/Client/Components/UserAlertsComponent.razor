@@ -51,7 +51,7 @@
                                 Sort By
                             </button>
                             <div class="dropdown-menu @(_dropdownButtonCollapsed ? "" : "show")" aria-labelledby="dropdownButtonMenu">
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Symbol"))">Symbol</a>
+                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("SymbolPair"))">Symbol</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Condition"))">Condition</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("ValueType"))">Value Type</a>
                                 <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Value"))">Value</a>
@@ -95,7 +95,7 @@
                                 <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
                                     @alert.SymbolPair
                                 </NavLink>
-                                @alert.Condition @alert.Value
+                                @alert.Condition @alert.Value.ToString("#.##")
                             </div>
 
                             <div>
@@ -113,24 +113,24 @@
                             <div class="card-body">
 
                                 <div class="row">
-                                    <h5 class="col-12 col-lg-4">Condition:</h5>
+                                    <h5 class="col-12 col-lg-4">Condition</h5>
                                     <p class="col-12 col-lg-8">@alert.Condition</p>
                                 </div>
 
                                 <div class="row">
-                                    <h5 class="col-12 col-lg-4">Value Type:</h5>
+                                    <h5 class="col-12 col-lg-4">Value Type</h5>
                                     <p class="col-12 col-lg-8">@alert.ValueType</p>
                                 </div>
 
                                 <div class="row">
-                                    <h5 class="col-12 col-lg-4">Value:</h5>
+                                    <h5 class="col-12 col-lg-4">Value</h5>
                                     <p class="col-12 col-lg-8">@alert.Value</p>
                                 </div>
 
                                 @if (alert.SendEmail)
                                 {
                                     <div class="row">
-                                        <h5 class="col-12 col-lg-4">Message to @alert.Email:</h5>
+                                        <h5 class="col-12 col-lg-4">Message to @alert.Email</h5>
                                         <p class="col-12 col-lg-8">@alert.Message</p>
                                     </div>
                                 }

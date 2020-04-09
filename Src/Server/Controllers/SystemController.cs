@@ -5,8 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Binance.Net.Objects;
 using BTB.Application.Common.Models;
+using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.System.Commands.ClearData;
 using BTB.Application.System.Commands.LoadData;
+using BTB.Application.System.Commands.SendEmailCommand;
+using BTB.Application.System.Commands.SendEmailNotificationsCommand;
 using BTB.Application.System.Queries.GetAuditTrail;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -82,6 +85,36 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> GetAudits(int count)
         {
             return Ok(await Mediator.Send(new GetAuditsQuery { Count = count }, CancellationToken.None));
+        }
+
+        /// <summary>
+        /// Sends a test email message. If the recipient's address is left empty, then
+        /// the message will be sent to "patronagebtb@gmail.com".
+        /// </summary>
+        /// <param name="command">An object containing email data.</param>
+        /// <response code="200">When successful.</response>
+        [Route("email")]
+        [HttpPost]
+        public async Task<IActionResult> SendEmail(SendEmailCommand command, CancellationToken cancellationToken)
+        {
+            await Mediator.Send(command, cancellationToken);
+            return Ok();
+        }
+
+        /// <summary>
+        /// For testing purposes only!
+        /// Creates a dummy kline in the database for a specific trading pair.
+        /// This endpoint also triggers the email alert to make testing easy.
+        /// </summary>
+        /// <param name="command">An object containing kline data.</param>
+        /// <response code="200">When successful.</response>
+        [Route("kline")]
+        [HttpPost]
+        public async Task<IActionResult> AddKline(AddKlineCommand command, CancellationToken cancellationToken)
+        {
+            await Mediator.Send(command, cancellationToken);
+            await Mediator.Send(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
+            return Ok();
         }
     }
 }

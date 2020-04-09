@@ -1,5 +1,6 @@
 ﻿using BTB.Application.Alerts.Queries.GetAllAlertsQuery;
 using BTB.Domain.Common.Pagination;
+using BTB.Domain.Enums;
 using BTB.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace Application.UnitTests.Alerts.Queries
             var userId = "2";
             var expectedUserAlerts = new List<AlertVO>()
             {
-                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "volume", Value = 3000.0d, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
-                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "crossing", ValueType = "price", Value = 4000.0d, SendEmail = false, Email = null, Message = null },
+                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Volume", Value = 3000.0m, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
+                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Price", Value = 4000.0m, SendEmail = false, Email = null, Message = null },
             };
             var expectedAllRecordsCount = 2;
             var userIdentityMock = GetUserIdentityMock(userId);

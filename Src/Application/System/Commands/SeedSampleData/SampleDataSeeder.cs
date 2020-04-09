@@ -13,7 +13,6 @@ namespace BTB.Application.System.SeedSampleData
     public class SampleDataSeeder
     {
         private readonly IBTBDbContext _context;
-
         private readonly UserManager<ApplicationUser> _userManager;
 
         public SampleDataSeeder(IBTBDbContext context, UserManager<ApplicationUser> userManager)

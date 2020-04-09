@@ -1,4 +1,5 @@
 ﻿using BTB.Domain.Common;
+using BTB.Domain.Enums;
 
 namespace BTB.Domain.Entities
 {
@@ -9,9 +10,9 @@ namespace BTB.Domain.Entities
         public virtual ApplicationUser User { get; set; }
         public int SymbolPairId { get; set; }
         public SymbolPair SymbolPair { get; set; }
-        public string Condition { get; set; }
-        public string ValueType { get; set; }
-        public double Value { get; set; }
+        public AlertCondition Condition { get; set; }
+        public AlertValueType ValueType { get; set; }
+        public decimal Value { get; set; }
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
