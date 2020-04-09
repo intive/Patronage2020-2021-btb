@@ -1,70 +1,151 @@
-﻿google.charts.load('current', { 'packages': ['corechart', 'line'] });
-google.charts.setOnLoadCallback(drawCandlestickChart);
-google.charts.setOnLoadCallback(drawRSI);
-google.charts.setOnLoadCallback(drawSMA);
+﻿
+function drawCandlestick(divId, candlestickJson) {
 
-function drawCandlestickChart(jsonData) {
-    var data = new google.visualization.DataTable(jsonData, true);
+    var candlsetickData = JSON.parse(candlestickJson);
 
-    var options = {
-        legend: 'none',
-        colors: ['black', 'blue'],
-        bar: { groupWidth: '90%' },
-        candlestick: {
-            fallingColor: { strokeWidth: 0.5, fill: 'red', stroke: 'black' },
-            risingColor: { strokeWidth: 0.5, fill: 'green', stroke: 'black' },
-            hollowIsRising: true
+    document.getElementById(divId).innerHTML = "";
+    var chart = LightweightCharts.createChart(document.getElementById(divId), {
+        width: 900,
+        height: 300,
+        layout: {
+            backgroundColor: 'rgba(251, 251, 251, 1.0)',
+            textColor: 'rgba(85, 85, 85, 0.9)',
         },
-        chartArea: { right: '3%', bottom: 5, top: '5%', width: "90%", height: "80%" },
-        hAxis: { textPosition: 'none' }
-    };
-
-
-    var chart = new google.visualization.CandlestickChart(document.getElementById('candlestick_chart_div'));
-
-    chart.draw(data, options);
-}
-
-function drawRSI(jsonData) {
-    var data = new google.visualization.DataTable(jsonData);
-
-    var options = {
-        legend: 'none',
-        chartArea: { right: '3%', top: 10, width: "90%", height: "80%" },
-        vAxis: {
-            viewWindow: {
-                min: 0,
-                max: 100
+        grid: {
+            vertLines: {
+                color: 'rgba(230, 230, 230, 0.9)',
+            },
+            horzLines: {
+                color: 'rgba(230, 230, 230, 0.9)',
+            },
+        },
+        crosshair: {
+            mode: LightweightCharts.CrosshairMode.Normal,
+        },
+        priceScale: {
+            borderColor: 'rgba(85, 85, 85, 0.9)',
+            autoscale: true,
+            scaleMargins: {
+                top: 0.15,
+                bottom: 0.1,
+            },
+        },
+        timeScale: {
+            borderColor: 'rgba(85, 85, 85, 0.9)',
+            visible: true,
+            timeVisible: true,
+            secondsVisible: false,
+        },
+        priceFormat: {
+            formatter: (price) => {
+                return parseFloat(price).toFixed(2)
             }
         },
-        series: {
-            1: { lineDashStyle: [4, 1], lineWidth: 1 },
-            2: { lineDashStyle: [4, 1], lineWidth: 1 }
-        }
-    };
+        localization: {
+            priceFormatter: (price) => {
+                return parseFloat(price).toFixed(5)
+            }
+        },
+    });
 
-    var chart = new google.visualization.LineChart(document.getElementById('rsi_chart_div'));
+    chart.timeScale().fitContent();
 
-    chart.draw(data, options);
+    var candleSeries = chart.addCandlestickSeries({
+        upColor: 'rgba(112, 168, 0, 1)',
+        borderUpColor: 'rgba(112, 168, 0, 1)',
+        wickUpColor: 'rgba(112, 204, 0, 1)',
+        downColor: 'rgba(234, 0, 112, 1)',
+        borderDownColor: 'rgba(234, 0, 112, 1)',
+        wickDownColor: 'rgba(234, 0, 112, 1)',
+    });
+
+    candleSeries.setData(candlsetickData);
+
+    return chart;
 }
 
-function drawSMA(jsonData) {
-    var data = new google.visualization.DataTable(jsonData, true);
+function drawRSI(divCandlestickId, candlestickJson, divRSIId, rsiJson) {
+    drawCandlestick(divCandlestickId, candlestickJson);
 
-    var options = {
-        legend: 'none',
-        colors: ['black', 'blue'],
-        bar: { groupWidth: '90%' },
-        candlestick: {
-            fallingColor: { strokeWidth: 0.5, fill: 'red', stroke: 'black' },
-            risingColor: { strokeWidth: 0.5, fill: 'green', stroke: 'black' },
-            hollowIsRising: true
+    var rsiData = JSON.parse(rsiJson);
+
+    document.getElementById(divRSIId).innerHTML = "";
+    var chart = LightweightCharts.createChart(document.getElementById(divRSIId), {
+        width: 900,
+        height: 200,
+        layout: {
+            backgroundColor: 'rgba(251, 251, 251, 1.0)',
+            textColor: 'rgba(85, 85, 85, 0.9)',
         },
-        chartArea: { right: '3%', width: "90%", height: "80%" },
-        seriesType: "candlesticks",
-        series: { 1: { type: 'line' } }
-    };
+        grid: {
+            vertLines: {
+                color: 'rgba(230, 230, 230, 0.9)',
+            },
+            horzLines: {
+                color: 'rgba(230, 230, 230, 0.9)',
+            },
+        },
+        crosshair: {
+            mode: LightweightCharts.CrosshairMode.Normal,
+        },
+        priceScale: {
+            borderColor: 'rgba(85, 85, 85, 0.9)',
+            autoscale: true,
+        },
+        timeScale: {
+            borderColor: 'rgba(85, 85, 85, 0.9)',
+            timeVisible: true,
+            secondsVisible: false,
+        },
+    });
 
-    var chart = new google.visualization.ComboChart(document.getElementById('sma_chart_div'));
-    chart.draw(data, options);
+    chart.timeScale().fitContent();
+
+    var rsiSeries = chart.addLineSeries({
+        color: 'rgba(167, 79, 167, 0.9)',
+        lineStyle: 0,
+        lineWidth: 2.5,
+        crosshairMarkerVisible: true,
+    });
+
+    var lineSeries30 = chart.addLineSeries({
+        lineStyle: 3,
+        color: 'rgba(0, 0, 0, 0.9)',
+        lineWidth: 0.5,
+    });
+
+    var lineSeries70 = chart.addLineSeries({
+        lineStyle: 3,
+        color: 'rgba(0, 0, 0, 0.9)',
+        lineWidth: 0.5,
+    });
+
+    rsiSeries.setData(rsiData);
+
+    lineSeries30.setData([
+        { time: rsiData[0].time, value: 30 },
+        { time: rsiData[rsiData.length - 1].time, value: 30 },
+
+    ]);
+
+    lineSeries70.setData([
+        { time: rsiData[0].time, value: 70 },
+        { time: rsiData[rsiData.length - 1].time, value: 70 },
+
+    ]);
+}
+
+function drawSMA(divId, candlestickJson, smaJson) {
+    var chart = drawCandlestick(divId, candlestickJson);
+
+    var smaData = JSON.parse(smaJson);
+
+    var smaSeries = chart.addLineSeries({
+        color: 'rgba(167, 79, 167, 0.9)',
+        lineStyle: 0,
+        lineWidth: 2.5,
+        crosshairMarkerVisible: true,
+    });
+
+    smaSeries.setData(smaData);
 }
