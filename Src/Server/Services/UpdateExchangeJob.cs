@@ -1,22 +1,17 @@
-﻿using Binance.Net;
-using Binance.Net.Interfaces;
-using Binance.Net.Objects;
-using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.System.Commands.SendEmailNotificationsCommand;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Domain.Common;
 using BTB.Server.Common.CronGeneric;
+using MediatR;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using static BTB.Application.System.Commands.LoadData.LoadKlinesCommand;
 
 namespace BTB.Server.Services
 {
     public class UpdateExchangeJob : CronBaseJob
     {
-        private IBinanceClient _client;
-        private IBTBDbContext _context;
+        private readonly IMediator _mediator;
 
         private static List<TimestampInterval> _klinesToUpdate;
         private static bool _initialCall = true;
@@ -24,19 +19,20 @@ namespace BTB.Server.Services
         static UpdateExchangeJob()
         {
             _klinesToUpdate = new List<TimestampInterval>()
-                {
-                    TimestampInterval.FiveMin,
-                    TimestampInterval.FifteenMin,
-                    TimestampInterval.OneHour,
-                    TimestampInterval.TwoHours,
-                    TimestampInterval.FourHours,
-                    TimestampInterval.TwelveHours,
-                    TimestampInterval.OneDay
-                };
+            {
+                TimestampInterval.FiveMin,
+                TimestampInterval.FifteenMin,
+                TimestampInterval.OneHour,
+                TimestampInterval.TwoHours,
+                TimestampInterval.FourHours,
+                TimestampInterval.TwelveHours,
+                TimestampInterval.OneDay
+            };
         }
 
         public UpdateExchangeJob(IScheduleConfig<UpdateExchangeJob> config) : base(config.CronExpression, config.TimeZoneInfo)
         {
+            _mediator = Startup.Mediator;
         }
 
         public async override Task StartAsync(CancellationToken cancellationToken)
@@ -46,26 +42,27 @@ namespace BTB.Server.Services
 
         public async override Task DoWork(CancellationToken cancellationToken)
         {
-            _client = new BinanceClient();
-            _context = Startup.BTBDbContext;
-            var handler = new LoadKlinesCommandHandler(_client, _context);
-
             int amount = 1;
             if (_initialCall)
             {
                 _initialCall = false;
-               //amount = 155;
+                //amount = 155;
             }
-            await LoadKlines(_klinesToUpdate, amount);
+
+            await LoadKlinesAsync(_klinesToUpdate, amount, cancellationToken);
+            await SendNotificationsAsync(cancellationToken);
         }        
 
-        private async Task LoadKlines(List<TimestampInterval> intervals, int amount)
+        private Task SendNotificationsAsync(CancellationToken cancellationToken)
         {
-            var handler = new LoadKlinesCommandHandler(_client, _context);
+            return _mediator.Send(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
+        }
 
-            foreach (TimestampInterval tst in intervals)
+        private async Task LoadKlinesAsync(List<TimestampInterval> intervals, int amount, CancellationToken cancellationToken)
+        {
+            foreach (var interval in intervals)
             {
-                await handler.Handle(new LoadKlinesCommand() { KlineType = tst, Amount = amount }, CancellationToken.None);
+                await _mediator.Send(new LoadKlinesCommand() { KlineType = interval, Amount = amount }, cancellationToken);
             }
         }
 

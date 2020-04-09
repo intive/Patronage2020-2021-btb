@@ -1,16 +1,14 @@
-﻿using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common;
+using BTB.Application.Common.Exceptions;
+using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace BTB.Server.Common
+namespace BTB.Server.Services
 {
     public class EmailService : IEmailService
     {
@@ -30,9 +28,33 @@ namespace BTB.Server.Common
 
         public void Send(string to, string title, string message)
         {
-            MailMessage mail = new MailMessage(_configurator.CurrentConfig.login, to);
-            mail.Subject = title;
-            mail.Body = message;
+            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            {
+                Subject = title,
+                Body = message
+            };
+
+            _client.Send(mail);
+        }
+
+        public void Send(string to, string title, string message, EmailTemplate emailTemplate)
+        {
+            if (emailTemplate == null)
+            {
+                throw new ArgumentNullException(nameof(emailTemplate));
+            }
+
+            var builder = new StringBuilder();
+            builder.Append(emailTemplate.Header);
+            builder.Append(message);
+            builder.Append(emailTemplate.Footer);
+
+            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            {
+                Subject = title,
+                Body = builder.ToString(),
+                IsBodyHtml = true
+            };
 
             _client.Send(mail);
         }
