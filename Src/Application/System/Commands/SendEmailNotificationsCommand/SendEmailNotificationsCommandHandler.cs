@@ -74,7 +74,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
                 if (await AreConditionsMet(alert))
                 {
-                    _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message);
+                    _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, await _context.EmailTemplates.SingleOrDefaultAsync());
                 }
             }
         }

@@ -23,6 +23,7 @@ namespace BTB.Persistence
         public DbSet<Kline> Klines { get; set; }
         public DbSet<AuditTrail> AuditTrails { get; set; }
         public DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
+        public DbSet<EmailTemplate> EmailTemplates { get; set; }
 
         private readonly ICurrentUserIdentityService _currentUserService;
         private readonly IDateTime _dateTime;
@@ -75,7 +76,7 @@ namespace BTB.Persistence
                         break;
                 }
 
-                this.CreateAudit(entry);
+                CreateAudit(entry);
             }
 
             return base.SaveChangesAsync(cancellationToken);
@@ -101,7 +102,7 @@ namespace BTB.Persistence
                     Date = date
                 };
 
-                this.AuditTrails.Add(auditEntry);
+                AuditTrails.Add(auditEntry);
             }
         }
 

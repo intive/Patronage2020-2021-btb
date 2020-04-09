@@ -1,6 +1,7 @@
 ﻿using BTB.Application.Common;
 using BTB.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,13 @@ namespace BTB.Application.System.Commands.SendEmailCommand
     {
         private readonly IEmailService _emailService;
         private readonly string _defaultEmailAddress;
+        private readonly IBTBDbContext _context;
 
-        public SendEmailCommandHandler(IEmailService emailService, IOptions<EmailConfig> config)
+        public SendEmailCommandHandler(IEmailService emailService, IOptions<EmailConfig> config, IBTBDbContext context)
         {
             _emailService = emailService;
             _defaultEmailAddress = config.Value.login;
+            _context = context;
         }
 
         public async Task<Unit> Handle(SendEmailCommand request, CancellationToken cancellationToken)
@@ -28,7 +31,7 @@ namespace BTB.Application.System.Commands.SendEmailCommand
                 request.To = _defaultEmailAddress;
             }
 
-            _emailService.Send(request.To, request.Title, request.Content);
+            _emailService.Send(request.To, request.Title, request.Content, await _context.EmailTemplates.SingleOrDefaultAsync());
             return Unit.Value;
         }
     }
