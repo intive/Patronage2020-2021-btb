@@ -13,7 +13,7 @@
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
         @foreach (var value in Enum<PaginationQuantity>.GetValues())
         {
-            <button style="@PointerEventsStyle()" class="btn btn-primary mr-2" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
+            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
         }
     </div>
 </div>
@@ -26,11 +26,13 @@
     <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
     <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
     <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-
-    @foreach (var value in Enum<CurrencyFilter>.GetValues())
-    {
-        <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
-    }
+    
+    <div class="btn-group mr-2" role="group" aria-label="Time group">
+        @foreach (var value in Enum<CurrencyFilter>.GetValues())
+        {
+            <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
+        }
+    </div>
 </EditForm>
 
 <table class="table">
