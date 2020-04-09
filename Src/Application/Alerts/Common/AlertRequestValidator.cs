@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BTB.Application.Alerts.Common
@@ -14,15 +15,19 @@ namespace BTB.Application.Alerts.Common
                 .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
+            var validConditions = new string[] { "crossing" };
             RuleFor(a => a.Condition)
-                .NotEmpty();
+                .NotEmpty()
+                .Must(condition => validConditions.Contains(condition.ToLower()));
 
+            var validValueTypes = new string[] { "price", "volume" };
             RuleFor(a => a.ValueType)
-                .NotEmpty();
+                .NotEmpty()
+                .Must(valueType => validValueTypes.Contains(valueType.ToLower()));
 
             RuleFor(a => a.Value)
                 .NotEmpty()
-                .GreaterThan(0);
+                .GreaterThan(0.0m);
 
             RuleFor(a => a.SendEmail)
                 .NotNull();

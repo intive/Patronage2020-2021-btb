@@ -18,6 +18,7 @@ namespace BTB.Application.Common.Interfaces
         DbSet<Kline> Klines { get; set; }
         DbSet<AuditTrail> AuditTrails { get; set; }
         DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
+        DbSet<EmailTemplate> EmailTemplates { get; set; }
 
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);

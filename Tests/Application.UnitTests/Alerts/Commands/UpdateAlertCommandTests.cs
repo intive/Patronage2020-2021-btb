@@ -1,6 +1,9 @@
 ﻿using Application.UnitTests.Common;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
 using BTB.Application.Common.Exceptions;
+using BTB.Domain.Entities;
+using BTB.Domain.Enums;
+using BTB.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
@@ -17,9 +20,9 @@ namespace Application.UnitTests.Alerts.Commands
             var alertId = 1;
             var expectedUserId = "1";
             var expectedTradingPair = "BTCUSDT";
-            var expectedCondition = "new_condition";
-            var expectedValueType = "new_value_type";
-            var expectedValue = 1234.56;
+            var expectedCondition = "Crossing";
+            var expectedValueType = "Price";
+            var expectedValue = 1234.56m;
             var expectedSendEmail = true;
             var expectedEmail = "newexample@newmail.com";
             var expectedMessage = "new_message";
@@ -40,19 +43,21 @@ namespace Application.UnitTests.Alerts.Commands
             };
 
             await sut.Handle(command, CancellationToken.None);
-            var dbResult = _context.Alerts
+            Alert dbAlert = _context.Alerts
                 .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
                 .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
                 .SingleOrDefault(a => a.UserId == expectedUserId && a.Id == alertId);
 
-            Assert.NotNull(dbResult);
-            Assert.Equal(expectedTradingPair, dbResult.SymbolPair.PairName);
-            Assert.Equal(expectedCondition, dbResult.Condition);
-            Assert.Equal(expectedValueType, dbResult.ValueType);
-            Assert.Equal(expectedValue, dbResult.Value);
-            Assert.Equal(expectedSendEmail, dbResult.SendEmail);
-            Assert.Equal(expectedEmail, dbResult.Email);
-            Assert.Equal(expectedMessage, dbResult.Message);
+            var dbAlertVo = _mapper.Map<AlertVO>(dbAlert);
+
+            Assert.NotNull(dbAlertVo);
+            Assert.Equal(expectedTradingPair, dbAlertVo.SymbolPair);
+            Assert.Equal(expectedCondition, dbAlertVo.Condition);
+            Assert.Equal(expectedValueType, dbAlertVo.ValueType);
+            Assert.Equal(expectedValue, dbAlertVo.Value);
+            Assert.Equal(expectedSendEmail, dbAlertVo.SendEmail);
+            Assert.Equal(expectedEmail, dbAlertVo.Email);
+            Assert.Equal(expectedMessage, dbAlertVo.Message);
 
             userIdentityMock.VerifyGet(x => x.UserId);
             _btbBinanceClientMock.Verify(mock => mock.GetSymbolNames(expectedTradingPair, ""));
