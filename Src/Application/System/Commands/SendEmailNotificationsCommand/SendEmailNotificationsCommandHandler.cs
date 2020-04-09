@@ -74,7 +74,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
                 if (await AreConditionsMet(alert))
                 {
-                    _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, await _context.EmailTemplates.SingleOrDefaultAsync());
+                    await SendEmailMessageAsync(alert);
                 }
             }
         }
@@ -104,6 +104,12 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
                 .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == _klineInterval);
+        }
+
+        private async Task SendEmailMessageAsync(Alert alert)
+        {
+            EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
+            _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
         }
     }
 }

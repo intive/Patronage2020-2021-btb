@@ -20,7 +20,7 @@ namespace BTB.Application.ConditionDetectors.Crossing
             decimal oldValue = GetKlineValueByAlertValueType(alert.ValueType, parameters.OldKline);
             decimal threshold = alert.Value;
 
-            if (newValue >= threshold && threshold >= oldValue || newValue <= threshold && threshold <= oldValue)
+            if (newValue >= threshold && threshold > oldValue || newValue <= threshold && threshold < oldValue)
             {
                 return true;
             }
