@@ -32,7 +32,7 @@ namespace Application.UnitTests.Alerts.Queries
             };
 
             var paginatedResult = await sut.Handle(command, CancellationToken.None);
-            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecorsCount);
+            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
 
             var resultAlerts = paginatedResult.Result.ToList();
             Assert.Equal(resultAlerts.Count(), expectedAllRecordsCount);

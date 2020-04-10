@@ -46,7 +46,7 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
             return new PaginatedResult<DashboardPairVO>()
             {
                 Result = symbolPairs.Paginate(request.Pagination),
-                AllRecorsCount = symbolPairsCount,
+                AllRecordsCount = symbolPairsCount,
                 RecordsPerPage = (int)request.Pagination.Quantity
             };
         }
