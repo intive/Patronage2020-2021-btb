@@ -23,6 +23,7 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedCondition = "Crossing";
             var expectedValueType = "Price";
             var expectedValue = 1234.56m;
+            var expectedSendInBrowser = true;
             var expectedSendEmail = true;
             var expectedEmail = "newexample@newmail.com";
             var expectedMessage = "new_message";
@@ -55,6 +56,7 @@ namespace Application.UnitTests.Alerts.Commands
             Assert.Equal(expectedCondition, dbAlertVo.Condition);
             Assert.Equal(expectedValueType, dbAlertVo.ValueType);
             Assert.Equal(expectedValue, dbAlertVo.Value);
+            Assert.Equal(expectedSendInBrowser, dbAlertVo.SendInBrowser);
             Assert.Equal(expectedSendEmail, dbAlertVo.SendEmail);
             Assert.Equal(expectedEmail, dbAlertVo.Email);
             Assert.Equal(expectedMessage, dbAlertVo.Message);

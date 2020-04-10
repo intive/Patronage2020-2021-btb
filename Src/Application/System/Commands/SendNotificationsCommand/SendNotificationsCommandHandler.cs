@@ -1,8 +1,10 @@
-﻿using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Hubs;
+using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,8 +15,10 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 {
-    public class SendEmailNotificationsCommandHandler : IRequestHandler<SendEmailNotificationsCommand>
+    public class SendNotificationsCommandHandler : IRequestHandler<SendNotificationsCommand>
     {
+        private readonly IHubContext<NotificationHub> _hubcontext;
+        private readonly ICurrentUserIdentityService _currentUserIdentity;
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
 
@@ -24,20 +28,26 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
         private TimestampInterval _klineInterval;
 
-        static SendEmailNotificationsCommandHandler()
+        static SendNotificationsCommandHandler()
         {
             _pairsNotLoaded = true;
             _pairIdToLastKlineMap = new Dictionary<int, Kline>();
             _crosssingConditionDetector = new CrossingConditionDetector();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
+        public SendNotificationsCommandHandler(
+            IBTBDbContext context,
+            IEmailService emailService, 
+            IHubContext<NotificationHub> hubContext,
+            ICurrentUserIdentityService currentUserIdentity)
         {
             _context = context;
             _emailService = emailService;
+            _hubcontext = hubContext;
+            _currentUserIdentity = currentUserIdentity;
         }
 
-        public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SendNotificationsCommand request, CancellationToken cancellationToken)
         {
             _klineInterval = request.KlineInterval;
 
@@ -58,7 +68,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             foreach (var pair in _context.SymbolPairs)
             {
-                Kline kline = await GetLastKlineBySymbolPairIdAsync(pair.Id);
+                var kline = await GetLastKlineBySymbolPairIdAsync(pair.Id);
                 _pairIdToLastKlineMap.Add(pair.Id, kline);
             }
         }
@@ -67,14 +77,20 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             foreach (var alert in _context.Alerts)
             {
-                if (!alert.SendEmail)
+                if (alert.SendEmail)
                 {
-                    continue;
+                    if (await AreConditionsMet(alert))
+                    {
+                        await SendEmailMessageAsync(alert);
+                    }
                 }
 
-                if (await AreConditionsMet(alert))
+                if (alert.SendInBrowser)
                 {
-                    await SendEmailMessageAsync(alert);
+                    if (await AreConditionsMet(alert))
+                    {
+                        await SendInBrowserNotificationAsync(alert);
+                    }
                 }
             }
         }
@@ -110,6 +126,13 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
             _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+        }
+
+        private async Task SendInBrowserNotificationAsync(Alert alert)
+        {
+            await _hubcontext.Clients.User(_currentUserIdentity.UserId)
+                    .SendAsync("inbrowser", 
+                        $"{alert.SymbolPair} is {alert.Condition} {alert.ValueType} {alert.Value}");
         }
     }
 }

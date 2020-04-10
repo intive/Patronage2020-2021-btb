@@ -26,6 +26,9 @@ namespace BTB.Persistence.Configurations
             builder.Property(a => a.SymbolPairId)
                 .IsRequired();
 
+            builder.Property(a => a.SendInBrowser)
+               .IsRequired();
+
             builder.Property(a => a.SendEmail)
                 .IsRequired();
 

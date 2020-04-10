@@ -113,7 +113,7 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> AddKline(AddKlineCommand command, CancellationToken cancellationToken)
         {
             await Mediator.Send(command, cancellationToken);
-            await Mediator.Send(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
+            await Mediator.Send(new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
             return Ok();
         }
     }

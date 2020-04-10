@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 {
-    public class SendEmailNotificationsCommand : IRequest
+    public class SendNotificationsCommand : IRequest
     {
         public TimestampInterval KlineInterval { get; set; } = TimestampInterval.FiveMin;
     }
