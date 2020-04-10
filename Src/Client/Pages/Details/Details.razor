@@ -33,6 +33,7 @@ else
             </div>
         </LoadingTemplate>
         <ContentTemplate>
+
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="Time group">
                     <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
@@ -68,6 +69,8 @@ else
                     }
                 </div>
             </div>
+
+            <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
 
             <br />
 
@@ -115,6 +118,12 @@ else
 
     private string _errorMessage;
 
+    private int _totalPageQuantity;
+    private int _currentPage = 1;
+    private int _currentQuantity = 10;
+        
+    private bool _isRequestRunning = false;
+
     [Parameter]
     public string Symbol { get; set; }
 
@@ -141,5 +150,16 @@ else
             _processingHttpRequest = false;
         }
     }
+    
+    private async Task SelectedPage(int page)
+    {
+        _currentPage = page;
 
+        await RefreshDetailsList();
+    }
+    
+    private string PointerEventsStyle()
+    {
+        return _isRequestRunning ? "pointer-events: none;" : null;
+    }
 }
