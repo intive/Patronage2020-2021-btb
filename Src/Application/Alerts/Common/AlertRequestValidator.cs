@@ -26,8 +26,9 @@ namespace BTB.Application.Alerts.Common
                 .Must(valueType => validValueTypes.Contains(valueType.ToLower()));
 
             RuleFor(a => a.Value)
-                .NotEmpty()
-                .GreaterThan(0.0m);
+                .NotNull()
+                .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
 
             RuleFor(a => a.SendEmail)
                 .NotNull();

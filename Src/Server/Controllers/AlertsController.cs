@@ -43,6 +43,11 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateAlertCommand command, CancellationToken cancellationToken)
         {
+            if (command == null)
+            {
+                return BadRequest();
+            }
+
             return CreatedAtAction(nameof(Create), await Mediator.Send(command, cancellationToken));
         }
 
@@ -61,6 +66,11 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAlertCommand command, CancellationToken cancellationToken)
         {
+            if (command == null)
+            {
+                return BadRequest();
+            }
+
             command.Id = id;
             await Mediator.Send(command, cancellationToken);
             return Ok();
