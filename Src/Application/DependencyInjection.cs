@@ -20,6 +20,8 @@ using BTB.Application.Alerts.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Application.System.Commands.SendEmailCommand;
 using BTB.Application.System.Commands.AddKlineCommand;
+using BTB.Application.Indicator.Commands.CalculateRSI;
+using BTB.Application.Indicator.Commands.CalculateSMA;
 
 namespace BTB.Application
 {
@@ -50,6 +52,8 @@ namespace BTB.Application
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
             services.AddTransient<IValidator<SendEmailCommand>, SendEmailCommandValidator>();
             services.AddTransient<IValidator<AddKlineCommand>, AddKlineCommandValidator>();
+            services.AddTransient<IValidator<CalculateRSICommand>, CalculateRSICommandValidator>();
+            services.AddTransient<IValidator<CalculateSMACommand>, CalculateSMACommandValidator>();
 
             services.AddHttpContextAccessor();
 
