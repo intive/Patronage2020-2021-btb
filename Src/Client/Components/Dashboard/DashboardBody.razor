@@ -7,7 +7,18 @@
 @using BTB.Domain.Extensions
 @using BTB.Client.Pages.Dashboard.Common
 @inject HttpClient Http
+@inject IModalService Modal
 @implements IDisposable
+
+
+@inject IToastService Toast
+@inject NavigationManager navigationManager
+
+
+<button class="btn btn-outline-primary"
+        @onclick="() => CheckConnection()">
+    Check Connection
+</button>
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -26,7 +37,7 @@
     <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
     <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
     <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-    
+
     <div class="btn-group mr-2" role="group" aria-label="Time group">
         @foreach (var value in Enum<CurrencyFilter>.GetValues())
         {
@@ -83,6 +94,7 @@
 </table>
 
 @code {
+    private HubConnection _connection;
 
     [Parameter]
     public DashboardType Type { get; set; } = DashboardType.SymbolPair;
@@ -132,6 +144,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDashboardTableAsync();
+        await ConnectToSignalRAsync();
     }
 
     private async Task LoadDashboardTableAsync()
@@ -201,6 +214,46 @@
         }
 
         StateHasChanged();
+    }
+
+    private async Task ConnectToSignalRAsync()
+    {
+        try
+        {
+            _connection = new HubConnectionBuilder()
+                .WithUrl(navigationManager.ToAbsoluteUri("/hub/notifications"))
+                .Build();
+
+            await _connection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            Toast.ShowToast(ToastLevel.Error,
+           $"{e.Message}");
+        }
+
+        Toast.ShowToast(ToastLevel.Info,
+          $"You have sucessfully connected to SignalR!");
+
+        _connection.Closed += async (exception) =>
+        {
+            await _connection.StartAsync();
+        };
+
+        _connection.On<string>("inbrowser", response =>
+        {
+            Toast.ShowToast(ToastLevel.Info,
+         $"Alert {response}!");
+        });
+    }
+
+    private void CheckConnection()
+    {
+        if (_connection != null)
+        {
+            Toast.ShowToast(ToastLevel.Info,
+                $"{_connection.State}, {_connection.ConnectionId}");
+        }
     }
 
 }

@@ -8,8 +8,6 @@ using System;
 using Binance.Net.Interfaces;
 using Binance.Net.Objects;
 using MediatR;
-using System.Linq;
-using System;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
 using BTB.Domain.ValueObjects;
