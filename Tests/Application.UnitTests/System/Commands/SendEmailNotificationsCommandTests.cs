@@ -19,14 +19,8 @@ namespace Application.UnitTests.System.Commands
     public class SendEmailNotificationsCommandTests : CommandTestsBase
     {
         [Theory]
-        [InlineData(AlertValueType.Price, 1, 1, 3, 3, 1, 1)]
         [InlineData(AlertValueType.Price, 1, 1, 3, 1, 1, 1)]
-
-        [InlineData(AlertValueType.Volume, 1, 1, 3, 3, 1, 1)]
         [InlineData(AlertValueType.Volume, 1, 1, 1, 3, 1, 1)]
-
-        [InlineData(AlertValueType.Price, 1, 1, 2, 1, 3, 1)]
-        [InlineData(AlertValueType.Price, 1, 1, 2, 1, 1, 1)]
         public async Task Handle_ShouldSendNotifications_WhenCrossingOccurs(
             AlertValueType alertValueType,
             decimal kline1closePrice, decimal kline1volume,
@@ -53,29 +47,33 @@ namespace Application.UnitTests.System.Commands
                 Value = 2.0m,
                 SendEmail = true,
                 Email = "email@email.com",
-                Message = "symbol pair 1 crossing 2.0m - volume"
+                Message = "symbol pair 1 crossing 2.0m"
             };
 
             _context.Alerts.Add(alert);
             await _context.SaveChangesAsync(CancellationToken.None);
 
             var emailServiceMock = new Mock<IEmailService>();
-            
+
+            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
             var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
                 new CrossingConditionDetector());
+            SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
+            await sut.Handle(command, CancellationToken.None);
             await AddKline(mockKlines[0]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
+            await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
 
             await AddKline(mockKlines[1]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
-            emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), alert.Message, _context.EmailTemplates.FirstOrDefault()));
+            await sut.Handle(command, CancellationToken.None);
+            emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), alert.Message, _context.EmailTemplates.FirstOrDefault()), Times.Once);
 
             await AddKline(mockKlines[2]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
-            emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), alert.Message, _context.EmailTemplates.FirstOrDefault()));
-            
+            await sut.Handle(command, CancellationToken.None);
+            emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), alert.Message, _context.EmailTemplates.FirstOrDefault()), Times.Exactly(2));
+
+            await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
         }
 
@@ -84,6 +82,8 @@ namespace Application.UnitTests.System.Commands
         [InlineData(AlertValueType.Volume, 1, 1, 1, 1, 1, 1)]
         [InlineData(AlertValueType.Price, 3, 3, 3, 3, 3, 3)]
         [InlineData(AlertValueType.Volume, 3, 3, 3, 3, 3, 3)]
+        [InlineData(AlertValueType.Price, 2, 1, 2, 1, 3, 1)]
+        
         public async Task Handle_ShouldNotSendNotifications_WhenCrossingDoesNotOccur(
             AlertValueType alertValueType,
             decimal kline1closePrice, decimal kline1volume,
@@ -118,15 +118,16 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
+            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
             var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
                 new CrossingConditionDetector());
 
             await AddKline(mockKlines[0]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
+            await sut.Handle(command, CancellationToken.None);
             await AddKline(mockKlines[1]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
+            await sut.Handle(command, CancellationToken.None);
             await AddKline(mockKlines[2]);
-            await sut.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, CancellationToken.None);
+            await sut.Handle(command, CancellationToken.None);
 
             emailServiceMock.VerifyNoOtherCalls();
         }

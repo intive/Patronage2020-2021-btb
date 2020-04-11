@@ -18,8 +18,14 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
-
         private TimestampInterval _klineInterval;
+
+        private static readonly IDictionary<int, int> _notificationTriggeredFlags;
+
+        static SendEmailNotificationsCommandHandler()
+        {
+            _notificationTriggeredFlags = new Dictionary<int, int>();
+        }
 
         public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService,
             IAlertConditionDetector<CrossingConditionDetectorParameters> crossingConditionDetector)
@@ -62,9 +68,40 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 OldKline = lastKlines[1]
             };
 
-            if (_crossingConditionDetector.IsConditionMet(alert, crossingParameters))
+            if (WasNotificationTriggeredByKline(alert.Id, crossingParameters.NewKline.Id))
             {
-                return true;
+                return false;
+            }
+
+            if (!_crossingConditionDetector.IsConditionMet(alert, crossingParameters))
+            {
+                return false;
+            }
+
+            SetNofiticationTriggeredFlag(alert.Id, crossingParameters.NewKline.Id);
+            return true;
+        }
+
+        private void SetNofiticationTriggeredFlag(int alertId, int klineId)
+        {
+            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            {
+                _notificationTriggeredFlags[alertId] = klineId;
+            }
+            else
+            {
+                _notificationTriggeredFlags.Add(alertId, klineId);
+            }
+        }
+
+        private bool WasNotificationTriggeredByKline(int alertId, int klineId)
+        {
+            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            {
+                if (_notificationTriggeredFlags[alertId] == klineId)
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -83,6 +120,14 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
             _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+        }
+
+        public static void ResetTriggerFlags()
+        {
+            foreach (var key in _notificationTriggeredFlags.Keys)
+            {
+                _notificationTriggeredFlags.Remove(key);
+            }
         }
     }
 }
