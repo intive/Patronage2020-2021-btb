@@ -16,7 +16,7 @@ namespace Application.UnitTests.Details
         [Fact]
         public async Task Average_ShouldBeListOfNotNull()
         {
-            var handler = new GetPriceHistoryQueryHandler(_btbBinanceClientMock.Object);
+            var handler = new GetPriceHistoryQueryHandler(_btbBinanceClientMock.Object, _binanceClientMock.Object);
 
             var result = await handler.Handle(new GetPriceHistoryQuery { PairName = "BTCRUB", KlineType = KlineInterval.FiveMinutes }, CancellationToken.None);
             result.GetEnumerator().MoveNext();
