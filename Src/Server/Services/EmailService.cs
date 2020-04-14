@@ -44,19 +44,28 @@ namespace BTB.Server.Services
                 throw new ArgumentNullException(nameof(emailTemplate));
             }
 
-            var builder = new StringBuilder();
-            builder.Append(emailTemplate.Header);
-            builder.Append(message);
-            builder.Append(emailTemplate.Footer);
-
-            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            try
             {
-                Subject = title,
-                Body = builder.ToString(),
-                IsBodyHtml = true
-            };
+                var builder = new StringBuilder();
+                builder.Append(emailTemplate.Header);
+                builder.Append(message);
+                builder.Append(emailTemplate.Footer);
 
-            _client.Send(mail);
+                var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+                {
+                    Subject = title,
+                    Body = builder.ToString(),
+                    IsBodyHtml = true
+                };
+
+                _client.Send(mail);
+            }
+            catch (Exception e)
+            {
+                //TODO Logger
+                Console.WriteLine(e);
+            }
+            
         }
     }
 
