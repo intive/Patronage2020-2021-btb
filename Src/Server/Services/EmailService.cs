@@ -81,15 +81,19 @@ namespace BTB.Server.Services
 
         public SmtpClient Configure(EmailConfig config)
         {
-            var client = new SmtpClient(config.SmtpServer, config.Port)
+            var client = new SmtpClient
             {
+                Host = config.SmtpServer,
+                Port = config.Port,
+                EnableSsl = config.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential()
                 {
                     UserName = config.Login,
                     Password = config.Password
                 },
-                EnableSsl = config.EnableSsl
+                Timeout = 20000
             };
 
             CurrentConfig = config;
