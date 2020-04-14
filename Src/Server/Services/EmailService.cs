@@ -1,5 +1,4 @@
 ﻿using BTB.Application.Common;
-using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using Microsoft.Extensions.Options;
@@ -28,13 +27,21 @@ namespace BTB.Server.Services
 
         public void Send(string to, string title, string message)
         {
-            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            try
             {
-                Subject = title,
-                Body = message
-            };
+                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                {
+                    Subject = title,
+                    Body = message
+                };
 
-            _client.Send(mail);
+                _client.Send(mail);
+            }
+            catch (Exception e)
+            { 
+                // TODO: Log exception
+                Console.WriteLine(e);
+            }
         }
 
         public void Send(string to, string title, string message, EmailTemplate emailTemplate)
@@ -51,7 +58,7 @@ namespace BTB.Server.Services
                 builder.Append(message);
                 builder.Append(emailTemplate.Footer);
 
-                var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
                 {
                     Subject = title,
                     Body = builder.ToString(),
@@ -62,10 +69,9 @@ namespace BTB.Server.Services
             }
             catch (Exception e)
             {
-                //TODO Logger
+                // TODO: Log exception
                 Console.WriteLine(e);
-            }
-            
+            }            
         }
     }
 
@@ -75,13 +81,16 @@ namespace BTB.Server.Services
 
         public SmtpClient Configure(EmailConfig config)
         {
-            SmtpClient client = new SmtpClient(config.smtpServer, config.port);
-            client.Credentials = new NetworkCredential()
+            var client = new SmtpClient(config.SmtpServer, config.Port)
             {
-                UserName = config.login,
-                Password = config.password
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential()
+                {
+                    UserName = config.Login,
+                    Password = config.Password
+                },
+                EnableSsl = config.EnableSsl
             };
-            client.EnableSsl = config.enableSsl;
 
             CurrentConfig = config;
 
