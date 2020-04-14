@@ -22,7 +22,8 @@ namespace BTB.Client.Models.Validation
                 .NotEmpty().WithMessage("Please choose a value type.");
 
             RuleFor(a => a.Value)
-                .GreaterThan(0.0m).WithMessage("Enter a number greater than zero.");
+                .GreaterThan(0.0m).WithMessage("Enter a number greater than zero.")
+                .LessThan(999999999.999999999m).WithMessage("Value cannot exceed 999,999,999.999999999.");
 
             RuleFor(a => a.Email)
                 .NotEmpty().When(a => a.SendEmail).WithMessage("Email is required.")
