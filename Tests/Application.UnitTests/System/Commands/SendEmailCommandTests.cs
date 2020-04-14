@@ -21,7 +21,7 @@ namespace Application.UnitTests.System.Commands
             public string DefaultEmailAddress { get; set; }
             public EmailConfig Value => new EmailConfig()
             {
-                login = DefaultEmailAddress
+                Login = DefaultEmailAddress
             };
         }
 
