@@ -57,9 +57,9 @@ namespace BTB.Client.States
                     identity = new ClaimsIdentity(claims, "Server authentication");
                 }
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException e)
             {
-                Console.WriteLine("Request failed:" + ex.ToString());
+                Console.WriteLine("Request failed:" + e.ToString());
             }
 
             return new AuthenticationState(new ClaimsPrincipal(identity));
