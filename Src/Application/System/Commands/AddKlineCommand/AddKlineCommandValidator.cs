@@ -14,13 +14,20 @@ namespace BTB.Application.System.Commands.AddKlineCommand
                 .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
+            RuleFor(command => command.OpenPrice)
+                .NotEmpty()
+                .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
+
             RuleFor(command => command.ClosePrice)
                 .NotEmpty()
-                .GreaterThan(0.0m);
+                .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
 
             RuleFor(command => command.Volume)
                 .NotEmpty()
-                .GreaterThan(0.0m);
+                .GreaterThanOrEqualTo(0.0m)
+                .LessThan(999999999.999999999m);
         }
     }
 }

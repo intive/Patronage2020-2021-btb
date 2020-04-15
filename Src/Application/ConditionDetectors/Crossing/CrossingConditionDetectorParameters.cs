@@ -7,7 +7,6 @@ namespace BTB.Application.ConditionDetectors.Crossing
 {
     public class CrossingConditionDetectorParameters
     {
-        public Kline NewKline { get; set; }
-        public Kline OldKline { get; set; }
+        public Kline Kline { get; set; }
     }
 }

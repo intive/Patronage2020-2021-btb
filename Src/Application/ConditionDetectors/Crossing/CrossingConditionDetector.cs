@@ -16,11 +16,10 @@ namespace BTB.Application.ConditionDetectors.Crossing
                 return false;
             }
 
-            decimal newValue = GetKlineValueByAlertValueType(alert.ValueType, parameters.NewKline);
-            decimal oldValue = GetKlineValueByAlertValueType(alert.ValueType, parameters.OldKline);
+            (decimal oldValue, decimal newValue) = GetKlineValuesByAlertValueType(alert.ValueType, parameters.Kline);
             decimal threshold = alert.Value;
 
-            if (newValue >= threshold && threshold > oldValue || newValue <= threshold && threshold < oldValue)
+            if (newValue >= threshold && threshold >= oldValue || newValue <= threshold && threshold <= oldValue)
             {
                 return true;
             }
@@ -28,12 +27,12 @@ namespace BTB.Application.ConditionDetectors.Crossing
             return false;
         }
 
-        private decimal GetKlineValueByAlertValueType(AlertValueType valueType, Kline kline)
+        private (decimal oldValue, decimal newValue) GetKlineValuesByAlertValueType(AlertValueType valueType, Kline kline)
         {
             return valueType switch
             {
-                AlertValueType.Price => kline.ClosePrice,
-                AlertValueType.Volume => kline.Volume,
+                AlertValueType.Price => (kline.OpenPrice, kline.ClosePrice),
+                AlertValueType.Volume => (0, kline.Volume),
                 _ => throw new NotImplementedException()
             };
         }

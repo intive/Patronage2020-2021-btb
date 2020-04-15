@@ -28,7 +28,7 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
 
             CreateMap<AddKlineCommand, Kline>()
-                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
+                .ForMember(kline => kline.SymbolPair, opt => opt.Ignore());
         }
     }
 }
