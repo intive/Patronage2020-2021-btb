@@ -6,6 +6,8 @@ using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
+using BTB.Application.Common.Exceptions;
 
 namespace BTB.Server.Services
 {
@@ -62,7 +64,14 @@ namespace BTB.Server.Services
         {
             foreach (var interval in intervals)
             {
-                await _mediator.Send(new LoadKlinesCommand() { KlineType = interval, Amount = amount }, cancellationToken);
+                try
+                {
+                    await _mediator.Send(new LoadKlinesCommand() { KlineType = interval, Amount = amount }, cancellationToken);
+                }
+                catch (ServiceUnavailableException e)
+                {
+                    //TODO log exception
+                }
             }
         }
 

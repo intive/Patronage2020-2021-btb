@@ -1,5 +1,6 @@
 ﻿using Binance.Net.Interfaces;
 using Binance.Net.Objects;
+using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -9,15 +10,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BTB.Application.System.Commands.LoadData
 {
-    public class LoadSymbolsCommand : IRequest<int>
+    public class LoadSymbolsCommand : IRequest
     {
-        public class LoadSymbolsCommandHandler : IRequestHandler<LoadSymbolsCommand, int>
+        public class LoadSymbolsCommandHandler : IRequestHandler<LoadSymbolsCommand>
         {
             private readonly IBTBDbContext _context;
             private readonly IBinanceClient _client;
@@ -46,28 +48,37 @@ namespace BTB.Application.System.Commands.LoadData
                 };
             }
 
-            public async Task<int> Handle(LoadSymbolsCommand request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(LoadSymbolsCommand request, CancellationToken cancellationToken)
             {
-                _exchangeData = _client.GetExchangeInfo().Data.Symbols;
-                SetAllowedSymbols();
+                var response = _client.GetExchangeInfo();
+                ValidateResponse((HttpStatusCode)response.ResponseStatusCode, response.Error);               
 
-                int success = -1;
+                _exchangeData = response.Data.Symbols;
+                SetAllowedSymbols();
 
                 if (!AreSymbolsAdded())
                 {
                      await LoadAllSymbolsToDb();
-                    success++;
                 }
 
                 if (!ArePairsAdded())
                 {
-                    _prices24hList = _client.Get24HPricesList().Data.ToList();
+                    var priceResponse = _client.Get24HPricesList();
+                    ValidateResponse((HttpStatusCode)priceResponse.ResponseStatusCode, priceResponse.Error);
 
-                    await LoadPairsToDb();
-                    success += 2;
+                    _prices24hList = priceResponse.Data.ToList();
+                    await LoadPairsToDb();                 
                 }
 
-                return success;
+                return Unit.Value;
+            }
+
+            private void ValidateResponse(HttpStatusCode statusCode, object error)
+            {
+                if (statusCode != HttpStatusCode.OK)
+                {
+                    throw new ServiceUnavailableException(error);
+                }
             }
 
             private void SetAllowedSymbols()
