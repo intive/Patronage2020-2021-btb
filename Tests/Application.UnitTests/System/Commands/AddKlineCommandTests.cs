@@ -21,6 +21,7 @@ namespace Application.UnitTests.System.Commands
             var expectedSymbolPairId = 1;
             var expectedSymbolPair = "BTCUSDT";
             var volume = 100.0m;
+            var openPrice = 150.0m;
             var closePrice = 200.0m;
 
             _btbBinanceClientMock.Setup(mock => mock.GetSymbolPairByName(expectedSymbolPair))
@@ -30,6 +31,7 @@ namespace Application.UnitTests.System.Commands
             {
                 SymbolPair = expectedSymbolPair,
                 Volume = volume,
+                OpenPrice = openPrice,
                 ClosePrice = closePrice
             };
 
@@ -44,6 +46,7 @@ namespace Application.UnitTests.System.Commands
             Assert.Equal(expectedSymbolPairId, dbKline.SymbolPairId);
             Assert.Equal(expectedSymbolPair, dbKline.SymbolPair.PairName);
             Assert.Equal(volume, dbKline.Volume);
+            Assert.Equal(openPrice, dbKline.OpenPrice);
             Assert.Equal(closePrice, dbKline.ClosePrice);
         }
 

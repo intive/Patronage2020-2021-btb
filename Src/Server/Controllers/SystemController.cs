@@ -88,7 +88,7 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
-        /// Sends a test email message. If the recipient's address is left empty, then
+        /// Sends a test email message. If the recipient's address is not provided, then
         /// the message will be sent to "patronagebtb@gmail.com".
         /// </summary>
         /// <param name="command">An object containing email data.</param>

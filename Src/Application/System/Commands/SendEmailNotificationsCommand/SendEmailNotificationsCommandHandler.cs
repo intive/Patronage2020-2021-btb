@@ -56,29 +56,28 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         }
         private async Task<bool> AreConditionsMet(Alert alert)
         {
-            IList<Kline> lastKlines = await GetLastTwoKlinesBySymbolPairIdAsync(alert.SymbolPairId);
-            if (lastKlines.Count != 2)
+            Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
+            if (lastKline == null)
+            {
+                return false;
+            }
+
+            if (WasNotificationTriggeredByKline(alert.Id, lastKline.Id))
             {
                 return false;
             }
 
             var crossingParameters = new CrossingConditionDetectorParameters()
             {
-                NewKline = lastKlines[0],
-                OldKline = lastKlines[1]
+                Kline = lastKline
             };
-
-            if (WasNotificationTriggeredByKline(alert.Id, crossingParameters.NewKline.Id))
-            {
-                return false;
-            }
 
             if (!_crossingConditionDetector.IsConditionMet(alert, crossingParameters))
             {
                 return false;
             }
 
-            SetNofiticationTriggeredFlag(alert.Id, crossingParameters.NewKline.Id);
+            SetNofiticationTriggeredFlag(alert.Id, lastKline.Id);
             return true;
         }
 
@@ -107,13 +106,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             return false;
         }
 
-        private Task<List<Kline>> GetLastTwoKlinesBySymbolPairIdAsync(int symbolPairId)
+        private Task<Kline> GetLastKlineBySymbolPairIdAsync(int symbolPairId)
         {
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .Where(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == _klineInterval)
-                .Take(2)
-                .ToListAsync();
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId);
         }
 
         private async Task SendEmailMessageAsync(Alert alert)

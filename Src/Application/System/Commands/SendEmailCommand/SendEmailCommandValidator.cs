@@ -10,7 +10,6 @@ namespace BTB.Application.System.Commands.SendEmailCommand
         public SendEmailCommandValidator()
         {
             RuleFor(command => command.To)
-                .NotEmpty()
                 .EmailAddress();
 
             RuleFor(command => command.Title)

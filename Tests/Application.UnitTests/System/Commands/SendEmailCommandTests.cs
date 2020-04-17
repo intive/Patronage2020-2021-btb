@@ -29,6 +29,7 @@ namespace Application.UnitTests.System.Commands
         [InlineData("email@email.com","default@default.com","title","content")]
         [InlineData(" ","default@default.com","title","content")]
         [InlineData("","default@default.com","title","content")]
+        [InlineData(null,"default@default.com","title","content")]
         public async Task Handle_ShouldSendEmail_WhenRequestIsValid(string expectedTo, string defaultEmailAddress, string expectedTitle, string expectedContent)
         {
             var emailServiceMock = new Mock<IEmailService>();
