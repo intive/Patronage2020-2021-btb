@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BTB.Client.Models
+﻿namespace BTB.Client.Models
 {
     public class UserProfileInfoFormModel
     {

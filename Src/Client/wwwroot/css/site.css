@@ -26,6 +26,28 @@ app {
     align-items: center;
 }
 
+.golden-star {
+    color: darkgoldenrod;
+    cursor: pointer;
+    font-size: x-large;
+}
+
+.empty-star{
+    cursor: pointer;
+    font-size: x-large;
+}
+
+.delete-x {
+    color: red;
+    cursor: pointer;
+    font-size: larger;
+}
+
+
+.table td{
+    vertical-align: middle;
+}
+
 .main {
     flex: 1;
 }
