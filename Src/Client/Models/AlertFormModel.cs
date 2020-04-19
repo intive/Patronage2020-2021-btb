@@ -1,7 +1,4 @@
-﻿using BTB.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
-
-namespace BTB.Client.Models
+﻿namespace BTB.Client.Models
 {
     public class AlertFormModel
     {
@@ -12,5 +9,7 @@ namespace BTB.Client.Models
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
-    }
+        public bool TriggerOnce { get; set; }
+        public bool WasTriggered { get; set; }
+    } 
 }

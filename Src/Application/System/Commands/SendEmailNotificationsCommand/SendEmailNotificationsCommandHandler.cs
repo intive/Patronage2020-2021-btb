@@ -46,7 +46,12 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                     continue;
                 }
 
-                if (await AreConditionsMet(alert))
+                if (alert.TriggerOnce && alert.WasTriggered)
+                {
+                    continue;
+                }
+
+                if (await AreConditionsMet(alert, cancellationToken))
                 {
                     await SendEmailMessageAsync(alert);
                 }
@@ -54,7 +59,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
             return Unit.Value;
         }
-        private async Task<bool> AreConditionsMet(Alert alert)
+        private async Task<bool> AreConditionsMet(Alert alert, CancellationToken cancellationToken)
         {
             Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
             if (lastKline == null)
@@ -76,6 +81,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             {
                 return false;
             }
+
+            alert.WasTriggered = true;
+            _context.Alerts.Update(alert);
+            await _context.SaveChangesAsync(cancellationToken);
 
             SetNofiticationTriggeredFlag(alert.Id, lastKline.Id);
             return true;
