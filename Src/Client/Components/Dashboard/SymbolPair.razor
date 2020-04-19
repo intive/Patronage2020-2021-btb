@@ -49,7 +49,7 @@
         parameters.Add("ShouldUpdateAlert", false);
         parameters.Add("Alert", new AlertVO() { SymbolPair = symbol });
         parameters.Add("OnModalClosedAsync", null);
-        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+        Modal.Show<AlertSubscription>("Subscription", parameters, options);
     }
 
     public async Task AddToFavorite(int itemId)
