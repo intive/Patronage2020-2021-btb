@@ -1,8 +1,10 @@
 ﻿using Application.UnitTests.Common;
 using AutoMapper;
 using Binance.Net.Interfaces;
+using BTB.Application.Common.Hubs;
 using BTB.Application.Common.Interfaces;
 using BTB.Persistence;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
 
@@ -14,6 +16,8 @@ namespace Application.UnitTests
         protected readonly Mock<IBTBBinanceClient> _btbBinanceClientMock;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
+        protected readonly IHubContext<NotificationHub> _hubcontext;
+        protected readonly ICurrentUserIdentityService _currentUserIdentity;
 
         public HandlerTestsBase()
         {

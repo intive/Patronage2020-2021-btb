@@ -1,8 +1,10 @@
-﻿using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Hubs;
+using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,49 +13,62 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
+namespace BTB.Application.System.Commands.SendNotificationsCommand
 {
-    public class SendEmailNotificationsCommandHandler : IRequestHandler<SendEmailNotificationsCommand>
+    public class SendNotificationsCommandHandler : IRequestHandler<SendNotificationsCommand>
     {
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IHubContext<NotificationHub> _hubcontext;
+        private readonly ICurrentUserIdentityService _currentUserIdentity;
         private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
+
         private TimestampInterval _klineInterval;
 
         private static readonly IDictionary<int, int> _notificationTriggeredFlags;
 
-        static SendEmailNotificationsCommandHandler()
+        static SendNotificationsCommandHandler()
         {
             _notificationTriggeredFlags = new Dictionary<int, int>();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService,
+        public SendNotificationsCommandHandler(
+            IBTBDbContext context,
+            IEmailService emailService,
+            IHubContext<NotificationHub> hubContext,
+            ICurrentUserIdentityService currentUserIdentity,
             IAlertConditionDetector<CrossingConditionDetectorParameters> crossingConditionDetector)
         {
             _context = context;
             _emailService = emailService;
+            _hubcontext = hubContext;
+            _currentUserIdentity = currentUserIdentity;
             _crossingConditionDetector = crossingConditionDetector;
         }
 
-        public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SendNotificationsCommand request, CancellationToken cancellationToken)
         {
             _klineInterval = request.KlineInterval;
 
             foreach (var alert in _context.Alerts)
             {
-                if (!alert.SendEmail)
-                {
-                    continue;
-                }
-
                 if (await AreConditionsMet(alert))
                 {
-                    await SendEmailMessageAsync(alert);
+                    if (alert.SendEmail)
+                    {
+                        await SendEmailMessageAsync(alert);
+                    }
+
+                    if (alert.SendInBrowser)
+                    {
+                        await SendInBrowserNotificationAsync(alert);
+                    }
                 }
             }
 
             return Unit.Value;
         }
+
         private async Task<bool> AreConditionsMet(Alert alert)
         {
             Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
@@ -118,6 +133,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
             _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
         }
+
+        private async Task SendInBrowserNotificationAsync(Alert alert)
+         =>   await _hubcontext.Clients.User(_currentUserIdentity.UserId)
+                    .SendAsync("inbrowser", $"{alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
 
         public static void ResetTriggerFlags()
         {

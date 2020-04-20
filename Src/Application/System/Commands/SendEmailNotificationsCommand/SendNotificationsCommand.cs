@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
+namespace BTB.Application.System.Commands.SendNotificationsCommand
 {
     public class SendNotificationsCommand : IRequest
     {

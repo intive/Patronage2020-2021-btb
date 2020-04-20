@@ -10,15 +10,8 @@
 @inject IModalService Modal
 @implements IDisposable
 
-
 @inject IToastService Toast
 @inject NavigationManager navigationManager
-
-
-<button class="btn btn-outline-primary"
-        @onclick="() => CheckConnection()">
-    Check Connection
-</button>
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -115,8 +108,6 @@
     {
         _currentPage = 1;
         _currentQuantity = 10;
-
-
 
         if (string.IsNullOrWhiteSpace(_filter.SymbolName) ||
         !Regex.IsMatch(_filter.SymbolName, @"^[a-zA-Z]+$"))
@@ -228,12 +219,9 @@
         }
         catch (Exception e)
         {
-            Toast.ShowToast(ToastLevel.Error,
-           $"{e.Message}");
+            // Toast.ShowToast(ToastLevel.Error, $"{e.Message}");
+            // Handle exception
         }
-
-        Toast.ShowToast(ToastLevel.Info,
-          $"You have sucessfully connected to SignalR!");
 
         _connection.Closed += async (exception) =>
         {
@@ -242,18 +230,8 @@
 
         _connection.On<string>("inbrowser", response =>
         {
-            Toast.ShowToast(ToastLevel.Info,
-         $"Alert {response}!");
+            Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
         });
-    }
-
-    private void CheckConnection()
-    {
-        if (_connection != null)
-        {
-            Toast.ShowToast(ToastLevel.Info,
-                $"{_connection.State}, {_connection.ConnectionId}");
-        }
     }
 
 }

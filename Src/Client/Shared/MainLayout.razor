@@ -5,7 +5,7 @@
 @using Blazored.Toast.Configuration
 
 <BlazoredModal />
-<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" />
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="10" />
 
 <AuthorizeView>
     <Authorized>
@@ -14,10 +14,6 @@
         </div>
 
         <div class="main">
-            <div class="top-row px-4">
-                <button type="button" class="btn btn-link ml-md-auto" @onclick="@LogoutClick">Logout</button>
-            </div>
-
             <div class="content ml-4 mr-4 px-4">
                 @Body
             </div>
@@ -38,9 +34,5 @@
         }
     }
 
-    async Task LogoutClick()
-    {
-        await authStateProvider.Logout();
-        navigationManager.NavigateTo("/login");
-    }
+   
 }

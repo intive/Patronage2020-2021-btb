@@ -9,7 +9,7 @@ using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.System.Commands.ClearData;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Commands.SendEmailCommand;
-using BTB.Application.System.Commands.SendEmailNotificationsCommand;
+using BTB.Application.System.Commands.SendNotificationsCommand;
 using BTB.Application.System.Queries.GetAuditTrail;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;

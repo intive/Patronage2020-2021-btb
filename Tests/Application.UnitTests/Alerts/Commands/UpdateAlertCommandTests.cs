@@ -38,6 +38,7 @@ namespace Application.UnitTests.Alerts.Commands
                 Condition = expectedCondition,
                 ValueType = expectedValueType,
                 Value = expectedValue,
+                SendInBrowser = expectedSendInBrowser,
                 SendEmail = expectedSendEmail,
                 Email = expectedEmail,
                 Message = expectedMessage

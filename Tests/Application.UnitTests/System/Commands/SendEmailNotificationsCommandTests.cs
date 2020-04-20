@@ -1,7 +1,7 @@
 ﻿using Application.UnitTests.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
-using BTB.Application.System.Commands.SendEmailNotificationsCommand;
+using BTB.Application.System.Commands.SendNotificationsCommand;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.Enums;
@@ -60,10 +60,9 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
-            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
-                new CrossingConditionDetector());
-            SendEmailNotificationsCommandHandler.ResetTriggerFlags();
+            var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
+            var sut = new SendNotificationsCommandHandler(_context, emailServiceMock.Object, _hubcontext, _currentUserIdentity, new CrossingConditionDetector());
+            SendNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
@@ -114,10 +113,11 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
-            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
-                new CrossingConditionDetector());
-            SendEmailNotificationsCommandHandler.ResetTriggerFlags();
+            var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
+
+            var sut = new SendNotificationsCommandHandler(_context, emailServiceMock.Object, _hubcontext, _currentUserIdentity, new CrossingConditionDetector());
+
+            SendNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
             await AddKline(kline);

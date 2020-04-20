@@ -1,5 +1,4 @@
-﻿using BTB.Application.System.Commands.SendEmailNotificationsCommand;
-using BTB.Application.System.Commands.LoadData;
+﻿using BTB.Application.System.Commands.LoadData;
 using BTB.Domain.Common;
 using BTB.Server.Common.CronGeneric;
 using MediatR;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 using BTB.Application.Common.Exceptions;
+using BTB.Application.System.Commands.SendNotificationsCommand;
 
 namespace BTB.Server.Services
 {

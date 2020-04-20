@@ -21,9 +21,9 @@ namespace Application.UnitTests.Alerts.Queries
                 new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Volume", Value = 3000.0m, SendInBrowser = true, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
                 new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Price", Value = 4000.0m, SendInBrowser = false, SendEmail = false, Email = null, Message = null },
             };
+
             var expectedAllRecordsCount = 2;
             var userIdentityMock = GetUserIdentityMock(userId);
-
 
             var sut = new GetAllAlertsQueryHandler(_context, _mapper, userIdentityMock.Object);
             var command = new GetAllAlertsQuery()
