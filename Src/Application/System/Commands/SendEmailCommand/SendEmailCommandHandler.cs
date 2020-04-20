@@ -20,7 +20,7 @@ namespace BTB.Application.System.Commands.SendEmailCommand
         public SendEmailCommandHandler(IEmailService emailService, IOptions<EmailConfig> config, IBTBDbContext context)
         {
             _emailService = emailService;
-            _defaultEmailAddress = config.Value.login;
+            _defaultEmailAddress = config.Value.Login;
             _context = context;
         }
 

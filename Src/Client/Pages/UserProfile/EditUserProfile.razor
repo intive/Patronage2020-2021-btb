@@ -1,10 +1,11 @@
 ﻿@page "/editprofile"
-@using Client.Pages.Dto;
-@using Client.Models;
-@using Newtonsoft.Json;
-@using System.Net;
-@using System.Net.Http;
-@using System.Text;
+@using BTB.Client.Components.UserProfile
+@using Client.Pages.Dto
+@using Client.Models
+@using Newtonsoft.Json
+@using System.Net
+@using System.Net.Http
+@using System.Text
 @using BTB.Client.Models.Validation;
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -68,10 +69,14 @@
                 </div>
             </EditForm>
         </div>
+        <br />
+        <ChangePassword />
+        <br />
     </ContentTemplate>
 </SpinLoader>
 
 @code {
+
     private UserProfileInfoDto _existingUserProfileInfo = null;
     private bool _processingHttpRequest = true;
     private bool _tradingPairDoesNotExist = false;

@@ -1,6 +1,7 @@
 ﻿using BTB.Application.Authorize.Commands.Login;
 using BTB.Application.Authorize.Commands.Logout;
 using BTB.Application.Authorize.Commands.Register;
+using BTB.Application.Authorize.Password.Commands.ChangePassword;
 using BTB.Application.Authorize.Queries.GetUserInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -69,6 +70,22 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> Logout()
         {
             var result = await Mediator.Send(new LogoutCommand());
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Changes the password of the currently logged in user.
+        /// </summary>
+        /// <param name="changePasswordCommand"> From-body data to update password.</param>
+        /// <response code="200">When successful.</response>
+        /// <response code="404">When unable to find user or password change failed.</response>
+        [Authorize]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand changePasswordCommand)
+        {
+            var result = await Mediator.Send(changePasswordCommand);
             return Ok(result);
         }
     }

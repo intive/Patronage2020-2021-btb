@@ -146,6 +146,7 @@ namespace BTB.Server
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
+            services.AddTransient<IPasswordManager, PasswordManager>();
             services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
 
             Provider = services.BuildServiceProvider();

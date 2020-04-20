@@ -32,10 +32,11 @@ namespace BTB.Application.System.Commands.AddKlineCommand
                 throw new BadRequestException($"Trading pair symbol '{request.SymbolPair}' does not exist.");
             }
 
-            SymbolPair pair = await _client.GetSymbolPairByName(request.SymbolPair);
             var kline = _mapper.Map<Kline>(request);
             kline.OpenTimestamp = DateTimestampConv.GetTimestamp(DateTime.Now);
             kline.DurationTimestamp = TimestampInterval.FiveMin;
+            
+            SymbolPair pair = await _client.GetSymbolPairByName(request.SymbolPair);
             kline.SymbolPairId = pair.Id;
 
             await _context.Klines.AddAsync(kline);

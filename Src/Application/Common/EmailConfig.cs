@@ -6,10 +6,10 @@ namespace BTB.Application.Common
 {
     public class EmailConfig
     {
-        public string smtpServer { get; set; }
-        public int port { get; set; }
-        public bool enableSsl { get; set; }
-        public string login { get; set; }
-        public string password { get; set; }
+        public string SmtpServer { get; set; }
+        public int Port { get; set; }
+        public bool EnableSsl { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Binance.Net.Interfaces;
 using Binance.Net.Objects;
 using BTB.Application.Common.Behaviours;
+using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -65,6 +66,14 @@ namespace BTB.Application.System.Commands.LoadData
                 _klineCallBuffer = DateTime.UtcNow;                
             }
 
+            private void ValidateResponse(HttpStatusCode statusCode, object error)
+            {
+                if (statusCode != HttpStatusCode.OK)
+                {
+                    throw new ServiceUnavailableException(error);
+                }
+            }
+
             private async Task LoadKlinesToDb()
             {
                 var result = _context.SymbolPairs.ToList();                
@@ -83,12 +92,9 @@ namespace BTB.Application.System.Commands.LoadData
 
                     string pairName = string.Concat(buySymbol.SymbolName, sellSymbol.SymbolName);
                     var response = await _client.GetKlinesAsync(pairName, _klineInterval, _updateFrom, _klineCallBuffer);
-                    var klineList = response.Data;
+                    ValidateResponse((HttpStatusCode)response.ResponseStatusCode, response.Error);
 
-                    if (response.ResponseStatusCode == HttpStatusCode.TooManyRequests)
-                    {
-                        Thread.Sleep(1000 * 30);
-                    }
+                    var klineList = response.Data;
 
                     foreach (BinanceKline kline in klineList)
                     {

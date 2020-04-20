@@ -4,8 +4,9 @@ using System.Text;
 
 namespace BTB.Application.Indicator.Commands.CalculateSMA
 {
-    public class SMAIndicatorVm
+    public class CalculateSMADto
     {
-        public List<decimal> SMA { get; set; }
+        public int TimePeriod { get; set; }
+        public List<decimal> Prices { get; set; }
     }
 }

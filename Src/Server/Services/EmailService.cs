@@ -1,5 +1,4 @@
 ﻿using BTB.Application.Common;
-using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using Microsoft.Extensions.Options;
@@ -28,13 +27,21 @@ namespace BTB.Server.Services
 
         public void Send(string to, string title, string message)
         {
-            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            try
             {
-                Subject = title,
-                Body = message
-            };
+                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                {
+                    Subject = title,
+                    Body = message
+                };
 
-            _client.Send(mail);
+                _client.Send(mail);
+            }
+            catch (Exception e)
+            { 
+                // TODO: Log exception
+                Console.WriteLine(e);
+            }
         }
 
         public void Send(string to, string title, string message, EmailTemplate emailTemplate)
@@ -44,19 +51,27 @@ namespace BTB.Server.Services
                 throw new ArgumentNullException(nameof(emailTemplate));
             }
 
-            var builder = new StringBuilder();
-            builder.Append(emailTemplate.Header);
-            builder.Append(message);
-            builder.Append(emailTemplate.Footer);
-
-            var mail = new MailMessage(_configurator.CurrentConfig.login, to)
+            try
             {
-                Subject = title,
-                Body = builder.ToString(),
-                IsBodyHtml = true
-            };
+                var builder = new StringBuilder();
+                builder.Append(emailTemplate.Header);
+                builder.Append(message);
+                builder.Append(emailTemplate.Footer);
 
-            _client.Send(mail);
+                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                {
+                    Subject = title,
+                    Body = builder.ToString(),
+                    IsBodyHtml = true
+                };
+
+                _client.Send(mail);
+            }
+            catch (Exception e)
+            {
+                // TODO: Log exception
+                Console.WriteLine(e);
+            }            
         }
     }
 
@@ -66,13 +81,20 @@ namespace BTB.Server.Services
 
         public SmtpClient Configure(EmailConfig config)
         {
-            SmtpClient client = new SmtpClient(config.smtpServer, config.port);
-            client.Credentials = new NetworkCredential()
+            var client = new SmtpClient
             {
-                UserName = config.login,
-                Password = config.password
+                Host = config.SmtpServer,
+                Port = config.Port,
+                EnableSsl = config.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential()
+                {
+                    UserName = config.Login,
+                    Password = config.Password
+                },
+                Timeout = 20000
             };
-            client.EnableSsl = config.enableSsl;
 
             CurrentConfig = config;
 

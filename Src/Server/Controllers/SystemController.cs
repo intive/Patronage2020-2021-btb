@@ -14,6 +14,7 @@ using BTB.Application.System.Queries.GetAuditTrail;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BTB.Server.Controllers
@@ -26,12 +27,13 @@ namespace BTB.Server.Controllers
         ///     Loads symbols and symbol-pairs from database, if not loaded yet
         /// </summary>
         /// <returns>
-        ///     -1 if nothing was loaded
-        ///     0 if only symbols were loaded
-        ///     1 if only symbol-pairs were loaded
-        ///     2 if both were loaded
+        ///     No return data.
         /// </returns>
+        /// <response code="200">When successful.</response>
+        /// <response code="503">If there was a problem with loading data from Binance.</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> LoadSymbolsAndPairs()
         {
             return Ok(await Mediator.Send(new LoadSymbolsCommand(), CancellationToken.None));
@@ -88,7 +90,7 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
-        /// Sends a test email message. If the recipient's address is left empty, then
+        /// Sends a test email message. If the recipient's address is not provided, then
         /// the message will be sent to "patronagebtb@gmail.com".
         /// </summary>
         /// <param name="command">An object containing email data.</param>

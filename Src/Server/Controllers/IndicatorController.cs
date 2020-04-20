@@ -12,10 +12,10 @@ namespace BTB.Server.Controllers
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        [HttpPost("rsi")]
+        [HttpPost("RSI")]
         public async Task<ActionResult> CalculateRSI([FromBody] CalculateRSICommand command)
         {
-            var indicators = await Mediator.Send(command);
+            var indicators = await Mediator.Send(command ?? new CalculateRSICommand()); 
             return Ok(indicators);
         }
 
@@ -24,10 +24,10 @@ namespace BTB.Server.Controllers
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        [HttpPost("sma")]
+        [HttpPost("SMA")]
         public async Task<ActionResult> CalculateSMA([FromBody] CalculateSMACommand command)
         {
-            var indicators = await Mediator.Send(command);
+            var indicators = await Mediator.Send(command ?? new CalculateSMACommand());
             return Ok(indicators);
         }
 

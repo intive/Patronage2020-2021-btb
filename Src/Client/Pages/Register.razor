@@ -54,9 +54,9 @@
             await authStateProvider.Register(registerParameters);
             navigationManager.NavigateTo("");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            dyn = JsonConvert.DeserializeObject(ex.Message);
+            dyn = JsonConvert.DeserializeObject(e.Message);
             error = dyn.errorMessage;
         }
     }

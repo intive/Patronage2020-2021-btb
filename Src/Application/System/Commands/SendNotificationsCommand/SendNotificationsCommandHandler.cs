@@ -1,10 +1,8 @@
-﻿using BTB.Application.Common.Hubs;
-using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,101 +13,94 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 {
-    public class SendNotificationsCommandHandler : IRequestHandler<SendNotificationsCommand>
+    public class SendEmailNotificationsCommandHandler : IRequestHandler<SendEmailNotificationsCommand>
     {
-        private readonly IHubContext<NotificationHub> _hubcontext;
-        private readonly ICurrentUserIdentityService _currentUserIdentity;
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
-
-        private static readonly IDictionary<int, Kline> _pairIdToLastKlineMap;
-        private static bool _pairsNotLoaded;
-        private static readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crosssingConditionDetector;
-
+        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
         private TimestampInterval _klineInterval;
 
-        static SendNotificationsCommandHandler()
+        private static readonly IDictionary<int, int> _notificationTriggeredFlags;
+
+        static SendEmailNotificationsCommandHandler()
         {
-            _pairsNotLoaded = true;
-            _pairIdToLastKlineMap = new Dictionary<int, Kline>();
-            _crosssingConditionDetector = new CrossingConditionDetector();
+            _notificationTriggeredFlags = new Dictionary<int, int>();
         }
 
-        public SendNotificationsCommandHandler(
-            IBTBDbContext context,
-            IEmailService emailService, 
-            IHubContext<NotificationHub> hubContext,
-            ICurrentUserIdentityService currentUserIdentity)
+        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService,
+            IAlertConditionDetector<CrossingConditionDetectorParameters> crossingConditionDetector)
         {
             _context = context;
             _emailService = emailService;
-            _hubcontext = hubContext;
-            _currentUserIdentity = currentUserIdentity;
+            _crossingConditionDetector = crossingConditionDetector;
         }
 
-        public async Task<Unit> Handle(SendNotificationsCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
         {
             _klineInterval = request.KlineInterval;
 
-            if (_pairsNotLoaded)
+            foreach (var alert in _context.Alerts)
             {
-                await LoadPairsToDictionaryAsync();
-                _pairsNotLoaded = false;
-            }
-            else
-            {
-                await SendNotificationsAsync();
+                if (!alert.SendEmail)
+                {
+                    continue;
+                }
+
+                if (await AreConditionsMet(alert))
+                {
+                    await SendEmailMessageAsync(alert);
+                }
             }
 
             return Unit.Value;
         }
-
-        private async Task LoadPairsToDictionaryAsync()
-        {
-            foreach (var pair in _context.SymbolPairs)
-            {
-                var kline = await GetLastKlineBySymbolPairIdAsync(pair.Id);
-                _pairIdToLastKlineMap.Add(pair.Id, kline);
-            }
-        }
-
-        private async Task SendNotificationsAsync()
-        {
-            foreach (var alert in _context.Alerts)
-            {
-                if (alert.SendEmail)
-                {
-                    if (await AreConditionsMet(alert))
-                    {
-                        await SendEmailMessageAsync(alert);
-                    }
-                }
-
-                if (alert.SendInBrowser)
-                {
-                    if (await AreConditionsMet(alert))
-                    {
-                        await SendInBrowserNotificationAsync(alert);
-                    }
-                }
-            }
-        }
-
         private async Task<bool> AreConditionsMet(Alert alert)
         {
-            Kline lastDbKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
-            Kline lastCachedKline = _pairIdToLastKlineMap[alert.SymbolPairId];
-            _pairIdToLastKlineMap[alert.SymbolPairId] = lastDbKline;
+            Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
+            if (lastKline == null)
+            {
+                return false;
+            }
+
+            if (WasNotificationTriggeredByKline(alert.Id, lastKline.Id))
+            {
+                return false;
+            }
 
             var crossingParameters = new CrossingConditionDetectorParameters()
             {
-                NewKline = lastDbKline,
-                OldKline = lastCachedKline
+                Kline = lastKline
             };
 
-            if (_crosssingConditionDetector.IsConditionMet(alert, crossingParameters))
+            if (!_crossingConditionDetector.IsConditionMet(alert, crossingParameters))
             {
-                return true;
+                return false;
+            }
+
+            SetNofiticationTriggeredFlag(alert.Id, lastKline.Id);
+            return true;
+        }
+
+        private void SetNofiticationTriggeredFlag(int alertId, int klineId)
+        {
+            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            {
+                _notificationTriggeredFlags[alertId] = klineId;
+            }
+            else
+            {
+                _notificationTriggeredFlags.Add(alertId, klineId);
+            }
+        }
+
+        private bool WasNotificationTriggeredByKline(int alertId, int klineId)
+        {
+            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            {
+                if (_notificationTriggeredFlags[alertId] == klineId)
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -119,7 +110,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == _klineInterval);
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId);
         }
 
         private async Task SendEmailMessageAsync(Alert alert)
@@ -128,11 +119,12 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
         }
 
-        private async Task SendInBrowserNotificationAsync(Alert alert)
+        public static void ResetTriggerFlags()
         {
-            await _hubcontext.Clients.User(_currentUserIdentity.UserId)
-                    .SendAsync("inbrowser", 
-                        $"{alert.SymbolPair} is {alert.Condition} {alert.ValueType} {alert.Value}");
+            foreach (var key in _notificationTriggeredFlags.Keys)
+            {
+                _notificationTriggeredFlags.Remove(key);
+            }
         }
     }
 }
