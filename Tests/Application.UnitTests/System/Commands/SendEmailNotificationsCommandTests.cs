@@ -109,6 +109,49 @@ namespace Application.UnitTests.System.Commands
             emailServiceMock.VerifyNoOtherCalls();
         }
 
+        [Fact]
+        public async Task Handle_ShouldNotSendNotifications_WhenSendEmailPropertyIsSetToNull()
+        {
+            var symbolPairId = 1;
+            var userId = "1";
+
+            var kline = new Kline()
+            {
+                OpenTimestamp = 1,
+                SymbolPairId = symbolPairId,
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 3,
+                Volume = 1
+            };
+
+            var alert = new Alert()
+            {
+                UserId = userId,
+                SymbolPairId = symbolPairId,
+                Condition = AlertCondition.Crossing,
+                ValueType = AlertValueType.Price,
+                Value = 2,
+                SendEmail = false,
+                Email = null,
+                Message = null
+            };
+
+            _context.Alerts.Add(alert);
+            await _context.SaveChangesAsync(CancellationToken.None);
+
+            var emailServiceMock = new Mock<IEmailService>();
+
+            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
+            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object);
+            SendEmailNotificationsCommandHandler.ResetTriggerFlags();
+
+            await sut.Handle(command, CancellationToken.None);
+            await AddKline(kline);
+            await sut.Handle(command, CancellationToken.None);
+            emailServiceMock.VerifyNoOtherCalls();
+        }
+
         private Task AddKline(Kline kline)
         {
             _context.Klines.Add(kline);
