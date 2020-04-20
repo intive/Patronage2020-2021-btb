@@ -6,6 +6,8 @@ namespace BTB.Persistence.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM Alerts;", true);
+
             migrationBuilder.AddColumn<bool>(
                 name: "TriggerOnce",
                 table: "Alerts",
@@ -21,6 +23,8 @@ namespace BTB.Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM Alerts;", true);
+
             migrationBuilder.DropColumn(
                 name: "TriggerOnce",
                 table: "Alerts");
