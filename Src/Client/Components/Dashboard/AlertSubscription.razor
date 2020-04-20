@@ -6,7 +6,7 @@
 
 <style>
     @@media screen and (min-width: 480px) {
-        #innerDiv {
+        #innerContainer {
             min-width: 420px
         }
     }
@@ -15,7 +15,7 @@
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
     <FluentValidator Validator="_validator"/>
     
-    <div id="innerDiv">
+    <div id="innerContainer">
         <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertVO.SymbolPair</h3>
 
         <div class="form-group row mb-0">
@@ -114,8 +114,7 @@
             SendEmail = _alertVO.SendEmail,
             Email = _alertVO.Email,
             Message = _alertVO.Message,
-            TriggerOnce = _alertVO.TriggerOnce,
-            WasTriggered = false
+            TriggerOnce = _alertVO.TriggerOnce
         };
     }
 

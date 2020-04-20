@@ -126,6 +126,11 @@
                                     <p class="col-12 col-lg-8">@alert.Value</p>
                                 </div>
 
+                                <div class="row">
+                                    <h5 class="col-12 col-lg-4">Only once</h5>
+                                    <p class="col-12 col-lg-8">@(alert.TriggerOnce ? "Yes" : "No")</p>
+                                </div>
+
                                 @if (alert.SendEmail)
                                 {
                                     <div class="row">

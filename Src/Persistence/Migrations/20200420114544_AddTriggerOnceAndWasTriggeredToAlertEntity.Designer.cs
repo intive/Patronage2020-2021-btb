@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200419152815_AddedTriggerOnceToAlerts")]
-    partial class AddedTriggerOnceToAlerts
+    [Migration("20200420114544_AddTriggerOnceAndWasTriggeredToAlertEntity")]
+    partial class AddTriggerOnceAndWasTriggeredToAlertEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
