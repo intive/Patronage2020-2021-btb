@@ -54,9 +54,12 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 if (await AreConditionsMet(alert, cancellationToken))
                 {
                     await SendEmailMessageAsync(alert);
+                    alert.WasTriggered = true;
+                    _context.Alerts.Update(alert);
                 }
             }
 
+            await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
         private async Task<bool> AreConditionsMet(Alert alert, CancellationToken cancellationToken)
@@ -81,10 +84,6 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             {
                 return false;
             }
-
-            alert.WasTriggered = true;
-            _context.Alerts.Update(alert);
-            await _context.SaveChangesAsync(cancellationToken);
 
             SetNofiticationTriggeredFlag(alert.Id, lastKline.Id);
             return true;

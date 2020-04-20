@@ -36,6 +36,7 @@ namespace BTB.Application.Alerts.Commands.CreateAlertCommand
             alert.UserId = _userIdentity.UserId;
             SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
             alert.SymbolPairId = symbolPair.Id;
+            alert.WasTriggered = false;
 
             await _context.Alerts.AddAsync(alert, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);

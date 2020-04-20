@@ -2,7 +2,7 @@
 
 namespace BTB.Persistence.Migrations
 {
-    public partial class AddedTriggerOnceToAlerts : Migration
+    public partial class AddTriggerOnceAndWasTriggeredToAlertEntity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
