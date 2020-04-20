@@ -18,17 +18,8 @@ namespace Application.UnitTests.System.Commands
 {
     public class SendEmailNotificationsCommandTests : CommandTestsBase
     {
-        [Theory]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 2, 1, 3, 0)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 2, 3, 1, 0)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 2, 1, 2, 0)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 2, 2, 3, 0)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, 2, 1, 1, 3)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, 2, 1, 1, 2)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, -2, 1, 1, -3)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, -2, 1, 1, -2)]
-        public async Task Handle_ShouldSendNotifications_OnlyWhenCrossingOccurs(TimestampInterval klineInterval,
-            AlertValueType alertValueType, decimal threshold, decimal openPrice, decimal closePrice, decimal volume)
+        [Fact]
+        public async Task Handle_ShouldSendNotifications_WhenConditionsAreMet()
         {
             var symbolPairId = 1;
             var userId = "1";
@@ -37,10 +28,10 @@ namespace Application.UnitTests.System.Commands
             {
                 OpenTimestamp = 1,
                 SymbolPairId = symbolPairId,
-                DurationTimestamp = klineInterval,
-                OpenPrice = openPrice,
-                ClosePrice = closePrice,
-                Volume = volume
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 3,
+                Volume = 1
             };
 
             var alert = new Alert()
@@ -48,11 +39,11 @@ namespace Application.UnitTests.System.Commands
                 UserId = userId,
                 SymbolPairId = symbolPairId,
                 Condition = AlertCondition.Crossing,
-                ValueType = alertValueType,
-                Value = threshold,
+                ValueType = AlertValueType.Price,
+                Value = 2,
                 SendEmail = true,
                 Email = "email@email.com",
-                Message = "symbol pair 1 crossing 2.0m"
+                Message = "symbol pair 1 crossing 2.0"
             };
 
             _context.Alerts.Add(alert);
@@ -61,8 +52,7 @@ namespace Application.UnitTests.System.Commands
             var emailServiceMock = new Mock<IEmailService>();
 
             var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
-                new CrossingConditionDetector());
+            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object);
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
@@ -76,13 +66,8 @@ namespace Application.UnitTests.System.Commands
             emailServiceMock.VerifyNoOtherCalls();
         }
 
-        [Theory]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 5, 3, 4, 0)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, 5, 1, 1, 4)]
-        [InlineData(TimestampInterval.FiveMin, AlertValueType.Volume, -5, 1, 1, -4)]
-
-        public async Task Handle_ShouldNotSendNotifications_WhenCrossingDoesNotOccur(TimestampInterval klineInterval,
-            AlertValueType alertValueType, decimal threshold, decimal openPrice, decimal closePrice, decimal volume)
+        [Fact]
+        public async Task Handle_ShouldNotSendNotifications_WhenConditionsAreNotMet()
         {
             var symbolPairId = 1;
             var userId = "1";
@@ -91,10 +76,10 @@ namespace Application.UnitTests.System.Commands
             {
                 OpenTimestamp = 1,
                 SymbolPairId = symbolPairId,
-                DurationTimestamp = klineInterval,
-                OpenPrice = openPrice,
-                ClosePrice = closePrice,
-                Volume = volume
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 2,
+                Volume = 1
             };
 
             var alert = new Alert()
@@ -102,11 +87,11 @@ namespace Application.UnitTests.System.Commands
                 UserId = userId,
                 SymbolPairId = symbolPairId,
                 Condition = AlertCondition.Crossing,
-                ValueType = alertValueType,
-                Value = threshold,
+                ValueType = AlertValueType.Price,
+                Value = 3,
                 SendEmail = true,
                 Email = "email@email.com",
-                Message = "symbol pair 1 crossing 2.0m"
+                Message = "symbol pair 1 crossing 3.0"
             };
 
             _context.Alerts.Add(alert);
@@ -115,8 +100,7 @@ namespace Application.UnitTests.System.Commands
             var emailServiceMock = new Mock<IEmailService>();
 
             var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object,
-                new CrossingConditionDetector());
+            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object);
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);

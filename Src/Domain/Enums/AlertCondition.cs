@@ -6,6 +6,8 @@ namespace BTB.Domain.Enums
 {
     public enum AlertCondition
     {
-        Crossing
+        Crossing,
+        CrossingUp,
+        CrossingDown
     }
 }

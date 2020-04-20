@@ -2,6 +2,7 @@
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
+using BTB.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,22 +18,27 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
     {
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
-        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
         private TimestampInterval _klineInterval;
 
-        private static readonly IDictionary<int, int> _notificationTriggeredFlags;
+        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
+        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingUpConditionDetector;
+        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingDownConditionDetector;
+
+        private static readonly IDictionary<int, int> _notificationTriggeredByKlineFlags;
 
         static SendEmailNotificationsCommandHandler()
         {
-            _notificationTriggeredFlags = new Dictionary<int, int>();
+            _notificationTriggeredByKlineFlags = new Dictionary<int, int>();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService,
-            IAlertConditionDetector<CrossingConditionDetectorParameters> crossingConditionDetector)
+        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
         {
             _context = context;
             _emailService = emailService;
-            _crossingConditionDetector = crossingConditionDetector;
+
+            _crossingConditionDetector = new CrossingConditionDetector();
+            _crossingUpConditionDetector = new CrossingUpConditionDetector();
+            _crossingDownConditionDetector = new CrossingDownConditionDetector();
         }
 
         public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
@@ -62,6 +68,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
+        
         private async Task<bool> AreConditionsMet(Alert alert, CancellationToken cancellationToken)
         {
             Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
@@ -75,37 +82,44 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 return false;
             }
 
-            var crossingParameters = new CrossingConditionDetectorParameters()
+            var parameters = new CrossingConditionDetectorParameters()
             {
                 Kline = lastKline
             };
 
-            if (!_crossingConditionDetector.IsConditionMet(alert, crossingParameters))
+            bool isConditionMet = alert.Condition switch
             {
-                return false;
+                AlertCondition.Crossing => _crossingConditionDetector.IsConditionMet(alert, parameters),
+                AlertCondition.CrossingUp => _crossingUpConditionDetector.IsConditionMet(alert, parameters),
+                AlertCondition.CrossingDown => _crossingDownConditionDetector.IsConditionMet(alert, parameters),
+                _ => false
+            };
+
+            if (isConditionMet)
+            {
+                SetNofiticationTriggeredByKlineFlag(alert.Id, lastKline.Id);
             }
 
-            SetNofiticationTriggeredFlag(alert.Id, lastKline.Id);
-            return true;
+            return isConditionMet;
         }
 
-        private void SetNofiticationTriggeredFlag(int alertId, int klineId)
+        private void SetNofiticationTriggeredByKlineFlag(int alertId, int klineId)
         {
-            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            if (_notificationTriggeredByKlineFlags.ContainsKey(alertId))
             {
-                _notificationTriggeredFlags[alertId] = klineId;
+                _notificationTriggeredByKlineFlags[alertId] = klineId;
             }
             else
             {
-                _notificationTriggeredFlags.Add(alertId, klineId);
+                _notificationTriggeredByKlineFlags.Add(alertId, klineId);
             }
         }
 
         private bool WasNotificationTriggeredByKline(int alertId, int klineId)
         {
-            if (_notificationTriggeredFlags.ContainsKey(alertId))
+            if (_notificationTriggeredByKlineFlags.ContainsKey(alertId))
             {
-                if (_notificationTriggeredFlags[alertId] == klineId)
+                if (_notificationTriggeredByKlineFlags[alertId] == klineId)
                 {
                     return true;
                 }
@@ -118,7 +132,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             return _context.Klines
                 .OrderByDescending(kline => kline.OpenTimestamp)
-                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId);
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == _klineInterval);
         }
 
         private async Task SendEmailMessageAsync(Alert alert)
@@ -129,9 +143,9 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
         public static void ResetTriggerFlags()
         {
-            foreach (var key in _notificationTriggeredFlags.Keys)
+            foreach (var key in _notificationTriggeredByKlineFlags.Keys)
             {
-                _notificationTriggeredFlags.Remove(key);
+                _notificationTriggeredByKlineFlags.Remove(key);
             }
         }
     }

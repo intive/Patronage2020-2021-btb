@@ -15,7 +15,7 @@ namespace BTB.Application.Alerts.Common
                 .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
-            var validConditions = new string[] { "crossing" };
+            var validConditions = new string[] { "crossing", "crossingup", "crossingdown" };
             RuleFor(a => a.Condition)
                 .NotEmpty()
                 .Must(condition => validConditions.Contains(condition.ToLower()));
