@@ -48,8 +48,10 @@ namespace Application.UnitTests.ConditionDetectors
         [Theory]
         [InlineData(AlertValueType.Price, 4, 5, 1, 3, 0)]
         [InlineData(AlertValueType.Price, 4, 5, 1, 6, 0)]
+        [InlineData(AlertValueType.Price, 4, 5, 6, 3, 0)]
         [InlineData(AlertValueType.Volume, 4, 5, 1, 1, 3)]
         [InlineData(AlertValueType.Volume, 4, 5, 1, 1, 6)]
+        [InlineData(AlertValueType.Volume, -5, -4, 1, 1, -6)]
         public void IsConditionMet_ShouldReturnFalse_WhenConditionIsNotMet(AlertValueType valueType,
             decimal lowerThreshold, decimal upperThreshold, decimal openPrice, decimal closePrice, decimal volume)
         {

@@ -46,20 +46,23 @@
         </div>
 
         <div class="form-group row mb-0">
-            <label for="value" class="col-sm-4 col-form-label">Value</label>
+            <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value": "Value")</label>
             <div class="col-sm-8">
                 <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
                 <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
             </div>
         </div>
 
-        <div class="form-group row mb-4">
-            <label for="additionalValue" class="col-sm-4 col-form-label">Additional Value</label>
-            <div class="col-sm-8">
-                <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm" id="additionalValue" disabled="@(_formModel.Condition?.ToLower() != "between")" />
-                <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+        @if (DisplayUpperValue)
+        {
+            <div class="form-group row mb-4">
+                <label for="additionalValue" class="col-sm-4 col-form-label">Upper Value</label>
+                <div class="col-sm-8">
+                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm" id="additionalValue" />
+                    <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+                </div>
             </div>
-        </div>
+        }
 
         <h3>Alert Actions:</h3>
 
@@ -109,6 +112,7 @@
     private AlertFormModel _formModel = null;
     private Func<Task> _onModalClosedAsync = null;
     private AlertFormModelValidator _validator = new AlertFormModelValidator();
+    private bool DisplayUpperValue { get { return _formModel.Condition?.ToLower() == "between"; } }
 
     protected override void OnInitialized()
     {
@@ -128,6 +132,7 @@
             Message = _alertVO.Message,
             TriggerOnce = _alertVO.TriggerOnce
         };
+
     }
 
     private async Task HandleSubmitAsync(EditContext editContext)

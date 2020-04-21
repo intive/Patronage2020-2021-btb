@@ -96,6 +96,7 @@
                     int alertIndex = i;
                     AlertVO alert = _alertCards[alertIndex].AlertVO;
                     string cardStyle = alert.IsDisabled ? "triggered-card" : "default-card";
+                    bool displayUpperValue = alert.Condition.ToLower() == "between";
 
                     <div class="card mb-2 @cardStyle">
                         <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
@@ -103,7 +104,7 @@
                                 <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
                                     @alert.SymbolPair
                                 </NavLink>
-                                @alert.Condition @alert.Value.ToString("#.##")
+                                @alert.Condition @alert.Value.ToString("#.##") @(displayUpperValue ? " - " + alert.AdditionalValue.ToString("#.##") : "")
                                 @if (alert.IsDisabled)
                                 {
                                     <i style="font-size: 14px;">(disabled)</i>
