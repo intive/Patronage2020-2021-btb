@@ -8,6 +8,7 @@ namespace BTB.Domain.Enums
     {
         Crossing,
         CrossingUp,
-        CrossingDown
+        CrossingDown,
+        Between
     }
 }

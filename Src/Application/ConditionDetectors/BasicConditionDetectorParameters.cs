@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BTB.Application.ConditionDetectors.Crossing
+namespace BTB.Application.ConditionDetectors
 {
-    public class CrossingConditionDetectorParameters
+    public class BasicConditionDetectorParameters
     {
         public Kline Kline { get; set; }
     }

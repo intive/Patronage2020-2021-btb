@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BTB.Application.ConditionDetectors.Crossing
+namespace BTB.Application.ConditionDetectors
 {
-    public class CrossingConditionDetectorBase
+    public class ConditionDetectorBase
     {
         protected (decimal oldValue, decimal newValue) GetKlineValuesByAlertValueType(AlertValueType valueType, Kline kline)
         {

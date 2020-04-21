@@ -43,7 +43,9 @@ namespace Application.UnitTests.System.Commands
                 Value = 2,
                 SendEmail = true,
                 Email = "email@email.com",
-                Message = "symbol pair 1 crossing 2.0"
+                Message = "symbol pair 1 crossing 2.0",
+                TriggerOnce = false,
+                WasTriggered = false
             };
 
             _context.Alerts.Add(alert);
@@ -91,7 +93,9 @@ namespace Application.UnitTests.System.Commands
                 Value = 3,
                 SendEmail = true,
                 Email = "email@email.com",
-                Message = "symbol pair 1 crossing 3.0"
+                Message = "symbol pair 1 crossing 3.0",
+                TriggerOnce = false,
+                WasTriggered = false
             };
 
             _context.Alerts.Add(alert);
@@ -134,7 +138,9 @@ namespace Application.UnitTests.System.Commands
                 Value = 2,
                 SendEmail = false,
                 Email = null,
-                Message = null
+                Message = null,
+                TriggerOnce = false,
+                WasTriggered = false
             };
 
             _context.Alerts.Add(alert);

@@ -13,6 +13,7 @@ namespace BTB.Domain.Entities
         public AlertCondition Condition { get; set; }
         public AlertValueType ValueType { get; set; }
         public decimal Value { get; set; }
+        public decimal AdditionalValue { get; set; }
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }

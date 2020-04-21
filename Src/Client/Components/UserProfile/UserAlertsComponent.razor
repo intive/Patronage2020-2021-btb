@@ -137,7 +137,14 @@
 
                                 <div class="row">
                                     <h5 class="col-12 col-lg-4">Value</h5>
-                                    <p class="col-12 col-lg-8">@alert.Value</p>
+                                    @if (alert.AdditionalValue != 0.0m)
+                                    {
+                                        <p class="col-12 col-lg-8">@(alert.Value + " - " + alert.AdditionalValue)</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="col-12 col-lg-8">@alert.Value</p>
+                                    }
                                 </div>
 
                                 <div class="row">

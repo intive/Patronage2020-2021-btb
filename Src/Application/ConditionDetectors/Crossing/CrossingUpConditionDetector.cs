@@ -7,9 +7,9 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Crossing
 {
-    public class CrossingUpConditionDetector : CrossingConditionDetectorBase, IAlertConditionDetector<CrossingConditionDetectorParameters>
+    public class CrossingUpConditionDetector : ConditionDetectorBase, IAlertConditionDetector<BasicConditionDetectorParameters>
     {
-        public bool IsConditionMet(Alert alert, CrossingConditionDetectorParameters parameters)
+        public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {
             if (alert.Condition != AlertCondition.CrossingUp)
             {

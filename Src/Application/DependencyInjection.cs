@@ -20,8 +20,6 @@ using BTB.Application.Alerts.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Application.System.Commands.SendEmailCommand;
 using BTB.Application.System.Commands.AddKlineCommand;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Application.Indicator.Commands.CalculateRSI;
 using BTB.Application.Indicator.Commands.CalculateSMA;
 using BTB.Application.Authorize.Password.Commands.ChangePassword;
@@ -58,7 +56,6 @@ namespace BTB.Application
             services.AddTransient<IValidator<CalculateRSICommand>, CalculateRSICommandValidator>();
             services.AddTransient<IValidator<CalculateSMACommand>, CalculateSMACommandValidator>();
             services.AddTransient<IValidator<ChangePasswordCommand>, ChangePasswordCommandValidator>();
-            services.AddTransient<IAlertConditionDetector<CrossingConditionDetectorParameters>, CrossingConditionDetector>();
             services.AddHttpContextAccessor();
 
             return services;

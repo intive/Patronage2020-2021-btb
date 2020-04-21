@@ -1,4 +1,5 @@
-﻿using BTB.Application.ConditionDetectors.Crossing;
+﻿using BTB.Application.ConditionDetectors;
+using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.Enums;
@@ -46,7 +47,7 @@ namespace Application.UnitTests.ConditionDetectors
             };
 
             var sut = new CrossingConditionDetector();
-            bool result = sut.IsConditionMet(alert, new CrossingConditionDetectorParameters() { Kline = kline });
+            bool result = sut.IsConditionMet(alert, new BasicConditionDetectorParameters() { Kline = kline });
             Assert.True(result);
         }
 
@@ -77,7 +78,7 @@ namespace Application.UnitTests.ConditionDetectors
             };
 
             var sut = new CrossingConditionDetector();
-            bool result = sut.IsConditionMet(alert, new CrossingConditionDetectorParameters() { Kline = kline });
+            bool result = sut.IsConditionMet(alert, new BasicConditionDetectorParameters() { Kline = kline });
             Assert.False(result);
         }
     }

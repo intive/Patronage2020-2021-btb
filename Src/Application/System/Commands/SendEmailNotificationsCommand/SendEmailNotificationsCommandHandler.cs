@@ -1,4 +1,6 @@
 ﻿using BTB.Application.Common.Interfaces;
+using BTB.Application.ConditionDetectors;
+using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -20,9 +22,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         private readonly IEmailService _emailService;
         private TimestampInterval _klineInterval;
 
-        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingConditionDetector;
-        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingUpConditionDetector;
-        private readonly IAlertConditionDetector<CrossingConditionDetectorParameters> _crossingDownConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingUpConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingDownConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _betweenConditionDetector;
 
         private static readonly IDictionary<int, int> _notificationTriggeredByKlineFlags;
 
@@ -39,6 +42,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _crossingConditionDetector = new CrossingConditionDetector();
             _crossingUpConditionDetector = new CrossingUpConditionDetector();
             _crossingDownConditionDetector = new CrossingDownConditionDetector();
+            _betweenConditionDetector = new BetweenConditionDetector();
         }
 
         public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
@@ -77,7 +81,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 return false;
             }
 
-            var parameters = new CrossingConditionDetectorParameters()
+            var parameters = new BasicConditionDetectorParameters()
             {
                 Kline = lastKline
             };
@@ -87,6 +91,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 AlertCondition.Crossing => _crossingConditionDetector.IsConditionMet(alert, parameters),
                 AlertCondition.CrossingUp => _crossingUpConditionDetector.IsConditionMet(alert, parameters),
                 AlertCondition.CrossingDown => _crossingDownConditionDetector.IsConditionMet(alert, parameters),
+                AlertCondition.Between => _betweenConditionDetector.IsConditionMet(alert, parameters),
                 _ => false
             };
 

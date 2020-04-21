@@ -20,6 +20,10 @@ namespace BTB.Persistence.Configurations
                 .IsRequired()
                 .HasColumnType("decimal(18, 9)");
 
+            builder.Property(a => a.AdditionalValue)
+                .IsRequired()
+                .HasColumnType("decimal(18, 9)");
+
             builder.Property(a => a.UserId)
                 .IsRequired();
 
