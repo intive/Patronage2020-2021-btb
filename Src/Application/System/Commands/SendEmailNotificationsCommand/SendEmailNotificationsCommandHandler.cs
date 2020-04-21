@@ -47,12 +47,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
             foreach (var alert in _context.Alerts)
             {
-                if (!alert.SendEmail)
-                {
-                    continue;
-                }
-
-                if (alert.TriggerOnce && alert.WasTriggered)
+                if (!alert.SendEmail || alert.IsDisabled)
                 {
                     continue;
                 }
@@ -68,7 +63,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
-        
+
         private async Task<bool> AreConditionsMet(Alert alert, CancellationToken cancellationToken)
         {
             Kline lastKline = await GetLastKlineBySymbolPairIdAsync(alert.SymbolPairId);
