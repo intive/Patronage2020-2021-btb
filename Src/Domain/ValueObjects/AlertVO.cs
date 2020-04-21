@@ -1,9 +1,4 @@
-﻿using BTB.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BTB.Domain.ValueObjects
+﻿namespace BTB.Domain.ValueObjects
 {
     public class AlertVO
     {
@@ -15,5 +10,8 @@ namespace BTB.Domain.ValueObjects
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
+        public bool TriggerOnce { get; set; }
+        public bool WasTriggered { get; set; }
+        public bool IsDisabled { get => WasTriggered && TriggerOnce; }
     }
 }

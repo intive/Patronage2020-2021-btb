@@ -36,6 +36,12 @@ namespace BTB.Persistence.Configurations
                 .HasMaxLength(500)
                 .IsRequired(false);
 
+            builder.Property(a => a.TriggerOnce)
+                .IsRequired();
+
+            builder.Property(a => a.WasTriggered)
+                .IsRequired();
+
             builder.HasOne(a => a.User)
                 .WithMany(u => u.Alerts)
                 .HasForeignKey(a => a.UserId)

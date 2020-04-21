@@ -21,11 +21,13 @@ namespace BTB.Application.Common.Mappings
             CreateMap<CreateFavoriteSymbolPairCommand, FavoriteSymbolPair>();
 
             CreateMap<CreateAlertCommand, Alert>()
-                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore())
+                .ForMember(alert => alert.WasTriggered, opt => opt.Ignore());
 
             CreateMap<UpdateAlertCommand, Alert>()
                 .ForMember(alert => alert.Id, opt => opt.Ignore())
-                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore());
+                .ForMember(alert => alert.SymbolPair, opt => opt.Ignore())
+                .ForMember(alert => alert.WasTriggered, opt => opt.Ignore());
 
             CreateMap<AddKlineCommand, Kline>()
                 .ForMember(kline => kline.SymbolPair, opt => opt.Ignore());
