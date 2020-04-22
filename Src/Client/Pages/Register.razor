@@ -20,6 +20,12 @@
     </div>
 
     <div class="form-group">
+        <label for="inputEmail">Email</label>
+        <InputText id="inputEmail" class="form-control" placeholder="Enter email" @bind-Value="registerParameters.Email" />
+        <ValidationMessage For="@(() => registerParameters.Email)"/>
+    </div>
+
+    <div class="form-group">
         <label for="inputPassword">Password</label>
         <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="@registerParameters.Password" />
         <ValidationMessage For="@(() => registerParameters.Password)" />

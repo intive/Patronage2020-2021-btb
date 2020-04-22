@@ -32,7 +32,8 @@ namespace BTB.Server.Services
                 var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
                 {
                     Subject = title,
-                    Body = message
+                    Body = message,
+                    IsBodyHtml = true
                 };
 
                 _client.Send(mail);

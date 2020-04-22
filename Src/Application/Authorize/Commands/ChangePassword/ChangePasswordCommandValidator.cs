@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace BTB.Application.Authorize.Password.Commands.ChangePassword
+namespace BTB.Application.Authorize.Commands.ChangePassword
 {
     public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCommand>
     {

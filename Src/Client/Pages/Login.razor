@@ -28,13 +28,15 @@
         <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
         <label class="form-check-label" for="inputRememberMe">Remember Me</label>
     </div>
-
     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 
     <label class="text-danger text-center">@error</label>
 
     <NavLink href="register">
         <h6 class="font-weight-normal text-center">Create account</h6>
+    </NavLink>
+    <NavLink href="forgotpassword">
+        <h6 class="font-weight-normal text-center">Forgot password</h6>
     </NavLink>
 </EditForm>
 

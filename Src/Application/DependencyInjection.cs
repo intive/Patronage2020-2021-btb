@@ -24,7 +24,9 @@ using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Application.Indicator.Commands.CalculateRSI;
 using BTB.Application.Indicator.Commands.CalculateSMA;
-using BTB.Application.Authorize.Password.Commands.ChangePassword;
+using BTB.Application.Authorize.Commands.ChangePassword;
+using BTB.Application.Authorize.Commands.SendResetLink;
+using BTB.Application.Authorize.Commands.ResetPassword;
 
 namespace BTB.Application
 {
@@ -59,6 +61,8 @@ namespace BTB.Application
             services.AddTransient<IValidator<CalculateSMACommand>, CalculateSMACommandValidator>();
             services.AddTransient<IValidator<ChangePasswordCommand>, ChangePasswordCommandValidator>();
             services.AddTransient<IAlertConditionDetector<CrossingConditionDetectorParameters>, CrossingConditionDetector>();
+            services.AddTransient<IValidator<SendResetLinkCommand>, SendResetLinkCommandValidator>();
+            services.AddTransient<IValidator<ResetPasswordCommand>, ResetPasswordCommandValidator>();
             services.AddHttpContextAccessor();
 
             return services;

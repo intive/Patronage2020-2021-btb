@@ -9,6 +9,10 @@ namespace BTB.Application.Authorize.Commands.Register
             RuleFor(command => command.UserName)
                 .MinimumLength(4);
 
+            RuleFor(command => command.Email)
+                .NotEmpty()
+                .EmailAddress();
+
             RuleFor(command => command.Password)
                 .MinimumLength(4);
 
