@@ -7,14 +7,14 @@
 <style>
     @@media screen and (min-width: 480px) {
         #innerContainer {
-            min-width: 420px
+            min-width: 460px
         }
     }
 </style>
 
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
-    <FluentValidator Validator="_validator"/>
-    
+    <FluentValidator Validator="_validator" />
+
     <div id="innerContainer">
         <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertVO.SymbolPair</h3>
 
@@ -24,6 +24,9 @@
                 <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
                     <option disabled selected>select</option>
                     <option value="Crossing">Crossing</option>
+                    <option value="CrossingUp">Crossing Up</option>
+                    <option value="CrossingDown">Crossing Down</option>
+                    <option value="Between">Between</option>
                 </InputSelect>
                 <ValidationMessage For="@(()=>_formModel.Condition)" style="font-size: 14px; margin-bottom: 10px" />
             </div>
@@ -42,18 +45,29 @@
             </div>
         </div>
 
-        <div class="form-group row mb-4">
-            <label for="value" class="col-sm-4 col-form-label">Value</label>
+        <div class="form-group row mb-0">
+            <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value": "Value")</label>
             <div class="col-sm-8">
                 <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
                 <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
             </div>
         </div>
 
+        @if (DisplayUpperValue)
+        {
+            <div class="form-group row mb-4">
+                <label for="additionalValue" class="col-sm-4 col-form-label">Upper Value</label>
+                <div class="col-sm-8">
+                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm" id="additionalValue" />
+                    <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+                </div>
+            </div>
+        }
+
         <h3>Alert Actions:</h3>
 
         <div class="form-group row mb-0">
-            <label for="options" class="col-sm-4">Only once</label>
+            <label for="triggerOnce" class="col-sm-4">Only once</label>
             <div class="col-8">
                 <InputCheckbox @bind-Value="_formModel.TriggerOnce" id="triggerOnce" />
             </div>
@@ -98,6 +112,7 @@
     private AlertFormModel _formModel = null;
     private Func<Task> _onModalClosedAsync = null;
     private AlertFormModelValidator _validator = new AlertFormModelValidator();
+    private bool DisplayUpperValue { get { return _formModel.Condition?.ToLower() == "between"; } }
 
     protected override void OnInitialized()
     {
@@ -111,11 +126,13 @@
             Condition = _alertVO.Condition,
             ValueType = _alertVO.ValueType,
             Value = _alertVO.Value,
+            AdditionalValue = _alertVO.AdditionalValue,
             SendEmail = _alertVO.SendEmail,
             Email = _alertVO.Email,
             Message = _alertVO.Message,
             TriggerOnce = _alertVO.TriggerOnce
         };
+
     }
 
     private async Task HandleSubmitAsync(EditContext editContext)
@@ -124,6 +141,11 @@
         {
             _formModel.Email = null;
             _formModel.Message = null;
+        }
+
+        if (_formModel.Condition?.ToLower() != "between")
+        {
+            _formModel.AdditionalValue = 0.0m;
         }
 
         if (editContext.Validate())

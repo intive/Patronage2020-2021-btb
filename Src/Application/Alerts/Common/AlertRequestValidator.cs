@@ -15,7 +15,7 @@ namespace BTB.Application.Alerts.Common
                 .Matches("^$|^([A-Z]{5,20})$")
                 .NotEmpty();
 
-            var validConditions = new string[] { "crossing" };
+            var validConditions = new string[] { "crossing", "crossingup", "crossingdown", "between" };
             RuleFor(a => a.Condition)
                 .NotEmpty()
                 .Must(condition => validConditions.Contains(condition.ToLower()));
@@ -28,6 +28,12 @@ namespace BTB.Application.Alerts.Common
             RuleFor(a => a.Value)
                 .NotNull()
                 .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
+
+            RuleFor(a => a.AdditionalValue)
+                .NotNull()
+                .GreaterThanOrEqualTo(0.0m)
+                .GreaterThan(a => a.Value).When(a => a.Condition.ToLower() == "between")
                 .LessThan(999999999.999999999m);
 
             RuleFor(a => a.SendEmail)

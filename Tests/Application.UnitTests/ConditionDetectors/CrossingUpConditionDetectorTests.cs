@@ -6,27 +6,19 @@ using BTB.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Application.UnitTests.ConditionDetectors
 {
-    public class CrossingConditionDetectorTests
+    public class CrossingUpConditionDetectorTests
     {
         [Theory]
         [InlineData(AlertValueType.Price, 5, 1, 10, 0)]
         [InlineData(AlertValueType.Price, 5, 1, 5, 0)]
         [InlineData(AlertValueType.Price, 5, 5, 10, 0)]
-
-        [InlineData(AlertValueType.Price, 5, 10, 1, 0)]
-        [InlineData(AlertValueType.Price, 5, 5, 1, 0)]
-        [InlineData(AlertValueType.Price, 5, 10, 5, 0)]
-
         [InlineData(AlertValueType.Volume, 5, 1, 1, 10)]
         [InlineData(AlertValueType.Volume, 5, 1, 1, 5)]
-        [InlineData(AlertValueType.Volume, -5, 1, 1, -10)]
-        [InlineData(AlertValueType.Volume, -5, 1, 1, -5)]
-        public void IsConditionMet_ShouldReturnTrue_WhenCrossingOccurs(AlertValueType valueType,
+        public void IsConditionMet_ShouldReturnTrue_WhenCrossingUpOccurs(AlertValueType valueType,
             decimal threshold, decimal openPrice, decimal closePrice, decimal volume)
         {
             var kline = new Kline()
@@ -41,12 +33,12 @@ namespace Application.UnitTests.ConditionDetectors
 
             var alert = new Alert()
             {
-                Condition = AlertCondition.Crossing,
+                Condition = AlertCondition.CrossingUp,
                 ValueType = valueType,
                 Value = threshold
             };
 
-            var sut = new CrossingConditionDetector();
+            var sut = new CrossingUpConditionDetector();
             bool result = sut.IsConditionMet(alert, new BasicConditionDetectorParameters() { Kline = kline });
             Assert.True(result);
         }
@@ -54,10 +46,15 @@ namespace Application.UnitTests.ConditionDetectors
         [Theory]
         [InlineData(AlertValueType.Price, 5, 1, 4, 0)]
         [InlineData(AlertValueType.Price, 5, 6, 10, 0)]
-
         [InlineData(AlertValueType.Volume, 5, 1, 1, 4)]
         [InlineData(AlertValueType.Volume, -5, 1, 1, -4)]
-        public void IsConditionMet_ShouldReturnFalse_WhenCrossingDoesNotOccur(AlertValueType valueType,
+
+        [InlineData(AlertValueType.Price, 5, 10, 1, 0)]
+        [InlineData(AlertValueType.Price, 5, 5, 1, 0)]
+        [InlineData(AlertValueType.Price, 5, 10, 5, 0)]
+        [InlineData(AlertValueType.Volume, -5, 1, 1, -10)]
+        [InlineData(AlertValueType.Volume, -5, 1, 1, -5)]
+        public void IsConditionMet_ShouldReturnFalse_WhenCrossingUpDoesNotOccur(AlertValueType valueType,
             decimal threshold, decimal openPrice, decimal closePrice, decimal volume)
         {
             var kline = new Kline()
@@ -72,12 +69,12 @@ namespace Application.UnitTests.ConditionDetectors
 
             var alert = new Alert()
             {
-                Condition = AlertCondition.Crossing,
+                Condition = AlertCondition.CrossingUp,
                 ValueType = valueType,
                 Value = threshold
             };
 
-            var sut = new CrossingConditionDetector();
+            var sut = new CrossingUpConditionDetector();
             bool result = sut.IsConditionMet(alert, new BasicConditionDetectorParameters() { Kline = kline });
             Assert.False(result);
         }
