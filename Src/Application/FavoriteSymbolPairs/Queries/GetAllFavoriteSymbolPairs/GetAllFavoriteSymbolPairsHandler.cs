@@ -47,7 +47,7 @@ namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
             return new PaginatedResult<DashboardPairVO> ()
             {
                 Result = userFavoriteSymbolPairs.Paginate(request.Pagination),
-                AllRecorsCount = userFavoriteSymbolPairsCount,
+                AllRecordsCount = userFavoriteSymbolPairsCount,
                 RecordsPerPage = (int)request.Pagination.Quantity
             };
         }

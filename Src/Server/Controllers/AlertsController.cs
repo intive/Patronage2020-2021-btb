@@ -27,7 +27,7 @@ namespace BTB.Server.Controllers
         public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
         {
             var paginatedResult = await Mediator.Send(new GetAllAlertsQuery() { Pagination = pagination }, cancellationToken);
-            HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecorsCount, paginatedResult.RecordsPerPage);
+            HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecordsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);
         }
 

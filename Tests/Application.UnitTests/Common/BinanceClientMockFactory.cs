@@ -1,16 +1,14 @@
-﻿using Binance.Net.Interfaces;
-using Binance.Net.Objects;
-using BTB.Domain.Entities;
-using CryptoExchange.Net.Objects;
-using Moq;
-using System;
+﻿using BTB.Application.Common.Exceptions;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Threading;
+using System.Net;
+using System;
+using CryptoExchange.Net.Objects;
+using Binance.Net.Interfaces;
+using Binance.Net.Objects;
+using Moq;
 
 namespace Application.UnitTests.Common
 {
@@ -79,8 +77,12 @@ namespace Application.UnitTests.Common
             };
 
             binanceClientMock
-                .Setup(client => client.GetKlinesAsync(It.IsAny<string>(), It.IsAny<KlineInterval>(), null, null, null, CancellationToken.None))
-                .Returns( Task.Run(() => new WebCallResult<IEnumerable<BinanceKline>>(HttpStatusCode.OK, null, historyList, null)));
+                .Setup(client => client.GetKlinesAsync("BTCUSDT", It.IsAny<KlineInterval>(), null, null, null, CancellationToken.None))
+                .Returns(Task.Run(() => new WebCallResult<IEnumerable<BinanceKline>>(HttpStatusCode.OK, null, historyList, null)));
+
+            binanceClientMock
+                .Setup(client => client.GetKlinesAsync("BLAHBLAH", It.IsAny<KlineInterval>(), null, null, null, CancellationToken.None))
+                .Throws(new BadRequestException("Could not get klines from Binance API."));
         }
 
         private static void Mock_GetPriceAsync(ref Mock<IBinanceClient> binanceClientMock)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Binance.Net.Objects;
 using BTB.Application.System.Common;
 using BTB.Application.UserProfile.Common;
 using BTB.Domain.Common;
@@ -24,7 +25,17 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))
                 .ForMember(s => s.SellSymbolName, opts => opts.MapFrom(src => src.SellSymbol.SymbolName))
                 .ForMember(s => s.ClosePrice, opts => opts.MapFrom(src => src.Klines.Where(k => k.DurationTimestamp == TimestampInterval.OneDay).OrderBy(k => k.DurationTimestamp).LastOrDefault().ClosePrice))
-                .ForMember(s => s.Volume, opts => opts.MapFrom(src => src.Klines.Where(k => k.DurationTimestamp == TimestampInterval.OneDay).OrderBy(k => k.DurationTimestamp).LastOrDefault().Volume));      
+                .ForMember(s => s.Volume, opts => opts.MapFrom(src => src.Klines.Where(k => k.DurationTimestamp == TimestampInterval.OneDay).OrderBy(k => k.DurationTimestamp).LastOrDefault().Volume));
+
+            CreateMap<Kline, KlineVO>()
+                .ForMember(k => k.OpenTime, opts => opts.MapFrom(src => DateTimestampConv.GetDateTime(src.OpenTimestamp)))
+                .ForMember(k => k.CloseTime, opts => opts.MapFrom(src => DateTimestampConv.GetDateTime(src.OpenTimestamp + (long)src.DurationTimestamp)));
+
+            CreateMap<BinanceKline, KlineVO>()
+                .ForMember(k => k.ClosePrice, opts => opts.MapFrom(src => src.Close))
+                .ForMember(k => k.OpenPrice, opts => opts.MapFrom(src => src.Open))
+                .ForMember(k => k.HighestPrice, opts => opts.MapFrom(src => src.High))
+                .ForMember(k => k.LowestPrice, opts => opts.MapFrom(src => src.Low));
         }
     }
 }
