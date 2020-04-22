@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace BTB.Application.Authorize.Password.Commands.ChangePassword
+namespace BTB.Application.Authorize.Commands.ChangePassword
 {
     public class ChangePasswordCommand : IRequest
     {

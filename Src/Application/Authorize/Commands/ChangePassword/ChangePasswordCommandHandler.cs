@@ -3,7 +3,7 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.Authorize.Password.Commands.ChangePassword
+namespace BTB.Application.Authorize.Commands.ChangePassword
 {
     public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand>
     {

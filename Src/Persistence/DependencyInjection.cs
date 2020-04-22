@@ -25,6 +25,8 @@ namespace BTB.Persistence
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(2));
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -40,7 +42,9 @@ namespace BTB.Persistence
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User settings
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
+
+               
             });
 
             return services;
