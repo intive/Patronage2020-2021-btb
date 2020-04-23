@@ -89,6 +89,8 @@
 
 @code {
 
+    private const int ExtraAmount = 50;
+
     private IEnumerable<KlineVO> _priceHistory { get; set; }
 
     private CurrentDetailsView _currentView = CurrentDetailsView.Table;
@@ -127,7 +129,7 @@
             _priceHistory = null;
             _isRequestRunning = true;
 
-            var response = await Http.GetAsync($"api/details/{Symbol}?interval={_klineInterval}&page={_currentPage}&quantity={_currentQuantity}&datasource={_dataSource}");
+            var response = await Http.GetAsync($"api/details/{Symbol}?interval={_klineInterval}&page={_currentPage}&quantity={_currentQuantity}&datasource={_dataSource}&extraamount={ExtraAmount}");
 
             if (response.IsSuccessStatusCode)
             {

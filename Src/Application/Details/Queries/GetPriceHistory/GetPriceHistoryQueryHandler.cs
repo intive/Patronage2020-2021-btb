@@ -22,8 +22,6 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
         private readonly IMapper _mapper;
         private readonly IBinanceClient _apiClient;
 
-        private const int AmountExtra = 50;
-
         public GetPriceHistoryQueryHandler(IBTBDbContext context, IMapper mapper, IBinanceClient apiClient)
         {
             _context = context;
@@ -48,7 +46,7 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
                 {
                     return new PaginatedResult<KlineVO>
                     {
-                        Result = klines.OrderByDescending(k => k.OpenTime).Paginate(request.Pagination, AmountExtra),
+                        Result = klines.OrderByDescending(k => k.OpenTime).Paginate(request.Pagination, request.ExtraAmount),
                         AllRecordsCount = klines.Count(),
                         RecordsPerPage = (int)request.Pagination.Quantity
                     };
@@ -69,7 +67,7 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
                         var apiKlines = _mapper.Map<IEnumerable<KlineVO>>(result.Data).Reverse();
                         return new PaginatedResult<KlineVO>
                         {
-                            Result = apiKlines.Paginate(request.Pagination, AmountExtra),
+                            Result = apiKlines.Paginate(request.Pagination, request.ExtraAmount),
                             AllRecordsCount = apiKlines.Count(),
                             RecordsPerPage = (int)request.Pagination.Quantity
                         };

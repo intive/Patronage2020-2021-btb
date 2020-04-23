@@ -1,5 +1,5 @@
-﻿<nav aria-label="Page navigation" class="d-inline-block float-right">
-    <ul class="pagination justify-content-end">
+﻿<nav aria-label="Page navigation" class="d-inline-block mb-2 float-right">
+    <ul class="pagination justify-content-end" style="margin:0">
         @foreach (var link in _links)
         {
             <li @onclick="@(() => SelectedPageInternal(link))"
