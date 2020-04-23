@@ -15,7 +15,7 @@ namespace BTB.Server.Controllers
     public class DetailsController : BaseController
     {
         /// <summary>
-        ///     Gets 10 last prices at which candlesticks for chosen symbol closed
+        ///     Gets last prices at which candlesticks for chosen symbol have closed
         /// </summary>
         /// <remarks>
         ///     Sample request:
@@ -32,7 +32,7 @@ namespace BTB.Server.Controllers
         /// <param name="pagination">Data required to perform pagination</param>
         /// <param name="dataSource">Source of klines, either database or API</param>
         /// <param name="extraAmount">Additional amount of klines, especially useful for indicators view</param>
-        /// <returns>Collection of klines </returns>
+        /// <returns>Collection of klines</returns>
         /// <response code="200">When successful.</response>
         /// <response code="400">If symbol is not in correct format or is unknown</response>
         [HttpGet]
