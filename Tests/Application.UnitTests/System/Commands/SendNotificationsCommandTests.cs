@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Application.UnitTests.System.Commands
 {
-    public class SendEmailNotificationsCommandTests : CommandTestsBase
+    public class SendNotificationsCommandTests : CommandTestsBase
     {
         [Theory]
         [InlineData(TimestampInterval.FiveMin, AlertValueType.Price, 2, 1, 3, 0)]
@@ -50,6 +50,7 @@ namespace Application.UnitTests.System.Commands
                 Condition = AlertCondition.Crossing,
                 ValueType = alertValueType,
                 Value = threshold,
+                SendInBrowser = true,
                 SendEmail = true,
                 Email = "email@email.com",
                 Message = "symbol pair 1 crossing 2.0m"
@@ -61,7 +62,11 @@ namespace Application.UnitTests.System.Commands
             var emailServiceMock = new Mock<IEmailService>();
 
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendNotificationsCommandHandler(_context, emailServiceMock.Object, _hubcontext, _currentUserIdentity, new CrossingConditionDetector());
+
+            var sut = new SendNotificationsCommandHandler(_context, 
+                emailServiceMock.Object, _hubcontext, 
+                _currentUserIdentity, new CrossingConditionDetector());
+
             SendNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
@@ -103,6 +108,7 @@ namespace Application.UnitTests.System.Commands
                 Condition = AlertCondition.Crossing,
                 ValueType = alertValueType,
                 Value = threshold,
+                SendInBrowser = true,
                 SendEmail = true,
                 Email = "email@email.com",
                 Message = "symbol pair 1 crossing 2.0m"
@@ -115,7 +121,9 @@ namespace Application.UnitTests.System.Commands
 
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
-            var sut = new SendNotificationsCommandHandler(_context, emailServiceMock.Object, _hubcontext, _currentUserIdentity, new CrossingConditionDetector());
+            var sut = new SendNotificationsCommandHandler(_context, 
+                emailServiceMock.Object, _hubcontext, 
+                _currentUserIdentity, new CrossingConditionDetector());
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 

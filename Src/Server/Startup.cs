@@ -95,11 +95,11 @@ namespace BTB.Server
             services.AddPersistence(Configuration);
             services.AddApplication();
 
-            //services.AddCronJob<UpdateExchangeJob>(c =>
-            //{
-            //    c.TimeZoneInfo = TimeZoneInfo.Local;
-            //    c.CronExpression = @"*/5 * * * *";
-            //});
+            services.AddCronJob<UpdateExchangeJob>(c =>
+            {
+                c.TimeZoneInfo = TimeZoneInfo.Local;
+                c.CronExpression = @"*/5 * * * *";
+            });
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
