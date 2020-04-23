@@ -12,11 +12,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BTB.Server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class NotificationController : BaseController
     {
-
         private readonly IHubContext<NotificationHub> _hubcontext;
         private readonly ICurrentUserIdentityService _currentUserIdentity;
 
