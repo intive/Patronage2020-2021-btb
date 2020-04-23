@@ -1,5 +1,7 @@
 ﻿@page "/login"
 @layout LoginLayout
+@using BTB.Client.Models.Validation;
+@using BTB.Client.Models.Authorization;
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
@@ -7,25 +9,26 @@
     Intive Patronage 2020
 </h1>
 
-<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
-    <DataAnnotationsValidator />
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="_loginParameters">
+    <FluentValidator Validator="_validator" />
+
     <h5 class="font-weight-normal text-center">Log in to access the content</h5>
     <br />
 
     <div class="form-group">
         <label for="inputUsername">Username</label>
-        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="loginParameters.UserName" />
-        <ValidationMessage For="@(() => loginParameters.UserName)" />
+        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="_loginParameters.UserName" />
+        <ValidationMessage For="@(() => _loginParameters.UserName)" />
     </div>
 
     <div class="form-group">
         <label for="inputPassword">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="loginParameters.Password" />
-        <ValidationMessage For="@(() => loginParameters.Password)" />
+        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="_loginParameters.Password" />
+        <ValidationMessage For="@(() => _loginParameters.Password)" />
     </div>
 
     <div class="form-check m-3">
-        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
+        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="_loginParameters.RememberMe" />
         <label class="form-check-label" for="inputRememberMe">Remember Me</label>
     </div>
 
@@ -39,15 +42,17 @@
 </EditForm>
 
 @code{
-    LoginParametersDto loginParameters { get; set; } = new LoginParametersDto();
-    string error { get; set; }
+    private string error { get; set; }
+    private LoginParametersModel _loginParameters = new LoginParametersModel();
+    private LoginParametersModelValidator _validator = new LoginParametersModelValidator();
 
-    async Task OnSubmit()
+    private async Task OnSubmit()
     {
         error = null;
+
         try
         {
-            await authStateProvider.Login(loginParameters);
+            await authStateProvider.Login(_loginParameters);
             navigationManager.NavigateTo("");
         }
         catch (Exception ex)

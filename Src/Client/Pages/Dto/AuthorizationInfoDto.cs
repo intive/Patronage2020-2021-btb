@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BTB.Client.Pages.Dto.Authorization
+namespace BTB.Client.Pages.Dto
 {
     public class AuthorizationInfoDto
     {

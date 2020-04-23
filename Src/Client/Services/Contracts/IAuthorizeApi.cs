@@ -1,13 +1,14 @@
-﻿using BTB.Client.Pages.Dto.Authorization;
+﻿using BTB.Client.Models.Authorization;
+using BTB.Client.Pages.Dto;
 using System.Threading.Tasks;
 
 namespace BTB.Client.Services.Contracts
 {
     public interface IAuthorizeApi
     {
-        Task Login(LoginParametersDto loginParameters);
+        Task Login(LoginParametersModel loginParameters);
 
-        Task Register(RegisterParametersDto registerParameters);
+        Task Register(RegisterParametersModel registerParameters);
 
         Task Logout();
 

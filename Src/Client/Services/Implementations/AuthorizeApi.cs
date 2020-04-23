@@ -1,14 +1,11 @@
-﻿using BTB.Client.Pages.Dto.Authorization;
+﻿using BTB.Client.Models.Authorization;
+using BTB.Client.Pages.Dto;
 using BTB.Client.Services.Contracts;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BTB.Client.Services.Implementations
@@ -22,11 +19,16 @@ namespace BTB.Client.Services.Implementations
             _httpClient = httpClient;
         }
 
-        public async Task Login(LoginParametersDto loginParameters)
+        public async Task Login(LoginParametersModel loginParameters)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(loginParameters), Encoding.UTF8, "application/json");
             var result = await _httpClient.PostAsync("api/Authorize/Login", stringContent);
-            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
+
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                throw new Exception(await result.Content.ReadAsStringAsync());
+            }
+
             result.EnsureSuccessStatusCode();
         }
 
@@ -36,11 +38,16 @@ namespace BTB.Client.Services.Implementations
             result.EnsureSuccessStatusCode();
         }
 
-        public async Task Register(RegisterParametersDto registerParameters)
+        public async Task Register(RegisterParametersModel registerParameters)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(registerParameters), Encoding.UTF8, "application/json");
             var result = await _httpClient.PostAsync("api/Authorize/Register", stringContent);
-            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
+
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                throw new Exception(await result.Content.ReadAsStringAsync());
+            }
+
             result.EnsureSuccessStatusCode();
         }
 

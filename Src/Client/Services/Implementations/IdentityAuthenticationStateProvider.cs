@@ -5,7 +5,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using BTB.Client.Pages.Dto.Authorization;
+using BTB.Client.Pages.Dto;
+using BTB.Client.Models;
 
 namespace BTB.Client.States
 {
@@ -19,13 +20,13 @@ namespace BTB.Client.States
             _authorizeApi = authorizeApi;
         }
 
-        public async Task Login(LoginParametersDto loginParameters)
+        public async Task Login(LoginParametersModel loginParameters)
         {
             await _authorizeApi.Login(loginParameters);
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
-        public async Task Register(RegisterParametersDto registerParameters)
+        public async Task Register(RegisterParametersModel registerParameters)
         {
             await _authorizeApi.Register(registerParameters);
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());

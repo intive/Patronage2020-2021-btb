@@ -3,61 +3,65 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 @using Newtonsoft.Json
+@using BTB.Client.Models.Validation
+@using BTB.Client.Models.Authorization
 
 <h1 class="h2 font-weight-normal login-title text-center">
     Intive Patronage 2020
 </h1>
 
-<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerParameters">
-    <DataAnnotationsValidator />
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="_registerParameters">
+    <FluentValidator Validator="_validator" />
+
     <h5 class="font-weight-normal text-center">Create Account</h5>
     <br />
 
     <div class="form-group">
         <label for="inputUsername">Username</label>
-        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="@registerParameters.UserName" />
-        <ValidationMessage For="@(() => registerParameters.UserName)" />
+        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="@_registerParameters.UserName" />
+        <ValidationMessage For="@(() => _registerParameters.UserName)" />
     </div>
 
     <div class="form-group">
         <label for="inputPassword">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="@registerParameters.Password" />
-        <ValidationMessage For="@(() => registerParameters.Password)" />
+        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="@_registerParameters.Password" />
+        <ValidationMessage For="@(() => _registerParameters.Password)" />
     </div>
 
     <div class="form-group">
         <label for="inputPasswordConfirm">Confirm password</label>
-        <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat password" @bind-Value="@registerParameters.PasswordConfirm" />
-        <ValidationMessage For="@(() => registerParameters.PasswordConfirm)" />
+        <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat password" @bind-Value="@_registerParameters.PasswordConfirm" />
+        <ValidationMessage For="@(() => _registerParameters.PasswordConfirm)" />
     </div>
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
 
-    <label class="text-danger">@error</label>
+    <label class="text-danger">@_error</label>
 
     <NavLink href="login">
         <h6 class="font-weight-normal text-center">Already have an account? Click here to login</h6>
     </NavLink>
 </EditForm>
 
-@functions{
+@code{    
+    private dynamic _dyn;
+    private string _error;
+    private RegisterParametersModel _registerParameters = new RegisterParametersModel();
+    private RegisterParametersModelValidator _validator = new RegisterParametersModelValidator();
 
-    RegisterParametersDto registerParameters { get; set; } = new RegisterParametersDto();
-    dynamic dyn;
-    string error { get; set; }
-
-    async Task OnSubmit()
+    private async Task OnSubmit()
     {
-        error = null;
+        _error = null;
+
         try
         {
-            await authStateProvider.Register(registerParameters);
+            await authStateProvider.Register(_registerParameters);
             navigationManager.NavigateTo("");
         }
         catch (Exception ex)
         {
-            dyn = JsonConvert.DeserializeObject(ex.Message);
-            error = dyn.errorMessage;
+            _dyn = JsonConvert.DeserializeObject(ex.Message);
+            _error = _dyn.errorMessage;
         }
     }
 }
