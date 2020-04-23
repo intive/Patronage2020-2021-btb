@@ -15,7 +15,7 @@ namespace BTB.Server.Controllers
     public class DetailsController : BaseController
     {
         /// <summary>
-        ///     Gets 10 last prices at which candlesticks for chosen symbol closed
+        ///     Gets last prices at which candlesticks for chosen symbol have closed
         /// </summary>
         /// <remarks>
         ///     Sample request:
@@ -31,16 +31,17 @@ namespace BTB.Server.Controllers
         /// <param name="interval">The candlestick timespan</param>  
         /// <param name="pagination">Data required to perform pagination</param>
         /// <param name="dataSource">Source of klines, either database or API</param>
-        /// <returns>Collection of klines </returns>
+        /// <param name="extraAmount">Additional amount of klines, especially useful for indicators view</param>
+        /// <returns>Collection of klines</returns>
         /// <response code="200">When successful.</response>
         /// <response code="400">If symbol is not in correct format or is unknown</response>
         [HttpGet]
         [Route("{symbol}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> GetPriceHistory([FromRoute] string symbol, [FromQuery] KlineInterval interval, [FromQuery] PaginationDto pagination, [FromQuery] DetailsDataSource dataSource, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetPriceHistory([FromRoute] string symbol, [FromQuery] KlineInterval interval, [FromQuery] PaginationDto pagination, [FromQuery] DetailsDataSource dataSource, [FromQuery] int extraAmount, CancellationToken cancellationToken)
         {
-            PaginatedResult<KlineVO> paginatedResult = await Mediator.Send(new GetPriceHistoryQuery { PairName = symbol, KlineType = interval, Pagination = pagination, DataSource = dataSource }, cancellationToken);
+            PaginatedResult<KlineVO> paginatedResult = await Mediator.Send(new GetPriceHistoryQuery { PairName = symbol, KlineType = interval, Pagination = pagination, DataSource = dataSource, ExtraAmount = extraAmount }, cancellationToken);
             HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecordsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);
         }
