@@ -13,5 +13,6 @@ namespace BTB.Application.Details.Queries.GetPriceHistory
         public PaginationDto Pagination { get; set; }
         public KlineInterval KlineType { get; set; }
         public DetailsDataSource DataSource { get; set; }
+        public int ExtraAmount { get; set; }
     }
 }
