@@ -1,7 +1,7 @@
 ﻿@page "/login"
 @layout LoginLayout
+@inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
-@inject IdentityAuthenticationStateProvider authStateProvider
 
 <h1 class="h2 font-weight-normal login-title text-center">
     Intive Patronage 2020
@@ -47,9 +47,10 @@
     async Task OnSubmit()
     {
         error = null;
+        
         try
         {
-            await authStateProvider.Login(loginParameters);
+            await authorizeService.Login(loginParameters);
             navigationManager.NavigateTo("");
         }
         catch (Exception e)

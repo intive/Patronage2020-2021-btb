@@ -1,7 +1,7 @@
 ﻿@page "/register"
 @layout LoginLayout
+@inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
-@inject IdentityAuthenticationStateProvider authStateProvider
 @using Newtonsoft.Json
 
 <h1 class="h2 font-weight-normal login-title text-center">
@@ -22,7 +22,7 @@
     <div class="form-group">
         <label for="inputEmail">Email</label>
         <InputText id="inputEmail" class="form-control" placeholder="Enter email" @bind-Value="registerParameters.Email" />
-        <ValidationMessage For="@(() => registerParameters.Email)"/>
+        <ValidationMessage For="@(() => registerParameters.Email)" />
     </div>
 
     <div class="form-group">
@@ -57,7 +57,7 @@
         error = null;
         try
         {
-            await authStateProvider.Register(registerParameters);
+            await authorizeService.Register(registerParameters);
             navigationManager.NavigateTo("");
         }
         catch (Exception e)

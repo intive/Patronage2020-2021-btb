@@ -4,6 +4,7 @@ using BTB.Infrastructure.Stock.Indicator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using BTB.Infrastructure.Identity;
 
 namespace BTB.Infrastructure
 {
@@ -13,6 +14,7 @@ namespace BTB.Infrastructure
         {
             services.AddTransient<IDateTime, MachineDateTime>();
             services.AddTransient<IIndicator, Indicator>();
+            services.AddScoped<IJwtGenerator, JwtGenerator>();
             return services;
         }
     }

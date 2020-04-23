@@ -1,9 +1,12 @@
 ﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
+using BTB.Infrastructure.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,9 +24,24 @@ namespace BTB.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentityCore<ApplicationUser>()
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
+
+            //services.AddIdentity<ApplicationUser, IdentityRole>()
+            //    .AddEntityFrameworkStores<BTBDbContext>()
+            //    .AddDefaultTokenProviders();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:key"])),
+                    ClockSkew = TimeSpan.Zero
+                });
 
             services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(2));
 
@@ -43,8 +61,6 @@ namespace BTB.Persistence
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
-
-               
             });
 
             return services;

@@ -1,68 +1,49 @@
-﻿using BTB.Client.Services.Contracts;
-using Microsoft.AspNetCore.Components.Authorization;
-using System;
-using System.Linq;
-using System.Net.Http;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using BTB.Client.Pages.Dto.Authorization;
+using System.Net.Http;
+using Blazored.LocalStorage;
+using BTB.Domain.Extensions;
 
-namespace BTB.Client.States
+namespace BTB.Client.Services.Implementations
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private UserInfoDto _userInfoCache;
-        private readonly IAuthorizeApi _authorizeApi;
+        private readonly HttpClient _httpClient;
+        private readonly ILocalStorageService _localStorage;
 
-        public IdentityAuthenticationStateProvider(IAuthorizeApi authorizeApi)
+        public IdentityAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
         {
-            this._authorizeApi = authorizeApi;
+            _httpClient = httpClient;
+            _localStorage = localStorage;
         }
 
-        public async Task Login(LoginParametersDto loginParameters)
+        public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            await _authorizeApi.Login(loginParameters);
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        }
-
-        public async Task Register(RegisterParametersDto registerParameters)
-        {
-            await _authorizeApi.Register(registerParameters);
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        }
-
-        public async Task Logout()
-        {
-            await _authorizeApi.Logout();
-            _userInfoCache = null;
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        }
-
-        private async Task<UserInfoDto> GetUserInfo()
-        {
-            if (_userInfoCache != null && _userInfoCache.IsAuthenticated) return _userInfoCache;
-            _userInfoCache = await _authorizeApi.GetUserInfo();
-            return _userInfoCache;
-        }
-
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            var identity = new ClaimsIdentity();
-            try
+            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+            if (string.IsNullOrWhiteSpace(savedToken))
             {
-                var userInfo = await GetUserInfo();
-                if (userInfo.IsAuthenticated)
-                {
-                    var claims = new[] { new Claim(ClaimTypes.Name, _userInfoCache.UserName) }.Concat(_userInfoCache.ExposedClaims.Select(c => new Claim(c.Key, c.Value)));
-                    identity = new ClaimsIdentity(claims, "Server authentication");
-                }
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("Request failed:" + e.ToString());
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
 
-            return new AuthenticationState(new ClaimsPrincipal(identity));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
+
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(savedToken.ParseClaimsFromJwt(), "jwt")));
+        }
+
+        public void MarkUserAsAuthenticated(string name)
+        {
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, name) }, "jwt"));
+            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+            NotifyAuthenticationStateChanged(authState);
+        }
+
+        public void MarkUserAsLoggedOut()
+        {
+            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+            NotifyAuthenticationStateChanged(authState);
         }
     }
 }

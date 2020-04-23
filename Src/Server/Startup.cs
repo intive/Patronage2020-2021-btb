@@ -87,24 +87,13 @@ namespace BTB.Server
             });
 
             services.AddControllers().AddNewtonsoftJson();
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.HttpOnly = false;
-                options.Cookie.Name = "Patronage-BTB-Cookie";
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    context.Response.StatusCode = 401;
-                    return Task.CompletedTask;
-                };
-            });
-
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
 
-            services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+            //services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
             services.AddSwaggerGen(c =>
             {

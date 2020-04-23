@@ -1,11 +1,11 @@
 ﻿using BTB.Application.Common.Exceptions;
 using BTB.Domain.Entities;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Text;
+using System.Linq;
+using MediatR;
 
 namespace BTB.Application.Authorize.Commands.Register
 {

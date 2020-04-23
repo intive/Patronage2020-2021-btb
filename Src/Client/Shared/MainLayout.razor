@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
-@inject IdentityAuthenticationStateProvider authStateProvider
 
 <BlazoredModal />
 <AuthorizeView>
@@ -38,7 +38,7 @@
 
     async Task LogoutClick()
     {
-        await authStateProvider.Logout();
+        await authorizeService.Logout();
         navigationManager.NavigateTo("/login");
     }
 }

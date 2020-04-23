@@ -1,6 +1,5 @@
 ﻿using BTB.Application.Authorize.Commands.ChangePassword;
 using BTB.Application.Authorize.Commands.Login;
-using BTB.Application.Authorize.Commands.Logout;
 using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Authorize.Commands.ResetPassword;
 using BTB.Application.Authorize.Commands.SendResetLink;
@@ -25,6 +24,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginCommand command)
         {
             var result = await Mediator.Send(command);
@@ -51,27 +51,12 @@ namespace BTB.Server.Controllers
         /// <response code="200">If username, password and email requirement were met and when password confirm is the same as the password.</response>
         /// <response code="400">If username, password and email requirement were NOT met or when password confirm is different than password.</response>
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(RegisterCommand command)
         {
             var result = await Mediator.Send(command);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Logs out currently logged in user.
-        /// </summary>
-        /// <returns>Request's result.</returns>
-        /// <response code="200">If user logs out.</response>
-        /// <response code="401">If no user is currently logged in.</response>
-        [Authorize]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Logout()
-        {
-            var result = await Mediator.Send(new LogoutCommand());
             return Ok(result);
         }
 
