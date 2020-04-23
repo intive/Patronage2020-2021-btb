@@ -17,7 +17,6 @@ namespace Application.UnitTests
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
         protected readonly IHubContext<NotificationHub> _hubcontext;
-        protected readonly ICurrentUserIdentityService _currentUserIdentity;
 
         public HandlerTestsBase()
         {

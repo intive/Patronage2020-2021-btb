@@ -88,8 +88,6 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
                         await SendInBrowserNotificationAsync(alert);
                     }
                     
-                    Console.WriteLine($"Alert: {alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
-
                     alert.WasTriggered = true;
                     _context.Alerts.Update(alert);
                 }

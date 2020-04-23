@@ -18,8 +18,18 @@ namespace Application.UnitTests.Alerts.Queries
             var userId = "2";
             var expectedUserAlerts = new List<AlertVO>()
             {
-                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Volume", Value = 3000.0m, SendInBrowser = true, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
-                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Price", Value = 4000.0m, SendInBrowser = false, SendEmail = false, Email = null, Message = null },
+                new AlertVO() { 
+                    Id = 3, SymbolPair = "BTCUSDT", 
+                    Condition = "Crossing", ValueType = "Volume", Value = 3000.0m,
+                    SendInBrowser = true, SendEmail = true, 
+                    Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" 
+                },
+                new AlertVO() {
+                    Id = 4, SymbolPair = "BTCUSDT",
+                    Condition = "Crossing", ValueType = "Price", Value = 4000.0m, 
+                    SendInBrowser = false, SendEmail = false, 
+                    Email = null, Message = null 
+                },
             };
 
             var expectedAllRecordsCount = 2;
@@ -28,13 +38,18 @@ namespace Application.UnitTests.Alerts.Queries
             var sut = new GetAllAlertsQueryHandler(_context, _mapper, userIdentityMock.Object);
             var command = new GetAllAlertsQuery()
             {
-                Pagination = new PaginationDto() { Page = 1, Quantity = PaginationQuantity.Ten },
+                Pagination = new PaginationDto() { 
+                    Page = 1, 
+                    Quantity = PaginationQuantity.Ten
+                },
             };
 
             var paginatedResult = await sut.Handle(command, CancellationToken.None);
+
             Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
 
-            var resultAlerts = paginatedResult.Result.ToList();
+            List<AlertVO> resultAlerts = paginatedResult.Result.ToList();
+            
             Assert.Equal(resultAlerts.Count(), expectedAllRecordsCount);
             
             foreach (var alert in expectedUserAlerts)

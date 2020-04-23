@@ -55,6 +55,7 @@ namespace Application.UnitTests.Alerts.Commands
             Assert.Equal(expectedCondition, dbAlertVo.Condition);
             Assert.Equal(expectedValueType, dbAlertVo.ValueType);
             Assert.Equal(expectedValue, dbAlertVo.Value);
+            Assert.Equal(expectedSendInBrowser, dbAlertVo.SendInBrowser);
             Assert.Equal(expectedSendEmail, dbAlertVo.SendEmail);
             Assert.Equal(expectedEmail, dbAlertVo.Email);
             Assert.Equal(expectedMessage, dbAlertVo.Message);

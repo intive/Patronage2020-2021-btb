@@ -65,10 +65,12 @@ namespace Application.UnitTests.System.Commands
             emailServiceMock.VerifyNoOtherCalls();
 
             await AddKline(kline);
+
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), alert.Message, _context.EmailTemplates.FirstOrDefault()), Times.Once);
 
             await sut.Handle(command, CancellationToken.None);
+
             emailServiceMock.VerifyNoOtherCalls();
         }
 
@@ -84,7 +86,7 @@ namespace Application.UnitTests.System.Commands
                 SymbolPairId = symbolPairId,
                 DurationTimestamp = TimestampInterval.FiveMin,
                 OpenPrice = 1,
-                ClosePrice = 2,
+                ClosePrice = 3,
                 Volume = 1
             };
 
