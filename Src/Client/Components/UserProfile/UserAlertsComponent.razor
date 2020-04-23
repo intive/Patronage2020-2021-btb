@@ -293,8 +293,9 @@
             if (_alertCards.Count() == 0)
             {
                 _currentPage = 1;
-                await LoadDataAsync();
             }
+
+            await LoadDataAsync();
         }
     }
 
