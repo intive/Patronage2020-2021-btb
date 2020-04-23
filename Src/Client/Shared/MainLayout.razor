@@ -28,7 +28,9 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (!(await AuthenticationState).User.Identity.IsAuthenticated)
+        bool isResetPasswordOrReqisterRequest = navigationManager.Uri.Contains("resetpassword") || navigationManager.Uri.Contains("register");
+
+        if (!(await AuthenticationState).User.Identity.IsAuthenticated && !isResetPasswordOrReqisterRequest)
         {
             navigationManager.NavigateTo("/login");
         }

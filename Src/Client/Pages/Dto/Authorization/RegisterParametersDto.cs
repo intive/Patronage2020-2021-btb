@@ -8,6 +8,10 @@ namespace BTB.Client.Pages.Dto.Authorization
         [MinLength(4, ErrorMessage = "Username has to be at least 4 characters")]
         public string UserName { get; set; }
 
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress]
+        public string Email { get; set; }
+
         [Required(ErrorMessage = "Password is required")]
         [MinLength(4, ErrorMessage = "Must be at least 4 characters")]
         [DataType(DataType.Password)]

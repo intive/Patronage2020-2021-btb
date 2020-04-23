@@ -169,6 +169,7 @@ else
         {
             case IndicatorType.RSI:
                 dataForCalculationCount = (int)_paginationQuantity + (int)_rsiTimeframe + 1;
+
                 json = JsonConvert.SerializeObject(new RSIDto()
                 {
                     ClosePrices = _priceHistory.Select(p => p.ClosePrice).Take(dataForCalculationCount).ToList(),

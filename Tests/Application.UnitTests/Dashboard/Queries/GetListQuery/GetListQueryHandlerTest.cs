@@ -32,7 +32,7 @@ namespace Application.UnitTests.Dashboard.Queries.GetListQ
             var sut = new GetListQueryHandler(_context, _mapper, userIdentityMock.Object);
 
             var paginatedResult = await sut.Handle(query, CancellationToken.None);
-            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecorsCount);
+            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
 
             var resultSymbolPairs = paginatedResult.Result.ToList();
             Assert.Equal(resultSymbolPairs.Count(), expectedAllRecordsCount);

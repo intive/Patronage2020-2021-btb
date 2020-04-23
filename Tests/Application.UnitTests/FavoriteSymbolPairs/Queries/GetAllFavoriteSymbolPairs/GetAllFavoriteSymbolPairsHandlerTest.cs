@@ -30,7 +30,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbol
             };
 
             var paginatedResult = await sut.Handle(query, CancellationToken.None);
-            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecorsCount);
+            Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
 
             var resultFavoriteSymbolPairs = paginatedResult.Result.ToList();
             Assert.Equal(resultFavoriteSymbolPairs.Count(), expectedAllRecordsCount);

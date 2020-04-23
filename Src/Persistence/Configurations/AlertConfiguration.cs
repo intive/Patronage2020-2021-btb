@@ -20,6 +20,10 @@ namespace BTB.Persistence.Configurations
                 .IsRequired()
                 .HasColumnType("decimal(18, 9)");
 
+            builder.Property(a => a.AdditionalValue)
+                .IsRequired()
+                .HasColumnType("decimal(18, 9)");
+
             builder.Property(a => a.UserId)
                 .IsRequired();
 
@@ -38,6 +42,12 @@ namespace BTB.Persistence.Configurations
             builder.Property(a => a.Message)
                 .HasMaxLength(500)
                 .IsRequired(false);
+
+            builder.Property(a => a.TriggerOnce)
+                .IsRequired();
+
+            builder.Property(a => a.WasTriggered)
+                .IsRequired();
 
             builder.HasOne(a => a.User)
                 .WithMany(u => u.Alerts)

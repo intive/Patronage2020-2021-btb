@@ -9,6 +9,14 @@
 @inject IJSRuntime jsRuntime
 @implements IDisposable
 
+<style type="text/css">
+    .default-card {
+
+    }
+    .triggered-card {
+        background-color: #e4e4e4;
+    }
+</style>
 <SpinLoader IsLoading="@_processingHttpRequest">
     <LoadingTemplate>
         <div class="d-flex" style="height: 75vh">
@@ -87,14 +95,21 @@
                 {
                     int alertIndex = i;
                     AlertVO alert = _alertCards[alertIndex].AlertVO;
+                    string cardStyle = alert.IsDisabled ? "triggered-card" : "default-card";
+                    bool displayUpperValue = alert.Condition.ToLower() == "between";
 
-                    <div class="card mb-2">
+                    <div class="card mb-2 @cardStyle">
                         <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
                             <div>
                                 <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
                                     @alert.SymbolPair
                                 </NavLink>
-                                @alert.Condition @alert.Value.ToString("#.##")
+                                @alert.Condition @alert.Value.ToString("#.##") @(displayUpperValue ? " - " + alert.AdditionalValue.ToString("#.##") : "")
+                                @if (alert.IsDisabled)
+                                {
+                                    <i style="font-size: 14px;">(disabled)</i>
+                                }
+
                             </div>
 
                             <div>
@@ -123,7 +138,31 @@
 
                                 <div class="row">
                                     <h5 class="col-12 col-lg-4">Value</h5>
-                                    <p class="col-12 col-lg-8">@alert.Value</p>
+                                    @if (alert.AdditionalValue != 0.0m)
+                                    {
+                                        <p class="col-12 col-lg-8">@(alert.Value + " - " + alert.AdditionalValue)</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="col-12 col-lg-8">@alert.Value</p>
+                                    }
+                                </div>
+
+                                <div class="row">
+                                    <h5 class="col-12 col-lg-4">Only once</h5>
+                                    <p class="col-12 col-lg-8">@(alert.TriggerOnce ? "Yes" : "No")</p>
+                                </div>
+
+                                <div class="row">
+                                    <h5 class="col-12 col-lg-4">Was triggered</h5>
+                                    @if (alert.WasTriggered)
+                                    {
+                                        <p class="col-12 col-lg-8 text-success">Yes</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="col-12 col-lg-8 text-danger">No</p>
+                                    }
                                 </div>
 
                                 @if (alert.SendInBrowser)
@@ -251,7 +290,7 @@
         parameters.Add("ShouldUpdateAlert", true);
         parameters.Add("Alert", alert);
         parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); this.StateHasChanged(); }));
-        Modal.Show<AlertSubscription>("Subscribtion", parameters, options);
+        Modal.Show<AlertSubscription>("Subscription", parameters, options);
     }
 
     private async Task DeleteAlertAsync(int alertId)

@@ -26,6 +26,9 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<decimal>("AdditionalValue")
+                        .HasColumnType("decimal(18, 9)");
+
                     b.Property<int>("Condition")
                         .HasColumnType("int");
 
@@ -57,6 +60,9 @@ namespace BTB.Persistence.Migrations
                     b.Property<int>("SymbolPairId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("TriggerOnce")
+                        .HasColumnType("bit");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -66,6 +72,9 @@ namespace BTB.Persistence.Migrations
 
                     b.Property<int>("ValueType")
                         .HasColumnType("int");
+
+                    b.Property<bool>("WasTriggered")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

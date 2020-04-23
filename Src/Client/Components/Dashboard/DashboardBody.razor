@@ -93,6 +93,7 @@
     public DashboardType Type { get; set; } = DashboardType.SymbolPair;
 
     private IEnumerable<DashboardPairVO> _dashboardElements { get; set; }
+    private int _pageItemCount;
 
     private FilterModel _filter = new FilterModel();
 
@@ -138,6 +139,11 @@
         await ConnectToSignalRAsync();
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
     private async Task LoadDashboardTableAsync()
     {
         if (!_isRequestRunning)
@@ -167,6 +173,7 @@
             }
 
             _isRequestRunning = false;
+            _pageItemCount = _dashboardElements.ToList().Count;
         }
     }
 
@@ -195,16 +202,27 @@
         _tokenSource.Cancel();
     }
 
-    public void DeleteElement(int itemId)
+    public async Task DeleteElement(int itemId)
     {
         var elementToDelete = _dashboardElements.ToList().Find(e => e.Id == itemId);
         elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
+
         if (Type == DashboardType.FavoriteSymbolPair)
         {
             _dashboardElements.ToList().Remove(elementToDelete);
-        }
+            _pageItemCount -= 1;
 
-        StateHasChanged();
+            if (_currentPage > 1 && _pageItemCount == 0)
+            {
+                _currentPage = _currentPage - 1;
+                await LoadDashboardTableAsync();
+            }
+            else
+            {
+                StateHasChanged();
+            }
+
+        }
     }
 
     private async Task ConnectToSignalRAsync()

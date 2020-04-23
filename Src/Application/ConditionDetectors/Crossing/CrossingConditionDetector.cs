@@ -7,9 +7,9 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Crossing
 {
-    public class CrossingConditionDetector : IAlertConditionDetector<CrossingConditionDetectorParameters>
+    public class CrossingConditionDetector : ConditionDetectorBase, IAlertConditionDetector<BasicConditionDetectorParameters>
     {
-        public bool IsConditionMet(Alert alert, CrossingConditionDetectorParameters parameters)
+        public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {
             if (alert.Condition != AlertCondition.Crossing)
             {
@@ -25,16 +25,6 @@ namespace BTB.Application.ConditionDetectors.Crossing
             }
 
             return false;
-        }
-
-        private (decimal oldValue, decimal newValue) GetKlineValuesByAlertValueType(AlertValueType valueType, Kline kline)
-        {
-            return valueType switch
-            {
-                AlertValueType.Price => (kline.OpenPrice, kline.ClosePrice),
-                AlertValueType.Volume => (0, kline.Volume),
-                _ => throw new NotImplementedException()
-            };
         }
     }
 }

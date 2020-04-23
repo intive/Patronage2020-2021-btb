@@ -3,7 +3,6 @@ using BTB.Application.Common.Interfaces;
 using BTB.Application.Binance;
 using BTB.Infrastructure;
 using BTB.Persistence;
-using BTB.Server.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -24,13 +23,10 @@ using BTB.Application.Common.Exceptions;
 using System.Net.Mime;
 using BTB.Server.Services;
 using BTB.Server.Common.CronGeneric;
-using BTB.Domain.Common;
-using System.Collections.Generic;
-using BTB.Application.System.Commands.LoadData;
 using MediatR;
-using System.Threading;
 using BTB.Application.Common;
 using BTB.Application.Common.Hubs;
+using Microsoft.AspNetCore.Http;
 
 namespace BTB.Server
 {
@@ -146,6 +142,7 @@ namespace BTB.Server
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPasswordManager, PasswordManager>();
             services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
 

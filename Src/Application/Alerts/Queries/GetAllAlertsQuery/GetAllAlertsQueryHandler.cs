@@ -40,7 +40,7 @@ namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
             return new PaginatedResult<AlertVO>()
             {
                 Result = allUserAlerts.Paginate(request.Pagination),
-                AllRecorsCount = allUserAlertsCount,
+                AllRecordsCount = allUserAlertsCount,
                 RecordsPerPage = (int)request.Pagination.Quantity
             };
         }
