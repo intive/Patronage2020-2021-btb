@@ -90,6 +90,7 @@ namespace BTB.Server
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
+                options.Cookie.Name = "Patronage-BTB-Cookie";
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;
