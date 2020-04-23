@@ -288,7 +288,7 @@
         if (confirmed)
         {
             await Http.DeleteAsync($"api/alerts/{alertId}");
-            _alertCards.Remove(_alertCards.Where(card => card.AlertVO.Id == alertId).FirstOrDefault());
+            _alertCards.Remove(_alertCards.FirstOrDefault(card => card.AlertVO.Id == alertId));
 
             if (_alertCards.Count() == 0)
             {
