@@ -21,6 +21,7 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedCondition = "Crossing";
             var expectedValueType = "Price";
             var expectedValue = 1.5m;
+            var expectedSendInBrowser = true;
             var expectedSendEmail = true;
             var expectedEmail = "example@mail.com";
             var expectedMessage = "message";
@@ -35,6 +36,7 @@ namespace Application.UnitTests.Alerts.Commands
                 Condition = expectedCondition,
                 ValueType = expectedValueType,
                 Value = expectedValue,
+                SendInBrowser = expectedSendInBrowser,
                 SendEmail = expectedSendEmail,
                 Email = expectedEmail,
                 Message = expectedMessage

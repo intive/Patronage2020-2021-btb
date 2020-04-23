@@ -23,7 +23,6 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IHubContext<NotificationHub> _hubcontext;
-        private readonly ICurrentUserIdentityService _currentUserIdentity;
 
         private TimestampInterval _klineInterval;
 
@@ -42,13 +41,11 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         public SendNotificationsCommandHandler(
             IBTBDbContext context,
             IEmailService emailService,
-            IHubContext<NotificationHub> hubContext,
-            ICurrentUserIdentityService currentUserIdentity)
+            IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _emailService = emailService;
             _hubcontext = hubContext;
-            _currentUserIdentity = currentUserIdentity;
             
             _crossingConditionDetector = new CrossingConditionDetector();
             _crossingUpConditionDetector = new CrossingUpConditionDetector();
@@ -60,9 +57,16 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         {
             _klineInterval = request.KlineInterval;
 
-            foreach (var alert in _context.Alerts)
+            var alerts = _context.Alerts;
+
+            foreach (var alert in alerts)
             {
-                if (!alert.SendEmail || alert.IsDisabled)
+                if (alert.IsDisabled)
+                {
+                    continue;
+                }
+
+                if (!alert.SendEmail)
                 {
                     continue;
                 }
@@ -77,13 +81,14 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
                     if (alert.SendEmail)
                     {
                         await SendEmailMessageAsync(alert);
-                        
                     }
 
                     if (alert.SendInBrowser)
                     {
                         await SendInBrowserNotificationAsync(alert);
                     }
+                    
+                    Console.WriteLine($"Alert: {alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
 
                     alert.WasTriggered = true;
                     _context.Alerts.Update(alert);
@@ -168,7 +173,7 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         }
 
         private async Task SendInBrowserNotificationAsync(Alert alert)
-         =>   await _hubcontext.Clients.User(_currentUserIdentity.UserId)
+         =>   await _hubcontext.Clients.User(alert.UserId)
                     .SendAsync("inbrowser", $"{alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
 
         public static void ResetTriggerFlags()

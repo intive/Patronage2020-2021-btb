@@ -57,10 +57,9 @@ namespace Application.UnitTests.System.Commands
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext, _currentUserIdentity);
+                emailServiceMock.Object, _hubcontext);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
-
 
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
@@ -112,7 +111,7 @@ namespace Application.UnitTests.System.Commands
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext, _currentUserIdentity);
+                emailServiceMock.Object, _hubcontext);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 
@@ -161,7 +160,7 @@ namespace Application.UnitTests.System.Commands
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext, _currentUserIdentity);
+                emailServiceMock.Object, _hubcontext);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 

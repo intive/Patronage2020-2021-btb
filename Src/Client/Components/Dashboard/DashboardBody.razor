@@ -89,6 +89,8 @@
 @code {
     private HubConnection _connection;
 
+    private string lastNotification = "";
+
     [Parameter]
     public DashboardType Type { get; set; } = DashboardType.SymbolPair;
 
@@ -248,8 +250,13 @@
 
         _connection.On<string>("inbrowser", response =>
         {
-            Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
+            if (!lastNotification.Equals(response))
+            {
+                Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
+                lastNotification = response;
+            }
         });
+
     }
 
 }
