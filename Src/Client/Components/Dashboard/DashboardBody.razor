@@ -206,15 +206,12 @@
         {
             _pageItems.Remove(elementToDelete);
 
-            if (_currentPage > 1 &&  _pageItems.Count() == 0)
+            if (_pageItems.Count() == 0)
             {
-                _currentPage -= 1;
-                await LoadDashboardTableAsync();
+                _currentPage = 1;    
             }
-            else
-            {
-                StateHasChanged();
-            }
+
+            await LoadDashboardTableAsync();
 
         }
     }
