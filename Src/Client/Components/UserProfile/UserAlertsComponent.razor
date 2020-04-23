@@ -17,6 +17,7 @@
         background-color: #e4e4e4;
     }
 </style>
+
 <SpinLoader IsLoading="@_processingHttpRequest">
     <LoadingTemplate>
         <div class="d-flex" style="height: 75vh">
@@ -24,171 +25,171 @@
         </div>
     </LoadingTemplate>
     <ContentTemplate>
-            <div class="text-center">
-                <h1>My Alerts</h1>
+        <div class="text-center">
+            <h1>My Alerts</h1>
+        </div>
+
+        @if (_alertCards.Count() > 0)
+        {
+            <div class="mb-2 d-flex flex-row justify-content-between">
+                <div class="d-inline-block">
+                    <div class="btn-group" role="group">
+                        @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                        {
+                            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
+                                    @onclick="@(async () => await SelectedQuantityAsync(value))">
+                                @((int)value)
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <Pagination TotalPagesQuantity="@_totalPageQuantity"
+                            CurrentPage="@_currentPage"
+                            Radius="2"
+                            SelectedPage="SelectedPageAsync"
+                            PointerEventsStyle="@PointerEventsStyle()">
+                </Pagination>
             </div>
 
-            @if (_alertCards.Count() > 0)
-            {
-                <div class="mb-2 d-flex flex-row justify-content-between">
-                    <div class="d-inline-block">
-                        <div class="btn-group" role="group">
-                            @foreach (var value in Enum<PaginationQuantity>.GetValues())
-                            {
-                                <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
-                                        @onclick="@(async () => await SelectedQuantityAsync(value))">
-                                    @((int)value)
-                                </button>
-                            }
-                        </div>
-                    </div>
-
-                    <Pagination TotalPagesQuantity="@_totalPageQuantity"
-                                CurrentPage="@_currentPage"
-                                Radius="2"
-                                SelectedPage="SelectedPageAsync"
-                                PointerEventsStyle="@PointerEventsStyle()">
-                    </Pagination>
-                </div>
-
-                <div class="mb-2 d-flex flex-row justify-content-between">
-                    <div class="dropdown d-flex @(_dropdownButtonCollapsed ? "" : "show")">
-                        <div @onclick="() => _dropdownButtonCollapsed = !_dropdownButtonCollapsed">
-                            <button class="btn btn-secondary dropdown-toggle mr-2" type="button" id="dropdownButton">
-                                Sort By
-                            </button>
-                            <div class="dropdown-menu @(_dropdownButtonCollapsed ? "" : "show")" aria-labelledby="dropdownButtonMenu">
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("SymbolPair"))">Symbol</a>
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Condition"))">Condition</a>
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("ValueType"))">Value Type</a>
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Value"))">Value</a>
-                                <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Email"))">Email</a>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" @onclick="ReverseCardsOrderAsync">
-                            <span class="oi oi-elevator" aria-hidden="true" />
+            <div class="mb-2 d-flex flex-row justify-content-between">
+                <div class="dropdown d-flex @(_dropdownButtonCollapsed ? "" : "show")">
+                    <div @onclick="() => _dropdownButtonCollapsed = !_dropdownButtonCollapsed">
+                        <button class="btn btn-secondary dropdown-toggle mr-2" type="button" id="dropdownButton">
+                            Sort By
                         </button>
+                        <div class="dropdown-menu @(_dropdownButtonCollapsed ? "" : "show")" aria-labelledby="dropdownButtonMenu">
+                            <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("SymbolPair"))">Symbol</a>
+                            <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Condition"))">Condition</a>
+                            <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("ValueType"))">Value Type</a>
+                            <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Value"))">Value</a>
+                            <a class="dropdown-item" @onclick="@(async () => await SortCardsAsync("Email"))">Email</a>
+                        </div>
                     </div>
-
-                    <div>
-                        @if (_alertCards.All(card => card.IsCardCollapsed == false))
-                        {
-                            <button class="btn btn-primary" @onclick="() => ResetCollapse(false)" disabled>Expand</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-primary" @onclick="() => ResetCollapse(false)">Expand</button>
-                        }
-
-                        @if (_alertCards.All(card => card.IsCardCollapsed == true))
-                        {
-                            <button class="btn btn-primary" @onclick="() => ResetCollapse(true)" disabled>Collapse</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-primary" @onclick="() => ResetCollapse(true)">Collapse</button>
-                        }
-                    </div>
+                    <button class="btn btn-primary" @onclick="ReverseCardsOrderAsync">
+                        <span class="oi oi-elevator" aria-hidden="true" />
+                    </button>
                 </div>
 
-                @for (int i = 0; i < _alertCards.Count(); i++)
-                {
-                    int alertIndex = i;
-                    AlertVO alert = _alertCards[alertIndex].AlertVO;
-                    string cardStyle = alert.IsDisabled ? "triggered-card" : "default-card";
-                    bool displayUpperValue = alert.Condition.ToLower() == "between";
+                <div>
+                    @if (_alertCards.All(card => card.IsCardCollapsed == false))
+                    {
+                        <button class="btn btn-primary" @onclick="() => ResetCollapse(false)" disabled>Expand</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" @onclick="() => ResetCollapse(false)">Expand</button>
+                    }
 
-                    <div class="card mb-2 @cardStyle">
-                        <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
-                            <div>
-                                <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
-                                    @alert.SymbolPair
-                                </NavLink>
-                                @alert.Condition @alert.Value.ToString("#.##") @(displayUpperValue ? " - " + alert.AdditionalValue.ToString("#.##") : "")
-                                @if (alert.IsDisabled)
-                                {
-                                    <i style="font-size: 14px;">(disabled)</i>
-                                }
+                    @if (_alertCards.All(card => card.IsCardCollapsed == true))
+                    {
+                        <button class="btn btn-primary" @onclick="() => ResetCollapse(true)" disabled>Collapse</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" @onclick="() => ResetCollapse(true)">Collapse</button>
+                    }
+                </div>
+            </div>
 
-                            </div>
+            @for (int i = 0; i < _alertCards.Count(); i++)
+            {
+                int alertIndex = i;
+                AlertVO alert = _alertCards[alertIndex].AlertVO;
+                string cardStyle = alert.IsDisabled ? "triggered-card" : "default-card";
+                bool displayUpperValue = alert.Condition.ToLower() == "between";
 
-                            <div>
-                                <button class="btn btn-link" @onclick="() => ShowUpdateAlertModal(alert)" @onclick:stopPropagation="true">
-                                    <span class="oi oi-pencil" aria-hidden="true" />
-                                </button>
+                <div class="card mb-2 @cardStyle">
+                    <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
+                        <div>
+                            <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
+                                @alert.SymbolPair
+                            </NavLink>
+                            @alert.Condition @alert.Value.ToString("#.##") @(displayUpperValue ? " - " + alert.AdditionalValue.ToString("#.##") : "")
+                            @if (alert.IsDisabled)
+                            {
+                                <i style="font-size: 14px;">(disabled)</i>
+                            }
 
-                                <button class="btn btn-link" @onclick="async () => await DeleteAlertAsync(alert.Id)" @onclick:stopPropagation="true">
-                                    <span class="oi oi-x" aria-hidden="true" />
-                                </button>
-                            </div>
                         </div>
 
-                        <div class="@(_alertCards[alertIndex].IsCardCollapsed ? "collapse" : "")">
-                            <div class="card-body">
+                        <div>
+                            <button class="btn btn-link" @onclick="() => ShowUpdateAlertModal(alert)" @onclick:stopPropagation="true">
+                                <span class="oi oi-pencil" aria-hidden="true" />
+                            </button>
 
-                                <div class="row">
-                                    <h5 class="col-12 col-lg-4">Condition</h5>
-                                    <p class="col-12 col-lg-8">@alert.Condition</p>
-                                </div>
+                            <button class="btn btn-link" @onclick="async () => await DeleteAlertAsync(alert.Id)" @onclick:stopPropagation="true">
+                                <span class="oi oi-x" aria-hidden="true" />
+                            </button>
+                        </div>
+                    </div>
 
-                                <div class="row">
-                                    <h5 class="col-12 col-lg-4">Value Type</h5>
-                                    <p class="col-12 col-lg-8">@alert.ValueType</p>
-                                </div>
+                    <div class="@(_alertCards[alertIndex].IsCardCollapsed ? "collapse" : "")">
+                        <div class="card-body">
 
-                                <div class="row">
-                                    <h5 class="col-12 col-lg-4">Value</h5>
-                                    @if (alert.AdditionalValue != 0.0m)
-                                    {
-                                        <p class="col-12 col-lg-8">@(alert.Value + " - " + alert.AdditionalValue)</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="col-12 col-lg-8">@alert.Value</p>
-                                    }
-                                </div>
+                            <div class="row">
+                                <h5 class="col-12 col-lg-4">Condition</h5>
+                                <p class="col-12 col-lg-8">@alert.Condition</p>
+                            </div>
 
-                                <div class="row">
-                                    <h5 class="col-12 col-lg-4">Only once</h5>
-                                    <p class="col-12 col-lg-8">@(alert.TriggerOnce ? "Yes" : "No")</p>
-                                </div>
+                            <div class="row">
+                                <h5 class="col-12 col-lg-4">Value Type</h5>
+                                <p class="col-12 col-lg-8">@alert.ValueType</p>
+                            </div>
 
-                                <div class="row">
-                                    <h5 class="col-12 col-lg-4">Was triggered</h5>
-                                    @if (alert.WasTriggered)
-                                    {
-                                        <p class="col-12 col-lg-8 text-success">Yes</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="col-12 col-lg-8 text-danger">No</p>
-                                    }
-                                </div>
-
-                                @if (alert.SendEmail)
+                            <div class="row">
+                                <h5 class="col-12 col-lg-4">Value</h5>
+                                @if (alert.AdditionalValue != 0.0m)
                                 {
-                                    <div class="row">
-                                        <h5 class="col-12 col-lg-4">Message to @alert.Email</h5>
-                                        <p class="col-12 col-lg-8">@alert.Message</p>
-                                    </div>
+                                    <p class="col-12 col-lg-8">@(alert.Value + " - " + alert.AdditionalValue)</p>
                                 }
                                 else
                                 {
-                                    <h5>This alert has no email notification.</h5>
+                                    <p class="col-12 col-lg-8">@alert.Value</p>
                                 }
                             </div>
+
+                            <div class="row">
+                                <h5 class="col-12 col-lg-4">Only once</h5>
+                                <p class="col-12 col-lg-8">@(alert.TriggerOnce ? "Yes" : "No")</p>
+                            </div>
+
+                            <div class="row">
+                                <h5 class="col-12 col-lg-4">Was triggered</h5>
+                                @if (alert.WasTriggered)
+                                {
+                                    <p class="col-12 col-lg-8 text-success">Yes</p>
+                                }
+                                else
+                                {
+                                    <p class="col-12 col-lg-8 text-danger">No</p>
+                                }
+                            </div>
+
+                            @if (alert.SendEmail)
+                            {
+                                <div class="row">
+                                    <h5 class="col-12 col-lg-4">Message to @alert.Email</h5>
+                                    <p class="col-12 col-lg-8">@alert.Message</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <h5>This alert has no email notification.</h5>
+                            }
                         </div>
                     </div>
-                }
-
-                <div style="height: 10vh" />
-            }
-            else
-            {
-                <div class="text-center">
-                    <h4>You have no alerts. Go to the <a href="/">dashboard</a> and create some!</h4>
                 </div>
             }
+
+            <div style="height: 10vh" />
+        }
+        else
+        {
+            <div class="text-center">
+                <h4>You have no alerts. Go to the <a href="/">dashboard</a> and create some!</h4>
+            </div>
+        }
     </ContentTemplate>
 </SpinLoader>
 
@@ -287,7 +288,14 @@
         if (confirmed)
         {
             await Http.DeleteAsync($"api/alerts/{alertId}");
-            _alertCards.Remove(_alertCards.Where(card => card.AlertVO.Id == alertId).FirstOrDefault());
+            _alertCards.Remove(_alertCards.FirstOrDefault(card => card.AlertVO.Id == alertId));
+
+            if (_alertCards.Count() == 0)
+            {
+                _currentPage = 1;
+            }
+
+            await LoadDataAsync();
         }
     }
 
