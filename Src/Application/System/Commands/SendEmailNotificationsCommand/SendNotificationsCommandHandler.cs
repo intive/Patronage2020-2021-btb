@@ -52,6 +52,16 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
 
             foreach (var alert in _context.Alerts)
             {
+                if (!alert.SendEmail)
+                {
+                    continue;
+                }
+
+                if (!alert.SendInBrowser)
+                {
+                    continue;
+                }
+
                 if (await AreConditionsMet(alert))
                 {
                     if (alert.SendEmail)
