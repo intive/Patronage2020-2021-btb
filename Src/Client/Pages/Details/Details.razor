@@ -40,8 +40,9 @@
 
 <br />
 
-<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group" role="group" aria-label="Quantity group">
+
+<div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
         <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Number of displayed elements</a>
         @foreach (var value in Enum<PaginationQuantity>.GetValues())
         {
@@ -104,7 +105,7 @@
     private bool _isRequestRunning = false;
 
     private readonly Dictionary<KlineInterval, string> KlineDictionary = new Dictionary<KlineInterval, string>()
-    {
+{
         { KlineInterval.FiveMinutes, "5 min" },
         { KlineInterval.FifteenMinutes, "15 min" },
         { KlineInterval.OneHour, "1h" },
@@ -162,6 +163,7 @@
     private async Task SelectDataSource(DetailsDataSource detailsDataSource)
     {
         _dataSource = detailsDataSource;
+        _currentPage = 1;
 
         await RefreshDetailsView();
     }

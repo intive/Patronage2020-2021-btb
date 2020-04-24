@@ -65,7 +65,6 @@ namespace BTB.Application
             services.AddTransient<IValidator<CalculateSMACommand>, CalculateSMACommandValidator>();
             services.AddTransient<IValidator<ChangePasswordCommand>, ChangePasswordCommandValidator>();
 
-            services.AddTransient<IValidator<GetLogsFromDBQuery>, LogRequestValidator>();
             services.AddTransient<IValidator<GetLogsFromFileSystemQuery>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromDBCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromFileSystemCommand>, LogRequestValidator>();
