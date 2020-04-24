@@ -1,0 +1,10 @@
+﻿@page "/usermanagement"
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+<h3>User Management</h3>
+
+
+<p>If you can see this then you're an admin.</p>
+
+@code {
+
+}

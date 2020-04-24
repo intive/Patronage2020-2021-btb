@@ -28,7 +28,7 @@ namespace BTB.Application.Authorize.Commands.Login
             {
                 throw new BadRequestException("Incorrect username or password.");
             }
-
+            
             var roles = await _userManager.GetRolesAsync(user);
 
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);

@@ -34,10 +34,11 @@ namespace BTB.Client.Services.Implementations
             }
             response.EnsureSuccessStatusCode();
 
+            // TODO -> return userToken instead of string
             //var token = JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var token = await response.Content.ReadAsStringAsync();
             await _localStorage.SetItemAsync("authToken", token);
-            ((IdentityAuthenticationStateProvider)_identityAuthenticationStateProvider).MarkUserAsAuthenticated(loginParameters.UserName);
+            ((IdentityAuthenticationStateProvider)_identityAuthenticationStateProvider).MarkUserAsAuthenticated(token);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
         }
 
