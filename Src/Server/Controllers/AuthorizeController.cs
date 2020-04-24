@@ -3,7 +3,6 @@ using BTB.Application.Authorize.Commands.Login;
 using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Authorize.Commands.ResetPassword;
 using BTB.Application.Authorize.Commands.SendResetLink;
-using BTB.Application.Authorize.Queries.GetUserInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,28 +31,15 @@ namespace BTB.Server.Controllers
         }
 
         /// <summary>
-        /// Returns information about current user's credentials.
-        /// </summary>
-        /// <returns>A view model containing information about current user's credentials. <see cref="UserInfoVm"/></returns>
-        /// <response code="200">When succesful.</response>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<UserInfoVm>> UserInfo()
-        {
-            var userInfo = await Mediator.Send(new GetUserInfoQuery { User = User });
-            return Ok(userInfo);
-        }
-
-        /// <summary>
         /// Registers the user. Username and password has to be at least 4 characters long.
         /// </summary>
         /// <returns>Request's result.</returns>
         /// <response code="200">If username, password and email requirement were met and when password confirm is the same as the password.</response>
         /// <response code="400">If username, password and email requirement were NOT met or when password confirm is different than password.</response>
         [HttpPost]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterCommand command)
         {
             var result = await Mediator.Send(command);
@@ -66,7 +52,6 @@ namespace BTB.Server.Controllers
         /// <param name="changePasswordCommand"> From-body data to update password.</param>
         /// <response code="200">When successful.</response>
         /// <response code="404">When unable to find user or password change failed.</response>
-        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -83,6 +68,7 @@ namespace BTB.Server.Controllers
         /// <response code="200">It's always 200 for security reasons.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
         public async Task<IActionResult> SendResetLink([FromBody] SendResetLinkCommand sendResetLinkCommand)
         {
             var result = await Mediator.Send(sendResetLinkCommand);
@@ -98,6 +84,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand resetPasswordCommand)
         {
             var result = await Mediator.Send(resetPasswordCommand);

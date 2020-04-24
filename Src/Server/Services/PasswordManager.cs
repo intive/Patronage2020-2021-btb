@@ -16,24 +16,22 @@ namespace BTB.Server.Services
 {
     public class PasswordManager : IPasswordManager
     {
-        private readonly ICurrentUserIdentityService _currentUserIdentityService;
+        private readonly IUserAccessor _userAccessor;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PasswordManager(ICurrentUserIdentityService currentUserIdentityService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+        public PasswordManager(IUserAccessor userAccessor, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
         {
-            _currentUserIdentityService = currentUserIdentityService;
+            _userAccessor = userAccessor;
             _userManager = userManager;
-            _signInManager = signInManager;
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Unit> ChangePassword(ChangePasswordCommand changePasswordCommand)
         {
-            var user = await _userManager.GetUserAsync(_currentUserIdentityService.User);
+            var user = await _userManager.FindByIdAsync(_userAccessor.GetCurrentUserId());
             if (user == null)
             {
                 throw new BadRequestException("Unable to find user.");
@@ -46,8 +44,6 @@ namespace BTB.Server.Services
                 result.Errors.ToList().ForEach(e => errors.Append(e.Description));
                 throw new BadRequestException(errors.ToString());
             }
-
-            await _signInManager.RefreshSignInAsync(user);
 
             return Unit.Value;
         }

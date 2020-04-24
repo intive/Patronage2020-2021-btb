@@ -1,26 +1,23 @@
 ﻿using BTB.Application.Common.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.UnitTests.Common
 {
-    public abstract class CurrentUserIdentityServiceMockFactory
+    public abstract class UserAccessorMockFactory
     {
-        public static Mock<ICurrentUserIdentityService> UserIdentityMock
+        public static Mock<IUserAccessor> UserAccessorMock
         {
             get
             {
-                var _userIdentityMock = new Mock<ICurrentUserIdentityService>();
-                MockSetup(ref _userIdentityMock);
-                return _userIdentityMock;
+                var _userAccessorMock = new Mock<IUserAccessor>();
+                MockSetup(ref _userAccessorMock);
+                return _userAccessorMock;
             }
         }
 
-        public static void MockSetup(ref Mock<ICurrentUserIdentityService> userIdentityMock)
+        public static void MockSetup(ref Mock<IUserAccessor> userAccessorMock)
         {
-            userIdentityMock.SetupGet(x => x.UserId)
+            userAccessorMock.Setup(x => x.GetCurrentUserId())
                 .Returns("audit_user");
         }
     }

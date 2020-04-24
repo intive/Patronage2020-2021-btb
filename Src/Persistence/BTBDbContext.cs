@@ -25,7 +25,7 @@ namespace BTB.Persistence
         public DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
 
-        private readonly ICurrentUserIdentityService _currentUserService;
+        private readonly IUserAccessor _userAccessor;
         private readonly IDateTime _dateTime;
 
         public BTBDbContext(DbContextOptions<BTBDbContext> options)
@@ -35,11 +35,11 @@ namespace BTB.Persistence
 
         public BTBDbContext(
             DbContextOptions<BTBDbContext> options,
-            ICurrentUserIdentityService currentUserIdentity,
+            IUserAccessor userAccessor,
             IDateTime dateTime)
            : base(options)
         {
-            _currentUserService = currentUserIdentity;
+            _userAccessor = userAccessor;
             _dateTime = dateTime;
         }
 
@@ -67,11 +67,11 @@ namespace BTB.Persistence
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.CreatedBy = _currentUserService.UserId;
+                        entry.Entity.CreatedBy = _userAccessor.GetCurrentUserId();
                         entry.Entity.Created = _dateTime.Now;
                         break;
                     case EntityState.Modified:
-                        entry.Entity.LastModifiedBy = _currentUserService.UserId;
+                        entry.Entity.LastModifiedBy = _userAccessor.GetCurrentUserId();
                         entry.Entity.LastModified = _dateTime.Now;
                         break;
                 }
@@ -85,7 +85,7 @@ namespace BTB.Persistence
         private void CreateAudit(EntityEntry<AuditableEntity> entry)
         {
             var date = _dateTime.Now;
-            var userId = _currentUserService.UserId;
+            var userId = _userAccessor.GetCurrentUserId();
 
             foreach (var property in entry.Properties)
             {

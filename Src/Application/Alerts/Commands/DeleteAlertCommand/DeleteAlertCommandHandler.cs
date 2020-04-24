@@ -11,20 +11,20 @@ namespace BTB.Application.Alerts.Commands.DeleteAlertCommand
     public class DeleteAlertCommandHandler : IRequestHandler<DeleteAlertCommand>
     {
         private readonly IBTBDbContext _context;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public DeleteAlertCommandHandler(IBTBDbContext context, ICurrentUserIdentityService userIdentity)
+        public DeleteAlertCommandHandler(IBTBDbContext context, IUserAccessor userAccessor)
         {
             _context = context;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<Unit> Handle(DeleteAlertCommand request, CancellationToken cancellationToken)
         {
-            Alert dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userIdentity.UserId, cancellationToken);
+            Alert dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userAccessor.GetCurrentUserId(), cancellationToken);
             if (dbAlert == null)
             {
-                throw new NotFoundException($"User (id: {_userIdentity.UserId}) has no alert with id {request.Id}.");
+                throw new NotFoundException($"User (id: {_userAccessor.GetCurrentUserId()}) has no alert with id {request.Id}.");
             }
 
             _context.Alerts.Remove(dbAlert);

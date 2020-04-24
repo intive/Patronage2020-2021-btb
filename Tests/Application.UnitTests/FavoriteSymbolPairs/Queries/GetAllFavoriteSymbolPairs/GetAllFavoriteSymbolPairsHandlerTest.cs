@@ -21,9 +21,9 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbol
             };
 
             var expectedAllRecordsCount = 1;
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new GetAllFavoriteSymbolPairsHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new GetAllFavoriteSymbolPairsHandler(_context, _mapper, userAccessorMock.Object);
             var query = new GetAllFavoriteSymbolPairsQuery()
             {
                 Pagination = new PaginationDto() { Page = 1, Quantity = PaginationQuantity.Ten }
@@ -51,7 +51,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbol
                 Assert.NotNull(single);
             }
 
-            userIdentityMock.VerifyGet(x => x.UserId);
+            userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
     }
 }

@@ -15,13 +15,13 @@ namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public GetAllFavoriteSymbolPairsHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
+        public GetAllFavoriteSymbolPairsHandler(IBTBDbContext context, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<PaginatedResult<DashboardPairVO>> Handle(GetAllFavoriteSymbolPairsQuery request, CancellationToken cancellationToken)
@@ -30,11 +30,11 @@ namespace BTB.Application.FavoriteSymbolPairs.Queries.GetAllFavoriteSymbolPairs
                 .Include(p => p.SymbolPair.BuySymbol)
                 .Include(p => p.SymbolPair.SellSymbol)
                 .Include(p => p.SymbolPair.Klines)
-                .Where(p => p.ApplicationUserId == _userIdentity.UserId)
+                .Where(p => p.ApplicationUserId == _userAccessor.GetCurrentUserId())
                 .Select(p => _mapper.Map<DashboardPairVO>(p.SymbolPair))
                 .ToList();
 
-            userFavoriteSymbolPairs.ForEach(p => p.IsFavorite = !(_context.FavoriteSymbolPairs.Find(_userIdentity.UserId, p.Id) == null));
+            userFavoriteSymbolPairs.ForEach(p => p.IsFavorite = !(_context.FavoriteSymbolPairs.Find(_userAccessor.GetCurrentUserId(), p.Id) == null));
 
             if (request.Name != null)
             {

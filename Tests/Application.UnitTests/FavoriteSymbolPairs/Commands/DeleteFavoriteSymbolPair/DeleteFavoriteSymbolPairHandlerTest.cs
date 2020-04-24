@@ -1,7 +1,6 @@
 ﻿using Application.UnitTests.Common;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
-using BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair;
 using BTB.Application.FavoriteSymbolPairs.Commands.DeleteFavoriteSymbolPair;
 using Moq;
 using System.Threading;
@@ -14,13 +13,13 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.DeleteFavoriteSymbo
     {
         private readonly string _expectedUserId = "userId";
         private readonly int _addedSymbolPairId = 1;
-        private readonly Mock<ICurrentUserIdentityService> _userIdentityMock;
+        private readonly Mock<IUserAccessor> _userAccessorMock;
         private readonly DeleteFavoriteSymbolPairHandler _sut;
 
         public DeleteFavoriteSymbolPairHandlerTest()
         {
-            _userIdentityMock = GetUserIdentityMock(_expectedUserId);
-            _sut = new DeleteFavoriteSymbolPairHandler(_context, _userIdentityMock.Object);
+            _userAccessorMock = GetUserAccessorMock(_expectedUserId);
+            _sut = new DeleteFavoriteSymbolPairHandler(_context, _userAccessorMock.Object);
         }
 
         [Fact]
@@ -32,7 +31,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.DeleteFavoriteSymbo
             var result = _context.FavoriteSymbolPairs.Find(_expectedUserId, _addedSymbolPairId);
 
             Assert.Null(result);
-            _userIdentityMock.VerifyGet(x => x.UserId);
+            _userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
 
         [Fact]
@@ -42,7 +41,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.DeleteFavoriteSymbo
             var command = new DeleteFavoriteSymbolPairCommand() { SymbolPairId = notAddedSymbolPairId };
 
             await Assert.ThrowsAsync<NotFoundException>(async () => await _sut.Handle(command, CancellationToken.None));
-            _userIdentityMock.VerifyGet(x => x.UserId);
+            _userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
     }
 }

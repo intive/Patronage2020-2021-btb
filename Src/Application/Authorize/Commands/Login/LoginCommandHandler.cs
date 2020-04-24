@@ -32,7 +32,7 @@ namespace BTB.Application.Authorize.Commands.Login
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (singInResult.Succeeded)
             {
-                return _jwtGenerator.GenerateToken(request.UserName);
+                return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName);
             }
 
             throw new BadRequestException("Incorrect username or password.");

@@ -15,13 +15,13 @@ namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public GetAllAlertsQueryHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
+        public GetAllAlertsQueryHandler(IBTBDbContext context, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<PaginatedResult<AlertVO>> Handle(GetAllAlertsQuery request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ namespace BTB.Application.Alerts.Queries.GetAllAlertsQuery
                 from alert in _context.Alerts
                 .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
                 .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
-                where alert.UserId == _userIdentity.UserId
+                where alert.UserId == _userAccessor.GetCurrentUserId()
                 select _mapper.Map<AlertVO>(alert);
 
             int allUserAlertsCount = await allUserAlerts.CountAsync(cancellationToken);

@@ -26,9 +26,9 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedMessage = "message";
             var expectedUserId = "1";
 
-            var userIdentityMock = GetUserIdentityMock(expectedUserId);
+            var userAccessorMock = GetUserAccessorMock(expectedUserId);
 
-            var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new CreateAlertCommand()
             {
                 SymbolPair = expectedTradingPair,
@@ -56,8 +56,8 @@ namespace Application.UnitTests.Alerts.Commands
             Assert.Equal(expectedSendEmail, dbAlertVo.SendEmail);
             Assert.Equal(expectedEmail, dbAlertVo.Email);
             Assert.Equal(expectedMessage, dbAlertVo.Message);
-            
-            userIdentityMock.VerifyGet(x => x.UserId);
+
+            userAccessorMock.Verify(x => x.GetCurrentUserId());
             _btbBinanceClientMock.Verify(mock => mock.GetSymbolNames(expectedTradingPair, ""));
         }
 
@@ -66,9 +66,9 @@ namespace Application.UnitTests.Alerts.Commands
         {
             var userId = "user";
             var tradingPair = "AAABBB";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new CreateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new CreateAlertCommand()
             {
                 SymbolPair = tradingPair

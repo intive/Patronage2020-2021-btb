@@ -15,14 +15,14 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
         private readonly IBTBBinanceClient _client;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, ICurrentUserIdentityService userIdentity)
+        public CreateUserProfileCommandHandler(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
             _client = client;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<UserProfileInfoVm> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
@@ -35,7 +35,7 @@ namespace BTB.Application.UserProfile.Commands.CreateUserProfileCommand
                 }
             }
 
-            string userId = _userIdentity.UserId;
+            string userId = _userAccessor.GetCurrentUserId();
             UserProfileInfo dbUserProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
             if (dbUserProfileInfo != null)

@@ -15,13 +15,13 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public GetListQueryHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
+        public GetListQueryHandler(IBTBDbContext context, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<PaginatedResult<DashboardPairVO>> Handle(GetListQuery request, CancellationToken cancellationToken)
@@ -33,7 +33,7 @@ namespace BTB.Application.Dashboard.Queries.GetListQuery
                 .Select(p => _mapper.Map<DashboardPairVO>(p))
                 .ToList();
 
-            symbolPairs.ForEach(p => p.IsFavorite = !(_context.FavoriteSymbolPairs.Find(_userIdentity.UserId, p.Id) == null));
+            symbolPairs.ForEach(p => p.IsFavorite = !(_context.FavoriteSymbolPairs.Find(_userAccessor.GetCurrentUserId(), p.Id) == null));
 
             if (request.Name != null)
             {

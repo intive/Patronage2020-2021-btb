@@ -93,8 +93,6 @@ namespace BTB.Server
                     new[] { "application/octet-stream" });
             });
 
-            //services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BTB API", Version = "v1" });
@@ -115,7 +113,6 @@ namespace BTB.Server
             services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
 
             services.AddScoped<IEmailService, EmailService>();
-            services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPasswordManager, PasswordManager>();
             services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();

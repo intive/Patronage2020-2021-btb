@@ -31,13 +31,13 @@ namespace Application.UnitTests
             BTBContextFactory.Destroy(_context);
         }
 
-        protected Mock<ICurrentUserIdentityService> GetUserIdentityMock(string userId)
+        protected Mock<IUserAccessor> GetUserAccessorMock(string userId)
         {
-            var userIdentityMock = new Mock<ICurrentUserIdentityService>();
-            userIdentityMock
-                .Setup(x => x.UserId)
+            var userAccessorMock = new Mock<IUserAccessor>();
+            userAccessorMock
+                .Setup(x => x.GetCurrentUserId())
                 .Returns(userId);
-            return userIdentityMock;
+            return userAccessorMock;
         }
     }
 }

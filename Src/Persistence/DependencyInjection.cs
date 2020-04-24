@@ -1,15 +1,13 @@
-﻿using BTB.Application.Common.Interfaces;
-using BTB.Domain.Entities;
-using BTB.Infrastructure.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
+using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using System.Text;
+using System;
 
 namespace BTB.Persistence
 {
@@ -25,12 +23,11 @@ namespace BTB.Persistence
             });
 
             services.AddIdentityCore<ApplicationUser>()
+                .AddRoles<IdentityRole>()
+                .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
 
-            //services.AddIdentity<ApplicationUser, IdentityRole>()
-            //    .AddEntityFrameworkStores<BTBDbContext>()
-            //    .AddDefaultTokenProviders();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 options.TokenValidationParameters = new TokenValidationParameters

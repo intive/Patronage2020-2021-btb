@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Authorize\Queries\" />
     <Folder Include="Dashboard\Commands\" />
     <Folder Include="Details\Commands\" />
   </ItemGroup>

@@ -22,9 +22,9 @@ namespace Application.UnitTests.Common
                 .Options;
 
             var dateTime = DateTimeMockFactory.DateTimeMock;
-            var userIdentity = CurrentUserIdentityServiceMockFactory.UserIdentityMock;
+            var userAccessor = UserAccessorMockFactory.UserAccessorMock;
 
-            var context = new BTBDbContext(options, userIdentity.Object, dateTime.Object);
+            var context = new BTBDbContext(options, userAccessor.Object, dateTime.Object);
 
             context.Database.EnsureCreated();
 

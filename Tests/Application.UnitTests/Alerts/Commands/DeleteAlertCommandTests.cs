@@ -15,9 +15,9 @@ namespace Application.UnitTests.Alerts.Commands
         {
             var alertId = 2;
             var userId = "1";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new DeleteAlertCommandHandler(_context, userIdentityMock.Object);
+            var sut = new DeleteAlertCommandHandler(_context, userAccessorMock.Object);
             var command = new DeleteAlertCommand()
             {
                 Id = alertId,
@@ -26,7 +26,7 @@ namespace Application.UnitTests.Alerts.Commands
 
             var result = await _context.Alerts.SingleOrDefaultAsync(alert => alert.Id == alertId);
             Assert.Null(result);
-            userIdentityMock.VerifyGet(mock => mock.UserId);
+            userAccessorMock.Verify(mock => mock.GetCurrentUserId());
         }
 
         [Fact]
@@ -34,16 +34,16 @@ namespace Application.UnitTests.Alerts.Commands
         {
             var alertId = -1;
             var userId = "1";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new DeleteAlertCommandHandler(_context, userIdentityMock.Object);
+            var sut = new DeleteAlertCommandHandler(_context, userAccessorMock.Object);
             var command = new DeleteAlertCommand()
             {
                 Id = alertId,
             };
 
             await Assert.ThrowsAsync<NotFoundException>(async () => await sut.Handle(command, CancellationToken.None));
-            userIdentityMock.VerifyGet(mock => mock.UserId);
+            userAccessorMock.Verify(mock => mock.GetCurrentUserId());
         }
     }
 }

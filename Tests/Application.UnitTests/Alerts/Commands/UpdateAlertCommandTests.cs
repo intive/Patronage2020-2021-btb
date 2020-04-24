@@ -27,9 +27,9 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedEmail = "newexample@newmail.com";
             var expectedMessage = "new_message";
 
-            var userIdentityMock = GetUserIdentityMock(expectedUserId);
+            var userAccessorMock = GetUserAccessorMock(expectedUserId);
 
-            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new UpdateAlertCommand()
             {
                 Id = alertId,
@@ -59,7 +59,7 @@ namespace Application.UnitTests.Alerts.Commands
             Assert.Equal(expectedEmail, dbAlertVo.Email);
             Assert.Equal(expectedMessage, dbAlertVo.Message);
 
-            userIdentityMock.VerifyGet(x => x.UserId);
+            userAccessorMock.Verify(x => x.GetCurrentUserId());
             _btbBinanceClientMock.Verify(mock => mock.GetSymbolNames(expectedTradingPair, ""));
         }
 
@@ -68,9 +68,9 @@ namespace Application.UnitTests.Alerts.Commands
         {
             var userId = "user";
             var tradingPair = "AAABBB";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new UpdateAlertCommand()
             {
                 SymbolPair = tradingPair
@@ -85,16 +85,16 @@ namespace Application.UnitTests.Alerts.Commands
         {
             var userId = "";
             var existingTradingPair = "BTCUSDT";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateAlertCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new UpdateAlertCommand()
             {
                 SymbolPair = existingTradingPair
             };
 
             await Assert.ThrowsAsync<NotFoundException>(async () => await sut.Handle(command, CancellationToken.None));
-            userIdentityMock.VerifyGet(mock => mock.UserId);
+            userAccessorMock.Verify(mock => mock.GetCurrentUserId());
         }
     }
 }

@@ -14,18 +14,18 @@ namespace BTB.Application.UserProfile.Queries.GetUserProfileQuery
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public GetUserProfileQueryHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
+        public GetUserProfileQueryHandler(IBTBDbContext context, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<UserProfileInfoVm> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
         {
-            string userId = _userIdentity.UserId;
+            string userId = _userAccessor.GetCurrentUserId();
             UserProfileInfo userProfileInfo = await _context.UserProfileInfo.SingleOrDefaultAsync(i => i.UserId == userId, cancellationToken);
 
             if (userProfileInfo == null)
