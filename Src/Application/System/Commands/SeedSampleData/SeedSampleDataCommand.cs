@@ -1,13 +1,10 @@
-﻿using BTB.Application.Common.Interfaces;
-using BTB.Application.System.SeedSampleData;
+﻿using BTB.Application.System.SeedSampleData;
 using BTB.Domain.Entities;
-using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
+using MediatR;
 
 namespace BTB.Application.System.Commands.SeedSampleData
 {
@@ -17,18 +14,20 @@ namespace BTB.Application.System.Commands.SeedSampleData
 
     public class SeedSampleDataCommandHandler : IRequestHandler<SeedSampleDataCommand>
     {
-        private readonly IBTBDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public SeedSampleDataCommandHandler(IBTBDbContext context, UserManager<ApplicationUser> userManager)
+        public SeedSampleDataCommandHandler(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
-            _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
         public async Task<Unit> Handle(SeedSampleDataCommand request, CancellationToken cancellationToken)
         {
-            var seeder = new SampleDataSeeder(_context, _userManager);
+            var seeder = new SampleDataSeeder(_userManager, _roleManager, _configuration);
 
             await seeder.SeedAllAsync(cancellationToken);
 
