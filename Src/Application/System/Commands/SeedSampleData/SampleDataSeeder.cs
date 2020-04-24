@@ -26,26 +26,26 @@ namespace BTB.Application.System.SeedSampleData
 
             var userByEmail = await _userManager.FindByEmailAsync(_configuration["MainAdmin:email"]);
             var userByUsername = await _userManager.FindByNameAsync(_configuration["MainAdmin:username"]);
-            if (userByEmail == null && userByUsername == null) // both email and username are free
+            if (userByEmail == null && userByUsername == null) 
             {
                 await SeedAdminAsync(cancellationToken);
             }
-            else if (userByEmail == null && userByUsername != null) // username is taken
+            else if (userByEmail == null && userByUsername != null) 
             {
                 await _userManager.DeleteAsync(userByUsername);
                 await SeedAdminAsync(cancellationToken);
             }
-            else if (userByEmail != null && userByUsername == null) // email is taken
+            else if (userByEmail != null && userByUsername == null) 
             {
                 await _userManager.DeleteAsync(userByEmail);
                 await SeedAdminAsync(cancellationToken);
             }
-            else // both email and username are taken
+            else 
             {
-                if (userByEmail == userByUsername) // email and username belong to one user
+                if (userByEmail == userByUsername) 
                 {
                     var roles = await _userManager.GetRolesAsync(userByEmail);
-                    if (roles.Contains("Admin")) // user is admin
+                    if (roles.Contains("Admin")) 
                     {
                         // nothing to do here
                     }
@@ -55,7 +55,7 @@ namespace BTB.Application.System.SeedSampleData
                         await SeedAdminAsync(cancellationToken);
                     }
                 }
-                else // email and username belong to different users
+                else 
                 {
                     await _userManager.DeleteAsync(userByUsername);
                     await _userManager.DeleteAsync(userByEmail);

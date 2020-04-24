@@ -32,6 +32,7 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
             }
 
             Alert dbAlert = await _context.Alerts.SingleOrDefaultAsync(a => a.Id == request.Id && a.UserId == _userAccessor.GetCurrentUserId(), cancellationToken);
+            
             if (dbAlert == null)
             {
                 throw new NotFoundException($"User (id: {_userAccessor.GetCurrentUserId()}) has no alert with id {request.Id}.");

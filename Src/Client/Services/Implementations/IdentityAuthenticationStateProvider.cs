@@ -22,6 +22,7 @@ namespace BTB.Client.Services.Implementations
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+
             if (string.IsNullOrWhiteSpace(savedToken))
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));

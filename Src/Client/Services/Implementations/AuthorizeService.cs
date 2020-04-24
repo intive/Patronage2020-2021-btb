@@ -28,14 +28,13 @@ namespace BTB.Client.Services.Implementations
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(loginParameters), Encoding.UTF8, "application/json");            
             var response = await _httpClient.PostAsync("api/Authorize/Login", stringContent);
+
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 throw new Exception(await response.Content.ReadAsStringAsync());
             }
             response.EnsureSuccessStatusCode();
 
-            // TODO -> return userToken instead of string
-            //var token = JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var token = await response.Content.ReadAsStringAsync();
             await _localStorage.SetItemAsync("authToken", token);
             ((IdentityAuthenticationStateProvider)_identityAuthenticationStateProvider).MarkUserAsAuthenticated(token);
@@ -53,6 +52,7 @@ namespace BTB.Client.Services.Implementations
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(registerParameters), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Authorize/Register", stringContent);
+
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 throw new Exception(await response.Content.ReadAsStringAsync());

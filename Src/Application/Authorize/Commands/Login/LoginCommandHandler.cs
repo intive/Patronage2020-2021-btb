@@ -24,6 +24,7 @@ namespace BTB.Application.Authorize.Commands.Login
         public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
+
             if (user == null)
             {
                 throw new BadRequestException("Incorrect username or password.");
@@ -32,6 +33,7 @@ namespace BTB.Application.Authorize.Commands.Login
             var roles = await _userManager.GetRolesAsync(user);
 
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
             if (singInResult.Succeeded)
             {
                 return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName, roles);
