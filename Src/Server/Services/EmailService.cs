@@ -17,6 +17,7 @@ namespace BTB.Server.Services
         private readonly SmtpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _domainUrl;
+        private const string DefaultDomainUrl = "https://dev-patronage-btb.azurewebsites.net/";
 
         static EmailService()
         {
@@ -27,7 +28,14 @@ namespace BTB.Server.Services
         {
             _client = _configurator.Configure(config.Value);
             _httpContextAccessor = httpContextAccessor;
-            _domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+            if (httpContextAccessor.HttpContext == null)
+            {
+                _domainUrl = DefaultDomainUrl;
+            }
+            else
+            {
+                _domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+            }
         }
 
         public void Send(string to, string title, string message)
