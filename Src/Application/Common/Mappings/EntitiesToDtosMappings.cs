@@ -39,10 +39,7 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(k => k.HighestPrice, opts => opts.MapFrom(src => src.High))
                 .ForMember(k => k.LowestPrice, opts => opts.MapFrom(src => src.Low));
 
-            CreateMap<ApplicationUser, ApplicationUserVO>()
-                .ForMember(u => u.UserId, opts => opts.MapFrom(src => src.Id))
-                .ForMember(u => u.UserName, opts => opts.MapFrom(src => src.UserName))
-                .ForMember(u => u.Email, opts => opts.MapFrom(src => src.Email));
+            CreateMap<ApplicationUser, ApplicationUserVO>();
         }
     }
 }
