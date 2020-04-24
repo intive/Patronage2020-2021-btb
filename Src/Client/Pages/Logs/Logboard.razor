@@ -1,4 +1,5 @@
 ﻿@page "/logboard"
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
 @using BTB.Domain.Common
 @using System.Net.Http;
@@ -106,7 +107,7 @@ else
             <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
         </div>
     </div>
-    
+
     <table class="table">
         <thead>
             <tr>
@@ -259,7 +260,7 @@ else
 
     public async Task LoadLogsFromDb()
     {
-        var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage-1)*(int)_currentQuantity+1}");
+        var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage - 1) * (int)_currentQuantity + 1}");
         _totalAmount = int.Parse(response.Headers.GetValues("quantity").First());
         var jsonString = await response.Content.ReadAsStringAsync();
 
@@ -292,7 +293,7 @@ else
                 }
             }
 
-        _processingHttpRequest = false;
+            _processingHttpRequest = false;
         }
         else
         {
@@ -317,7 +318,7 @@ else
         return Http.GetAsync($"api/filelog/config?property={LogDateFormatName}");
     }
 
-     private async Task SelectPage(int page)
+    private async Task SelectPage(int page)
     {
         _currentPage = page;
         await LoadLogsFromDb();
@@ -423,7 +424,7 @@ else
         color: #cccccc;
         background-color: black;
         text-align: left;
-        white-space: nowrap; 
+        white-space: nowrap;
         overflow-y: scroll;
     }
 

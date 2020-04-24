@@ -85,15 +85,6 @@ namespace BTB.Server
                 });
 
                 services.AddControllers().AddNewtonsoftJson();
-                services.ConfigureApplicationCookie(options =>
-                {
-                    options.Cookie.HttpOnly = false;
-                    options.Events.OnRedirectToLogin = context =>
-                    {
-                        context.Response.StatusCode = 401;
-                        return Task.CompletedTask;
-                    };
-                });
 
                 services.AddResponseCompression(opts =>
                 {
@@ -116,7 +107,6 @@ namespace BTB.Server
                 });
 
                 services.AddScoped<IEmailService, EmailService>();
-                services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
                 services.AddTransient<IPasswordManager, PasswordManager>();
                 services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
