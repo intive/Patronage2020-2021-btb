@@ -6,6 +6,7 @@ using BTB.Application.Common.Interfaces;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +27,7 @@ namespace BTB.Application.System.Commands.LoadData
         {
             private readonly IBinanceClient _client;
             private readonly IBTBDbContext _context;
+            private readonly ILogger _logger;
 
             private DateTime _updateFrom;
             private DateTime _klineCallBuffer;
@@ -33,10 +35,11 @@ namespace BTB.Application.System.Commands.LoadData
             private TimestampInterval _klineType;
             private KlineInterval _klineInterval;
 
-            public LoadKlinesCommandHandler(IBinanceClient client, IBTBDbContext context)
+            public LoadKlinesCommandHandler(IBinanceClient client, IBTBDbContext context, ILoggerFactory loggerFactory)
             {
                 _client = client;
                 _context = context;
+                _logger = loggerFactory.CreateLogger<LoadKlinesCommandHandler>();
             }
 
             public async Task<Unit> Handle(LoadKlinesCommand request, CancellationToken cancellationToken)
@@ -76,9 +79,10 @@ namespace BTB.Application.System.Commands.LoadData
 
             private async Task LoadKlinesToDb()
             {
-                var result = _context.SymbolPairs.ToList();                
+                var result = _context.SymbolPairs.ToList();
 
                 List<Kline> klines = new List<Kline>();
+                int updateCount = 0;
 
                 foreach (SymbolPair pair in result)
                 {
@@ -111,6 +115,7 @@ namespace BTB.Application.System.Commands.LoadData
                             existingKline.HighestPrice = kline.High;
                             existingKline.Volume = kline.Volume;
                             _context.Klines.Update(existingKline);
+                            updateCount++;
                         }
                         else
                         {
@@ -133,6 +138,7 @@ namespace BTB.Application.System.Commands.LoadData
                 
                 _context.Klines.AddRange(klines.ToArray());
                 _context.SaveChanges();
+                _logger.LogInformation($"{klines.Count} Klines: {_klineInterval.ToString()} has been added and {updateCount} updated.");
             }
         }
     }

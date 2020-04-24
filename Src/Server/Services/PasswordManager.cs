@@ -4,12 +4,12 @@ using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text;
 using BTB.Application.Authorize.Commands.ChangePassword;
 using BTB.Application.Authorize.Commands.SendResetLink;
 using BTB.Application.Authorize.Commands.ResetPassword;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 namespace BTB.Server.Services
@@ -19,14 +19,16 @@ namespace BTB.Server.Services
         private readonly ICurrentUserIdentityService _currentUserIdentityService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger _logger;
         private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PasswordManager(ICurrentUserIdentityService currentUserIdentityService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+        public PasswordManager(ICurrentUserIdentityService currentUserIdentityService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IHttpContextAccessor httpContextAccessor, ILogger<PasswordManager> logger)
         {
             _currentUserIdentityService = currentUserIdentityService;
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -76,14 +78,17 @@ namespace BTB.Server.Services
             var user = await _userManager.FindByEmailAsync(resetPasswordCommand.Email);
             if(user == null)
             {
-                throw new BadRequestException("Unable to reset password.");
+                var e = new BadRequestException("Unable to reset password.");
+                _logger.LogError(e, "Error: user {user} not found;");
+                throw e;
             }
 
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordCommand.Token, resetPasswordCommand.Password);
             if(!result.Succeeded)
             {
-                throw new BadRequestException("Unable to reset password.");
-                //TODO logging
+                var e = new BadRequestException("Unable to reset password.");
+                _logger.LogError(e, "Error during reseting password");
+                throw e;
             }
 
             return Unit.Value;

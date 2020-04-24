@@ -1,9 +1,15 @@
 ﻿using Binance.Net.Objects;
+using BTB.Application.Common.Interfaces;
 using BTB.Application.Common.Models;
 using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Commands.SeedSampleData;
 using BTB.Domain.Common;
+using BTB.Domain.ValueObjects;
 using BTB.Persistence;
+using BTB.Server.Common;
+using BTB.Server.Common.Logger;
+using BTB.Server.Common.Logger.Database;
+using BTB.Server.Services;
 using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -12,9 +18,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +31,9 @@ namespace BTB.Server
 {
     public class Program
     {
+        public static IServiceProvider ServiceProvider { get; set; }
+        public static List<Exception> ProgramExceptions { get; set; } = new List<Exception>();
+
         public static async Task Main(string[] args)
         {
 #if DEBUG
@@ -34,11 +45,12 @@ namespace BTB.Server
 #endif
             
             var host = CreateWebHostBuilder(args).Build();
+            ServiceProvider = host.Services;
 
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                
+
                 try
                 {
                     var apiContext = services.GetRequiredService<BTBDbContext>();
@@ -48,12 +60,18 @@ namespace BTB.Server
 
                     await mediator.Send(new SeedSampleDataCommand(), CancellationToken.None);
                     await SeedData(mediator);
+
+                    var logger = host.Services.GetRequiredService<ILogger<Program>>();
                 }
                 catch (Exception e)
                 {
-                    // TODO log exception
+                    ProgramExceptions.Add(e);
                 }
             }
+
+            var app = AppDomain.CurrentDomain;
+            //app.UnhandledException += InspectException;
+            app.FirstChanceException += InspectException;
 
             host.Run();
         }
@@ -73,6 +91,15 @@ namespace BTB.Server
             }
         }
 
+        private static void InspectException(object sender, FirstChanceExceptionEventArgs e)
+        {
+            var exception = (Exception)e.Exception;
+
+            ILoggerFactory loggerFactory = new LoggerFactory();
+            ILogger logger = loggerFactory.CreateLogger("First.Chance.Exception");
+            logger.LogError(exception, "Exception was catched, now it will go inside the app");
+        }
+
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(new ConfigurationBuilder()
@@ -87,11 +114,31 @@ namespace BTB.Server
                 .ConfigureLogging((context, logging) =>
                 {
                     var env = context.HostingEnvironment;
-                    var config = context.Configuration.GetSection("Logging");
-                    logging.AddConfiguration(config);
+                    
+                    var logCfg = context.Configuration.GetSection("Logging");
+                    logging.AddConfiguration(logCfg);
+
+                    logging.ClearProviders();
                     logging.AddConsole();
+
+                    var sharedLogCfg = context.Configuration.GetSection("SharedLoggerConfig");
+                    var fileLogCfg = context.Configuration.GetSection(nameof(FileLoggerConfig));
+                    var dbLogCfg = context.Configuration.GetSection(nameof(DatabaseLoggerConfig));
+
+                    var fileConfig = new FileLoggerConfig();
+                    var dbConfig = new DatabaseLoggerConfig();
+
+                    fileLogCfg.Bind(fileConfig);
+                    dbLogCfg.Bind(dbConfig);
+                    sharedLogCfg.Bind(fileConfig);
+                    sharedLogCfg.Bind(dbConfig);
+
+                    logging.AddFileLogger(fileConfig);                 
+                    logging.AddDatabaseLogger(dbConfig);                    
+
                     logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
                     logging.AddFilter("Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware", LogLevel.Warning);
+                    logging.AddFilter("BTB", LogLevel.Information);
                 })
                 .UseStartup<Startup>();
     }

@@ -24,6 +24,7 @@ namespace BTB.Persistence
         public DbSet<AuditTrail> AuditTrails { get; set; }
         public DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<LogEntry> Logs { get; set; }
 
         private readonly ICurrentUserIdentityService _currentUserService;
         private readonly IDateTime _dateTime;
@@ -58,6 +59,7 @@ namespace BTB.Persistence
             builder.ApplyConfiguration(new KlineConfiguration());
             builder.ApplyConfiguration(new AuditTrailConfiguration());
             builder.ApplyConfiguration(new FavoriteSymbolPairConfiguration());
+            builder.ApplyConfiguration(new LogEntryConfiguration());
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

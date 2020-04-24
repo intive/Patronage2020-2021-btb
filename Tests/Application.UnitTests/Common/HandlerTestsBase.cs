@@ -3,6 +3,7 @@ using AutoMapper;
 using Binance.Net.Interfaces;
 using BTB.Application.Common.Interfaces;
 using BTB.Persistence;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 
@@ -14,12 +15,14 @@ namespace Application.UnitTests
         protected readonly Mock<IBTBBinanceClient> _btbBinanceClientMock;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
+        protected readonly ILoggerFactory _disabledLoggerFactory;
 
         public HandlerTestsBase()
         {
             QueryTestFixture fixture = QueryTestFixture.Get();
             _context = fixture.Context;
             _mapper = fixture.Mapper;
+            _disabledLoggerFactory = new LoggerFactory();
 
             _binanceClientMock = BinanceClientMockFactory.ClientMock;
             _btbBinanceClientMock = BTBBinanceClientMockFactory.ClientMock;

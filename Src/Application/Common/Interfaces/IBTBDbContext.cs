@@ -19,6 +19,8 @@ namespace BTB.Application.Common.Interfaces
         DbSet<AuditTrail> AuditTrails { get; set; }
         DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
         DbSet<EmailTemplate> EmailTemplates { get; set; }
+        DbSet<LogEntry> Logs { get; set; }
+
 
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);

@@ -1,0 +1,444 @@
+﻿@page "/logboard"
+
+@using BTB.Domain.Common
+@using System.Net.Http;
+@using System.Net;
+@using Newtonsoft.Json;
+@using BTB.Domain.ValueObjects
+@using BTB.Domain.Common.Pagination
+@using BTB.Domain.Extensions
+@using BTB.Client.Pages.Logs.Enums
+@using BTB.Client.Models
+@using Microsoft.Extensions.Logging
+@using BTB.Client.Pages.Dto
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+
+<link rel="stylesheet" href="logboard.css" />
+<h1>Logboard</h1>
+
+@if (LogList == null && _requestFailed == false)
+{
+    <p><em>Loading...</em></p>
+}
+else if (_requestFailed == true)
+{
+    <br />
+    <h3><em style="color: red;">@_errorMessage</em></h3>
+    <a href="/">Return to Dashboard</a>
+}
+else
+{
+    <br />
+    <div id=options-container class="container">
+        <div id="config-container">
+            <div>
+                @{
+                    for (int i = 0; i < DateOrder.Count; i++)
+                    {
+                        switch (DateOrder[i])
+                        {
+                            case DatePart.Day:
+                                {
+                                    <input placeholder="dd" @bind-value="@QueryModel.Day" style="width: 2.5em; text-align: center;" maxlength="2" />
+                                }
+                                break;
+
+                            case DatePart.Month:
+                                {
+                                    <input placeholder="MM" @bind-value="@QueryModel.Month" style="width: 2.5em; text-align: center;" maxlength="2" />
+                                }
+                                break;
+
+                            case DatePart.Year:
+                                {
+                                    <input placeholder="yyyy" @bind-value="@QueryModel.Year" style="width: 3em; text-align: center;" maxlength="4" />
+                                }
+                                break;
+                        }
+                    }
+                }
+            </div>
+            <div id="log-buttons">
+                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Information; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Information</button>
+                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Warning; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Warning</button>
+                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Error; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Error</button>
+                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Critical; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Critical</button>
+            </div>
+
+            <input @bind-value="@QueryModel.Contains" placeholder="Name of class or namespace" style="width: 80%; text-align: center; margin-top: 10px;" />
+        </div>
+
+        <div id="execute-container">
+            <div>
+                <button @onclick="@(async () => { _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Show logs</button>
+            </div>
+            <div>
+                @if (CanDownloadFile())
+                {
+                    <a class="btn btn-primary btn-sm" href="api/filelog/download?logDate=@QueryModel.LogDate&logLevel=@QueryModel.LogLevel&contains=@QueryModel.Contains" download="logs">Download logs</a>
+                }
+                else
+                {
+                    <div class="btn btn-secondary btn-sm">Download logs</div>
+                }
+            </div>
+        </div>
+
+        <div id="stack-trace">
+            @SelectedStackTrace
+        </div>
+    </div>
+
+    <div id="pagination-container" class="container">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="Quantity group">
+                @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                {
+                    <button class="btn btn-primary" type="button" @onclick="@( async () => { _currentQuantity = value; _currentPage = 1; await LoadLogsFromDb(); })">@((int)value)</button>
+                }
+            </div>
+        </div>
+
+        <div>
+            <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="text-center">Date</th>
+                <th class="text-center">Level</th>
+                <th class="text-center">Category</th>
+                <th class="text-center">Text</th>
+                <th class="text-center">Stacktrace</th>
+            </tr>
+        </thead>
+        <tbody>
+            <SpinLoader IsLoading="@_processingHttpRequest">
+                <LoadingTemplate>
+                    <div class="d-flex" style="height: 75vh">
+                        <TimedLoader ShowDelay="500" />
+                    </div>
+                </LoadingTemplate>
+                <ContentTemplate>
+                    @if (LogList.Count == 0)
+                    {
+                        <tr>
+                            <td>No logs found...</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (LogEntryDto log in LogList)
+                        {
+                            <tr>
+                                <td class="text-center">@log.TimeStampUtc</td>
+                                <td class="text-center">@log.Level</td>
+                                <td class="text-center">@log.Category</td>
+                                <td class="text-center">@log.Text</td>
+                                @if (string.IsNullOrEmpty(log.StackTrace))
+                                {
+                                    <td class="text-center">Empty</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center btn-link" @onclick="@(() => SetStackTrace(log.StackTrace))">Show stacktrace</td>
+                                }
+                            </tr>
+                        }
+                    }
+                </ContentTemplate>
+            </SpinLoader>
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private PaginationQuantity _currentQuantity = PaginationQuantity.Ten;
+    private int _totalAmount = 0;
+    private int _currentPage = 1;
+
+    public LogQueryModel QueryModel { get; set; } = new LogQueryModel();
+    public string SelectedStackTrace { get; set; }
+
+    public List<LogEntryDto> LogList { get; set; } = new List<LogEntryDto>();
+
+    private string _dbLogDateFormat;
+    private string _fileLogDateFormat;
+
+    private const string LogDateFormatName = "LogDateFormat";
+    public List<DatePart> DateOrder { get; set; }
+
+    private string _dateFromQuery;
+
+    private const int AdditionalRows = 50;
+    private bool _processingHttpRequest = true;
+    private bool _requestFailed = false;
+
+    private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DateOrder = new List<DatePart>();
+        await LoadConfigurations();
+    }
+
+    public async Task LoadConfigurations()
+    {
+        _processingHttpRequest = true;
+        var dbResp = await GetDatabaseLogFormat();
+        var fileResp = await GetFileSystemLogFormat();
+
+        var success = false;
+
+        if (dbResp.IsSuccessStatusCode && fileResp.IsSuccessStatusCode)
+        {
+            _dbLogDateFormat = await dbResp.Content.ReadAsStringAsync();
+            _fileLogDateFormat = await fileResp.Content.ReadAsStringAsync();
+
+            if (_dbLogDateFormat.Length == 10 && _fileLogDateFormat.Length == 10)
+            {
+                success = true;
+                _processingHttpRequest = false;
+                await ConfigDateOrder();
+                QueryModel.DateOrder = DateOrder;
+            }
+        }
+
+        if (!success)
+        {
+            _requestFailed = true;
+            _errorMessage = dbResp + "\n" + fileResp;
+        }
+    }
+
+    private Task ConfigDateOrder()
+    {
+        return Task.Run(() =>
+        {
+            List<DatePart> order = new List<DatePart>();
+
+            for (int i = 0; i < _dbLogDateFormat.Length; i++)
+            {
+                var ch = Char.ToUpper(_dbLogDateFormat[i]);
+
+                switch (ch)
+                {
+                    case 'D':
+                        if (!order.Contains(DatePart.Day))
+                            order.Add(DatePart.Day);
+                        break;
+
+                    case 'M':
+                        if (!order.Contains(DatePart.Month))
+                            order.Add(DatePart.Month);
+                        break;
+
+                    case 'Y':
+                        if (!order.Contains(DatePart.Year))
+                            order.Add(DatePart.Year);
+                        break;
+                    default:
+                        QueryModel.DateSeparator = ch;
+                        break;
+                }
+            }
+
+            DateOrder = order;
+        });
+    }
+
+    public async Task LoadLogsFromDb()
+    {
+        var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage-1)*(int)_currentQuantity+1}");
+        _totalAmount = int.Parse(response.Headers.GetValues("quantity").First());
+        var jsonString = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = new List<LogEntryDto>();
+            try
+            {
+                result = System.Text.Json.JsonSerializer.Deserialize<List<LogEntryDto>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IgnoreNullValues = true });
+            }
+            catch (Exception e)
+            {
+                result.Add(new LogEntryDto()
+                {
+                    Text = e.StackTrace.ToString(),
+                    Exception = e.ToString(),
+                    StackTrace = e.StackTrace.ToString()
+                });
+            }
+
+            if (result != null)
+            {
+                LogList = result;
+
+                Regex leaveOnlyDate = new Regex("[a-zA-Z]+");
+
+                foreach (LogEntryDto log in LogList)
+                {
+                    log.TimeStampUtc = leaveOnlyDate.Replace(log.TimeStampUtc, " ");
+                }
+            }
+
+        _processingHttpRequest = false;
+        }
+        else
+        {
+            _requestFailed = true;
+            _errorMessage = jsonString;
+        }
+    }
+
+    public Task LoadLogsFromFile()
+    {
+        _processingHttpRequest = false;
+        return Http.GetAsync($"api/filelog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}");
+    }
+
+    public Task<HttpResponseMessage> GetDatabaseLogFormat()
+    {
+        return Http.GetAsync($"api/dblog/config?property={LogDateFormatName}");
+    }
+
+    public Task<HttpResponseMessage> GetFileSystemLogFormat()
+    {
+        return Http.GetAsync($"api/filelog/config?property={LogDateFormatName}");
+    }
+
+     private async Task SelectPage(int page)
+    {
+        _currentPage = page;
+        await LoadLogsFromDb();
+    }
+
+    public void SetStackTrace(string stackTrace)
+    {
+        SelectedStackTrace = stackTrace;
+    }
+
+    public bool CanDownloadFile()
+    {
+        bool correct = true;
+        Regex letterRegex = new Regex("[a-zA-Z]+");
+        string[] input = new string[] { QueryModel.Day, QueryModel.Month, QueryModel.Year };
+        int[] correctLengths = new int[] { 2, 2, 4 };
+
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (string.IsNullOrEmpty(input[i]))
+            {
+                return false;
+            }
+
+            if (input[i].Length != correctLengths[i])
+            {
+                correct = false;
+            }
+
+            if (letterRegex.IsMatch(input[i]))
+            {
+                correct = false;
+            }
+        }
+
+        if (string.IsNullOrEmpty(QueryModel.Contains))
+        {
+            correct = false;
+        }
+
+        return correct;
+    }
+
+    private string PointerEventsStyle()
+    {
+        return _processingHttpRequest ? "pointer-events: none;" : null;
+    }
+}
+
+
+<style type="text/css">
+    #options-container {
+        display: flex;
+    }
+
+        #options-container > div {
+            text-align: center;
+        }
+
+    .pagination-container options-container {
+        justify-content: space-between;
+    }
+
+    #config-container {
+        min-width: 35%;
+        padding: 20px;
+        margin: 5px;
+        background-color: grey;
+    }
+
+    #execute-container {
+        margin-left: 3%;
+    }
+
+        #execute-container > div {
+            width: 100%;
+            margin-top: 50%;
+        }
+
+    #log-buttons {
+        margin: 10px;
+    }
+
+        #log-buttons > button {
+            margin-top: 10px;
+            margin-right: 1px;
+        }
+
+    #log-container {
+        width: 90%;
+        padding: 20px;
+        margin-left: 5%;
+        text-align: center;
+        background-color: #445555;
+    }
+
+    #stack-trace {
+        position: relative;
+        width: 60%;
+        margin: 5px;
+        margin-left: 3%;
+        color: #cccccc;
+        background-color: black;
+        text-align: left;
+        white-space: nowrap; 
+        overflow-y: scroll;
+    }
+
+    table {
+        background-color: #445555;
+    }
+
+    tr {
+        color: #cccccc;
+        font-size: 14px;
+    }
+
+    td {
+        color: #FDFDFD;
+        background-color: black;
+        font-size: 12px;
+    }
+</style>

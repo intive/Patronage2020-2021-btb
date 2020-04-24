@@ -2,11 +2,11 @@
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 
 namespace BTB.Server.Services
 {
@@ -17,6 +17,7 @@ namespace BTB.Server.Services
         private readonly SmtpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _domainUrl;
+        private ILogger _logger;
         private const string DefaultDomainUrl = "https://dev-patronage-btb.azurewebsites.net/";
 
         static EmailService()
@@ -24,10 +25,12 @@ namespace BTB.Server.Services
             _configurator = new EmailConfigurator();
         }
 
-        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor)
+        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor, ILogger<EmailService> logger)
         {
             _client = _configurator.Configure(config.Value);
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+
             if (httpContextAccessor.HttpContext == null)
             {
                 _domainUrl = DefaultDomainUrl;
@@ -50,10 +53,11 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
+                _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
-            { 
-                // TODO: Log exception
+            {
+                _logger.LogError(e, $"Error occured during attempt to send an email titled {title} to adress {to}");
                 Console.WriteLine(e);
             }
         }
@@ -77,10 +81,11 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
+                _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
             {
-                // TODO: Log exception
+                _logger.LogError(e, $"Error occured during attempt to send an email titled {title} to adress {to}");
                 Console.WriteLine(e);
             }            
         }

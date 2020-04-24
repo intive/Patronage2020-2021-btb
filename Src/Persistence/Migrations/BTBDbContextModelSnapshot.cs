@@ -188,6 +188,52 @@ namespace BTB.Persistence.Migrations
                     b.ToTable("Klines");
                 });
 
+            modelBuilder.Entity("BTB.Domain.Entities.LogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StackTrace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStampUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Category")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Level")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("TimeStampUtc")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.ToTable("Logs");
+                });
+
             modelBuilder.Entity("BTB.Domain.Entities.Symbol", b =>
                 {
                     b.Property<int>("Id")
