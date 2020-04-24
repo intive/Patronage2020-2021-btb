@@ -7,9 +7,11 @@ using BTB.Application.Dashboard.Queries.GetListQuery;
 using BTB.Application.Dashboard.Queries.GetTopListQuery;
 using BTB.Domain.Extensions;
 using BTB.Domain.ValueObjects;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BTB.Server.Controllers
 {
+    [Authorize]
     public class DashboardController : BaseController
     {
         /// <summary>

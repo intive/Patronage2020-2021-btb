@@ -1,12 +1,14 @@
-﻿using BTB.Application.Common.Interfaces;
-using BTB.Domain.Entities;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
+using BTB.Persistence.Configurations.Policy;
+using BTB.Application.Common.Interfaces;
+using BTB.Domain.Entities;
 using System.Text;
+using System;
 
 namespace BTB.Persistence
 {
@@ -21,9 +23,24 @@ namespace BTB.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentityCore<ApplicationUser>()
+                .AddRoles<IdentityRole>()
+                .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddPoliciesConfiguration();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:key"])),
+                    ClockSkew = TimeSpan.Zero
+                });
 
             services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(2));
 
@@ -43,8 +60,6 @@ namespace BTB.Persistence
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
-
-               
             });
 
             return services;

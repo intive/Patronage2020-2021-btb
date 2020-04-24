@@ -1,4 +1,5 @@
 ﻿@page "/logboard"
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
 @using BTB.Domain.Common
 @using System.Net.Http;
@@ -106,7 +107,7 @@ else
             <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
         </div>
     </div>
-    
+
     <table class="table">
         <thead>
             <tr>
@@ -440,7 +441,7 @@ else
         color: #cccccc;
         background-color: black;
         text-align: left;
-        white-space: nowrap; 
+        white-space: nowrap;
         overflow-y: scroll;
     }
 

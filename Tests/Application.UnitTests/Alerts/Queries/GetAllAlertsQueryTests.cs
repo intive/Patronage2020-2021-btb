@@ -22,10 +22,10 @@ namespace Application.UnitTests.Alerts.Queries
                 new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Price", Value = 4000.0m, SendEmail = false, Email = null, Message = null },
             };
             var expectedAllRecordsCount = 2;
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
 
-            var sut = new GetAllAlertsQueryHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new GetAllAlertsQueryHandler(_context, _mapper, userAccessorMock.Object);
             var command = new GetAllAlertsQuery()
             {
                 Pagination = new PaginationDto() { Page = 1, Quantity = PaginationQuantity.Ten },

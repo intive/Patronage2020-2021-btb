@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 
 namespace BTB.Client.Services.Contracts
 {
-    public interface IAuthorizeApi
+    public interface IAuthorizeService
     {
         Task Login(LoginParametersDto loginParameters);
 
         Task Register(RegisterParametersDto registerParameters);
 
         Task Logout();
-
-        Task<UserInfoDto> GetUserInfo();
     }
 }

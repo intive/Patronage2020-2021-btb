@@ -1,28 +1,25 @@
-using BTB.Application;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.Binance;
-using BTB.Infrastructure;
-using BTB.Persistence;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Converters;
 using BTB.Application.Common.Exceptions;
-using System.Net.Mime;
-using BTB.Server.Services;
+using BTB.Application.Common.Interfaces;
 using BTB.Server.Common.CronGeneric;
+using BTB.Server.Common.Swagger;
+using BTB.Application.Common;
+using BTB.Application.Binance;
+using BTB.Server.Services;
+using BTB.Infrastructure;
+using BTB.Application;
+using BTB.Persistence;
+using Newtonsoft.Json.Converters;
+using System.Net.Mime;
+using System.Linq;
+using System;
 using MediatR;
 using BTB.Application.Common;
 using BTB.Server.Common.Logger;
@@ -88,15 +85,6 @@ namespace BTB.Server
                 });
 
                 services.AddControllers().AddNewtonsoftJson();
-                services.ConfigureApplicationCookie(options =>
-                {
-                    options.Cookie.HttpOnly = false;
-                    options.Events.OnRedirectToLogin = context =>
-                    {
-                        context.Response.StatusCode = 401;
-                        return Task.CompletedTask;
-                    };
-                });
 
                 services.AddResponseCompression(opts =>
                 {
@@ -104,23 +92,14 @@ namespace BTB.Server
                         new[] { "application/octet-stream" });
                 });
 
-                services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+            services.AddSwaggerDocumentation();
 
-                services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BTB API", Version = "v1" });
-                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                    c.IncludeXmlComments(xmlPath);
-                });
-
-                services.AddSwaggerGenNewtonsoftSupport();
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
                 }
-                ).AddNewtonsoftJson(options =>
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+                    ).AddNewtonsoftJson(options =>
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter()));
                 services.AddResponseCompression(opts =>
                 {
                     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -128,7 +107,6 @@ namespace BTB.Server
                 });
 
                 services.AddScoped<IEmailService, EmailService>();
-                services.AddTransient<ICurrentUserIdentityService, CurrentUserIdentityService>();
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
                 services.AddTransient<IPasswordManager, PasswordManager>();
                 services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
@@ -167,12 +145,7 @@ namespace BTB.Server
                     app.UseBlazorDebugging();
                 }
 
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BTB API V1");
-                    c.RoutePrefix = "swagger";
-                });
+            app.UseSwaggerDocumentation();
 
                 app.UseStaticFiles();
                 app.UseClientSideBlazorFiles<Client.Program>();

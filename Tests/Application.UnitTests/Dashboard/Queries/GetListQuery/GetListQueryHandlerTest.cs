@@ -22,14 +22,14 @@ namespace Application.UnitTests.Dashboard.Queries.GetListQ
             };
 
             var expectedAllRecordsCount = 2;
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
             var query = new GetListQuery()
             {
                 Pagination = new PaginationDto() { Page = 1, Quantity = PaginationQuantity.Ten }
             };
 
-            var sut = new GetListQueryHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new GetListQueryHandler(_context, _mapper, userAccessorMock.Object);
 
             var paginatedResult = await sut.Handle(query, CancellationToken.None);
             Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
@@ -53,7 +53,7 @@ namespace Application.UnitTests.Dashboard.Queries.GetListQ
                 Assert.NotNull(single);
             }
 
-            userIdentityMock.VerifyGet(x => x.UserId);
+            userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
     }
 }

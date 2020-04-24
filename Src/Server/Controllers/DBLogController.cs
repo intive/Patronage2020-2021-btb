@@ -10,9 +10,12 @@ using Microsoft.Extensions.Options;
 using BTB.Domain.Extensions;
 using System.Collections.Generic;
 using BTB.Domain.ValueObjects;
+using Microsoft.AspNetCore.Authorization;
+using BTB.Domain.Policies;
 
 namespace BTB.Server.Controllers
 {
+    [Authorize(Policy = Policies.IsAdmin)]
     public class DBLogController : BaseController
     {
         private readonly DatabaseLoggerConfig _config;

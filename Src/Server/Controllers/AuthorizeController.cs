@@ -1,10 +1,8 @@
 ﻿using BTB.Application.Authorize.Commands.ChangePassword;
 using BTB.Application.Authorize.Commands.Login;
-using BTB.Application.Authorize.Commands.Logout;
 using BTB.Application.Authorize.Commands.Register;
 using BTB.Application.Authorize.Commands.ResetPassword;
 using BTB.Application.Authorize.Commands.SendResetLink;
-using BTB.Application.Authorize.Queries.GetUserInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,23 +23,11 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginCommand command)
         {
             var result = await Mediator.Send(command);
             return Ok(result);
-        }
-
-        /// <summary>
-        /// Returns information about current user's credentials.
-        /// </summary>
-        /// <returns>A view model containing information about current user's credentials. <see cref="UserInfoVm"/></returns>
-        /// <response code="200">When succesful.</response>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<UserInfoVm>> UserInfo()
-        {
-            var userInfo = await Mediator.Send(new GetUserInfoQuery { User = User });
-            return Ok(userInfo);
         }
 
         /// <summary>
@@ -53,25 +39,10 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterCommand command)
         {
             var result = await Mediator.Send(command);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Logs out currently logged in user.
-        /// </summary>
-        /// <returns>Request's result.</returns>
-        /// <response code="200">If user logs out.</response>
-        /// <response code="401">If no user is currently logged in.</response>
-        [Authorize]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Logout()
-        {
-            var result = await Mediator.Send(new LogoutCommand());
             return Ok(result);
         }
 
@@ -81,7 +52,6 @@ namespace BTB.Server.Controllers
         /// <param name="changePasswordCommand"> From-body data to update password.</param>
         /// <response code="200">When successful.</response>
         /// <response code="404">When unable to find user or password change failed.</response>
-        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -98,6 +68,7 @@ namespace BTB.Server.Controllers
         /// <response code="200">It's always 200 for security reasons.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
         public async Task<IActionResult> SendResetLink([FromBody] SendResetLinkCommand sendResetLinkCommand)
         {
             var result = await Mediator.Send(sendResetLinkCommand);
@@ -113,6 +84,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand resetPasswordCommand)
         {
             var result = await Mediator.Send(resetPasswordCommand);

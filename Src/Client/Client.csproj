@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Accelist.FluentValidation.Blazor" Version="2.0.0" />
     <PackageReference Include="Binance.Net" Version="5.0.9" />
+    <PackageReference Include="Blazored.LocalStorage" Version="2.1.5" />
     <PackageReference Include="Blazored.Modal" Version="3.1.2" />
     <PackageReference Include="BlazorPro.Spinkit" Version="1.0.0" />
     <PackageReference Include="FluentValidation" Version="8.6.2" />

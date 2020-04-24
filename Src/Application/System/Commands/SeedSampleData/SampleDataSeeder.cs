@@ -1,43 +1,96 @@
-﻿using BTB.Application.Common.Interfaces;
-using BTB.Domain.Entities;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
-using System;
+using BTB.Domain.Entities;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace BTB.Application.System.SeedSampleData
 {
     public class SampleDataSeeder
     {
-        private readonly IBTBDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public SampleDataSeeder(IBTBDbContext context, UserManager<ApplicationUser> userManager)
+        public SampleDataSeeder(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
-            _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
         public async Task SeedAllAsync(CancellationToken cancellationToken)
         {
-            if (_userManager.Users.Any())
+            await SeedRolesAsync(cancellationToken);
+
+            var userByEmail = await _userManager.FindByEmailAsync(_configuration["MainAdmin:email"]);
+            var userByUsername = await _userManager.FindByNameAsync(_configuration["MainAdmin:username"]);
+            if (userByEmail == null && userByUsername == null) 
             {
-                return;
+                await SeedAdminAsync(cancellationToken);
+            }
+            else if (userByEmail == null && userByUsername != null) 
+            {
+                await _userManager.DeleteAsync(userByUsername);
+                await SeedAdminAsync(cancellationToken);
+            }
+            else if (userByEmail != null && userByUsername == null) 
+            {
+                await _userManager.DeleteAsync(userByEmail);
+                await SeedAdminAsync(cancellationToken);
+            }
+            else 
+            {
+                if (userByEmail == userByUsername) 
+                {
+                    var roles = await _userManager.GetRolesAsync(userByEmail);
+                    if (roles.Contains("Admin")) 
+                    {
+                        // nothing to do here
+                    }
+                    else
+                    {
+                        await _userManager.DeleteAsync(userByUsername);
+                        await SeedAdminAsync(cancellationToken);
+                    }
+                }
+                else 
+                {
+                    await _userManager.DeleteAsync(userByUsername);
+                    await _userManager.DeleteAsync(userByEmail);
+                    await SeedAdminAsync(cancellationToken);
+                }
             }
 
-            await SeedAspNetUsersAsync(cancellationToken);
         }
 
-        private async Task SeedAspNetUsersAsync(CancellationToken cancellationToken)
+        private async Task SeedRolesAsync(CancellationToken cancellationToken)
+        {
+            var roles = _configuration.GetSection("BasicRoles").Get<List<string>>();
+            foreach (string role in roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    var identityRole = new IdentityRole
+                    {
+                        Name = role
+                    };
+                    await _roleManager.CreateAsync(identityRole);
+                }
+            }
+        }
+
+        private async Task SeedAdminAsync(CancellationToken cancellationToken)
         {
             var user = new ApplicationUser
             {
-                UserName = "admin"
+                UserName = _configuration["MainAdmin:username"],
+                Email = _configuration["MainAdmin:email"]
             };
-            await _userManager.CreateAsync(user, "admin");
+            await _userManager.CreateAsync(user, _configuration["MainAdmin:password"]);
+            await _userManager.AddToRoleAsync(user, "Admin");
         }
+
     }
 }

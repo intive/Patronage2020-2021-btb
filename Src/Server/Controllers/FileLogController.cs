@@ -7,7 +7,9 @@ using BTB.Application.Common.Exceptions;
 using BTB.Application.Logs.Commands;
 using BTB.Application.Logs.Queries.GetLogsFromDB;
 using BTB.Application.Logs.Queries.GetLogsFromFileSystem;
+using BTB.Domain.Policies;
 using BTB.Server.Common.Logger;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,7 @@ using Microsoft.Extensions.Options;
 
 namespace BTB.Server.Controllers
 {
+    [Authorize(Policy = Policies.IsAdmin)]
     public class FileLogController : BaseController
     {
         private readonly FileLoggerConfig _config;

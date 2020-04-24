@@ -14,12 +14,14 @@ namespace BTB.Application.Common.Mappings
         public EntitiesToDtosMappings()
         {
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
+
             CreateMap<Alert, AlertVO>()
                 .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(alert => alert.SymbolPair.PairName))
                 .ForMember(vo => vo.Condition, opt => opt.MapFrom(alert => alert.Condition.ToString()))
                 .ForMember(vo => vo.ValueType, opt => opt.MapFrom(alert => alert.ValueType.ToString()));
 
             CreateMap<AuditTrail, AuditTrailVm>();
+
             CreateMap<SymbolPair, DashboardPairVO>()
                 .ForMember(s => s.Id, opts => opts.MapFrom(src => src.Id))
                 .ForMember(s => s.BuySymbolName, opts => opts.MapFrom(src => src.BuySymbol.SymbolName))
@@ -36,6 +38,8 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(k => k.OpenPrice, opts => opts.MapFrom(src => src.Open))
                 .ForMember(k => k.HighestPrice, opts => opts.MapFrom(src => src.High))
                 .ForMember(k => k.LowestPrice, opts => opts.MapFrom(src => src.Low));
+
+            CreateMap<ApplicationUser, ApplicationUserVO>();
         }
     }
 }

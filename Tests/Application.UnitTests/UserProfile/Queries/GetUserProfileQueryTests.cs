@@ -15,9 +15,9 @@ namespace Application.UnitTests.UserProfile.Queries
             var expectedUsername = "UserOne";
             var expectedProfileBio = "";
             var expectedFavouriteTradingPair = "";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new GetUserProfileQueryHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new GetUserProfileQueryHandler(_context, _mapper, userAccessorMock.Object);
             var result = await sut.Handle(new GetUserProfileQuery(), CancellationToken.None);
 
             Assert.NotNull(result);
@@ -29,9 +29,9 @@ namespace Application.UnitTests.UserProfile.Queries
         [Fact]
         public async Task Handle_ShouldThrowNotFoundException_WhenUserProfileDoesNotExist()
         {
-            var userIdentityMock = GetUserIdentityMock(null);
+            var userAccessorMock = GetUserAccessorMock(null);
 
-            var sut = new GetUserProfileQueryHandler(_context, _mapper, userIdentityMock.Object);
+            var sut = new GetUserProfileQueryHandler(_context, _mapper, userAccessorMock.Object);
             
             await Assert.ThrowsAsync<NotFoundException>(async () => await sut.Handle(new GetUserProfileQuery(), CancellationToken.None));
         }

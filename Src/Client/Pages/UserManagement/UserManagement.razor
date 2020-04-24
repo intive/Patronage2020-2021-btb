@@ -1,0 +1,89 @@
+﻿@page "/usermanagement"
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+@using System.Text.Json
+@using BTB.Domain.Common.Pagination
+@using BTB.Client.Components.UserManagement
+@inject HttpClient Http
+
+<h1>User Management</h1>
+
+<br />
+
+<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+
+<SpinLoader IsLoading="@(_users == null)">
+    <LoadingTemplate>
+        <div class="d-flex" style="height: 70vh">
+            <TimedLoader ShowDelay="500" />
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <br />
+
+        <CascadingValue Value="_users.Take((int)_currentQuantity)">
+            <UserManagementTable />
+        </CascadingValue>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+
+    private IEnumerable<ApplicationUserVO> _users { get; set; }
+
+    private PaginationQuantity _currentQuantity = PaginationQuantity.Ten;
+    private int _totalPageQuantity;
+    private int _currentPage = 1;
+
+    private bool _isRequestRunning = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshUserManagementView();
+    }
+
+    private async Task RefreshUserManagementView()
+    {
+        if (!_isRequestRunning)
+        {
+            _users = null;
+            _isRequestRunning = true;
+
+            var response = await Http.GetAsync($"api/UserManagement?page={_currentPage}&quantity={_currentQuantity}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                _totalPageQuantity = int.Parse(response.Headers.GetValues("quantity").First());
+                var jsonString = await response.Content.ReadAsStringAsync();
+                _users = JsonSerializer.Deserialize<IEnumerable<ApplicationUserVO>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else
+            {
+                _totalPageQuantity = 1;
+                _users = new List<ApplicationUserVO>();
+            }
+
+            _isRequestRunning = false;
+        }
+    }
+
+    private async Task SelectPage(int page)
+    {
+        _currentPage = page;
+
+        await RefreshUserManagementView();
+    }
+
+    private async Task SelectQuantity(PaginationQuantity quantity)
+    {
+        _currentPage = 1;
+        _currentQuantity = quantity;
+
+        await RefreshUserManagementView();
+    }
+
+    private string PointerEventsStyle()
+    {
+        return _isRequestRunning ? "pointer-events: none;" : null;
+    }
+}

@@ -12,24 +12,24 @@ namespace BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair
     {
         private readonly IBTBDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserIdentityService _userIdentity;
+        private readonly IUserAccessor _userAccessor;
 
-        public CreateFavoriteSymbolPairHandler(IBTBDbContext context, IMapper mapper, ICurrentUserIdentityService userIdentity)
+        public CreateFavoriteSymbolPairHandler(IBTBDbContext context, IMapper mapper, IUserAccessor userAccessor)
         {
             _context = context;
             _mapper = mapper;
-            _userIdentity = userIdentity;
+            _userAccessor = userAccessor;
         }
 
         public async Task<Unit> Handle(CreateFavoriteSymbolPairCommand request, CancellationToken cancellationToken)
         {
             var favoritePair = _mapper.Map<FavoriteSymbolPair>(request);
-            favoritePair.ApplicationUserId = _userIdentity.UserId;
+            favoritePair.ApplicationUserId = _userAccessor.GetCurrentUserId();
 
-            var dbFavoritePair = await _context.FavoriteSymbolPairs.FindAsync(_userIdentity.UserId, request.SymbolPairId);
+            var dbFavoritePair = await _context.FavoriteSymbolPairs.FindAsync(_userAccessor.GetCurrentUserId(), request.SymbolPairId);
             if(dbFavoritePair != null)
             {
-                throw new BadRequestException($"User (id : {_userIdentity.UserId}) has already added pair with id : {request.SymbolPairId} to favorites.");
+                throw new BadRequestException($"User (id : {_userAccessor.GetCurrentUserId()}) has already added pair with id : {request.SymbolPairId} to favorites.");
             }
 
             var dbSymbolPair = await _context.SymbolPairs.FindAsync(request.SymbolPairId);

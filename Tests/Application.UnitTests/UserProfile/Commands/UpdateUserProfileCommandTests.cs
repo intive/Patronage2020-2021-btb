@@ -17,9 +17,9 @@ namespace Application.UnitTests.UserProfile.Commands
             var expectedUsername = "new_username";
             var expectedProfileBio = "new_bio";
             var expectedFavouriteTradingPair = "BTCUSDT";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
-            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
             var command = new UpdateUserProfileCommand()
             {
                 Username = expectedUsername,
@@ -41,13 +41,13 @@ namespace Application.UnitTests.UserProfile.Commands
         {
             var userId = "1";
             var tradingPair = "AAABBB";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
             var command = new UpdateUserProfileCommand()
             {
                 FavouriteTradingPair = tradingPair
             };
-            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));
         }
@@ -57,13 +57,13 @@ namespace Application.UnitTests.UserProfile.Commands
         {
             string userId = null;
             var existingTradingPair = "BTCUSDT";
-            var userIdentityMock = GetUserIdentityMock(userId);
+            var userAccessorMock = GetUserAccessorMock(userId);
 
             var command = new UpdateUserProfileCommand()
             {
                 FavouriteTradingPair = existingTradingPair
             };
-            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userIdentityMock.Object);
+            var sut = new UpdateUserProfileCommandHandler(_context, _mapper, _btbBinanceClientMock.Object, userAccessorMock.Object);
 
             await Assert.ThrowsAsync<NotFoundException>(async () => await sut.Handle(command, CancellationToken.None));
         }

@@ -14,13 +14,13 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.CreateFavoriteSymbo
         private readonly string _expectedUserId = "userId";
         private readonly int _addedSymbolPairId = 1;
         private readonly int _expectedSymbolPairId = 2;
-        private readonly Mock<ICurrentUserIdentityService> _userIdentityMock;
+        private readonly Mock<IUserAccessor> _userAccessorMock;
         private readonly CreateFavoriteSymbolPairHandler _sut;
 
         public CreateFavoriteSymbolPairHandlerTest()
         {
-            _userIdentityMock = GetUserIdentityMock(_expectedUserId);
-            _sut = new CreateFavoriteSymbolPairHandler(_context, _mapper, _userIdentityMock.Object);
+            _userAccessorMock = GetUserAccessorMock(_expectedUserId);
+            _sut = new CreateFavoriteSymbolPairHandler(_context, _mapper, _userAccessorMock.Object);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.CreateFavoriteSymbo
             Assert.Equal(_expectedUserId, dbResult.ApplicationUserId);
             Assert.Equal(_expectedSymbolPairId, dbResult.SymbolPairId);
 
-            _userIdentityMock.VerifyGet(x => x.UserId);
+            _userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.CreateFavoriteSymbo
             var command = new CreateFavoriteSymbolPairCommand { SymbolPairId = _addedSymbolPairId };
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await _sut.Handle(command, CancellationToken.None));
-            _userIdentityMock.VerifyGet(x => x.UserId);
+            _userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Application.UnitTests.FavoriteSymbolPairs.Commands.CreateFavoriteSymbo
             var command = new CreateFavoriteSymbolPairCommand { SymbolPairId = symbolPairIdDontExist };
 
             await Assert.ThrowsAsync<BadRequestException>(async () => await _sut.Handle(command, CancellationToken.None));
-            _userIdentityMock.VerifyGet(x => x.UserId);
+            _userAccessorMock.Verify(x => x.GetCurrentUserId());
         }
     }
 }
