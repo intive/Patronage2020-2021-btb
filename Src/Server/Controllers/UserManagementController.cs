@@ -13,10 +13,10 @@ using BTB.Domain.Policies;
 
 namespace BTB.Server.Controllers
 {
-    // TODO: Summary
     [Authorize(Policy = Policies.IsAdmin)]
     public class UserManagementController : BaseController
     {
+        // TODO: Summary
         [HttpGet]
         public async Task<IActionResult> GetUserList([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
         {

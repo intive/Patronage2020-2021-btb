@@ -1,0 +1,29 @@
+﻿@using BTB.Client.Pages.Dto
+<table class="table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                <td>@user.UserId</td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.Roles</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    [CascadingParameter]
+    private IEnumerable<ApplicationUserVO> _users { get; set; }
+
+}
