@@ -1,10 +1,12 @@
 ﻿using Application.UnitTests.Common;
+using BTB.Application.Common.Hubs;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors.Crossing;
 using BTB.Application.System.Commands.SendNotificationsCommand;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -54,10 +56,12 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
+            var hubcontext = new Mock<IBrowserNotificationHub>();
+
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext);
+                emailServiceMock.Object, hubcontext.Object);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 
@@ -86,7 +90,7 @@ namespace Application.UnitTests.System.Commands
                 SymbolPairId = symbolPairId,
                 DurationTimestamp = TimestampInterval.FiveMin,
                 OpenPrice = 1,
-                ClosePrice = 3,
+                ClosePrice = 2,
                 Volume = 1
             };
 
@@ -110,10 +114,12 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
+            var hubcontext = new Mock<IBrowserNotificationHub>();
+
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext);
+                emailServiceMock.Object, hubcontext.Object);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 
@@ -151,7 +157,7 @@ namespace Application.UnitTests.System.Commands
                 Email = null,
                 Message = null,
                 TriggerOnce = false,
-                WasTriggered = false
+                WasTriggered = false,
             };
 
             _context.Alerts.Add(alert);
@@ -159,10 +165,12 @@ namespace Application.UnitTests.System.Commands
 
             var emailServiceMock = new Mock<IEmailService>();
 
+            var hubcontext = new Mock<IBrowserNotificationHub>();
+
             var command = new SendNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
 
             var sut = new SendNotificationsCommandHandler(_context,
-                emailServiceMock.Object, _hubcontext);
+                emailServiceMock.Object, hubcontext.Object);
 
             SendNotificationsCommandHandler.ResetTriggerFlags();
 

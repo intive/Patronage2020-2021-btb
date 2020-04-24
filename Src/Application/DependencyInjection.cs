@@ -25,6 +25,7 @@ using BTB.Application.Indicator.Commands.CalculateSMA;
 using BTB.Application.Authorize.Commands.ChangePassword;
 using BTB.Application.Authorize.Commands.SendResetLink;
 using BTB.Application.Authorize.Commands.ResetPassword;
+using BTB.Application.Common.Hubs;
 
 namespace BTB.Application
 {
@@ -36,6 +37,8 @@ namespace BTB.Application
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
             services.AddTransient<IBinanceClient, BinanceClient>();
+
+            services.AddTransient<IBrowserNotificationHub, BrowserNotificationHub>();
 
             var sp = services.BuildServiceProvider();
             var settings = sp.GetService<IOptions<BinanceSettings>>();

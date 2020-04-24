@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Common.Hubs
 {
-    public class NotificationHub : Hub, INotificationHub
+    public class NotificationHub : Hub
     {
         public override Task OnConnectedAsync()
         {
@@ -19,13 +19,26 @@ namespace BTB.Application.Common.Hubs
         {
             return base.OnDisconnectedAsync(exception);
         }
+    }
 
-        public async Task SendAsync(string method, string message)
+    // TODO: Move to separate files
+    public interface IBrowserNotificationHub
+    {
+        Task SendToUserAsync(string userId, string message);
+    }
+
+    public class BrowserNotificationHub : IBrowserNotificationHub
+    {
+        private IHubContext<NotificationHub> _hubcontext;
+
+        public BrowserNotificationHub(IHubContext<NotificationHub> hubcontext)
         {
-            if (method == "inbrowser")
-            {
-                await SendAsync(method, message);
-            }
+            _hubcontext = hubcontext;
+        }
+
+        public async Task SendToUserAsync(string userId, string message)
+        {
+            await _hubcontext.Clients.Client(userId).SendAsync("inbrowser", message);
         }
     }
 }

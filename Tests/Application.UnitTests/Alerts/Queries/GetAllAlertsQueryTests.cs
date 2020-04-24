@@ -28,7 +28,7 @@ namespace Application.UnitTests.Alerts.Queries
                     Id = 4, SymbolPair = "BTCUSDT",
                     Condition = "Crossing", ValueType = "Price", Value = 4000.0m, 
                     SendInBrowser = false, SendEmail = false, 
-                    Email = null, Message = null 
+                    Email = null, Message = null
                 },
             };
 
@@ -36,6 +36,7 @@ namespace Application.UnitTests.Alerts.Queries
             var userIdentityMock = GetUserIdentityMock(userId);
 
             var sut = new GetAllAlertsQueryHandler(_context, _mapper, userIdentityMock.Object);
+
             var command = new GetAllAlertsQuery()
             {
                 Pagination = new PaginationDto() { 
@@ -48,7 +49,7 @@ namespace Application.UnitTests.Alerts.Queries
 
             Assert.Equal(expectedAllRecordsCount, paginatedResult.AllRecordsCount);
 
-            List<AlertVO> resultAlerts = paginatedResult.Result.ToList();
+            var resultAlerts = paginatedResult.Result.ToList();
             
             Assert.Equal(resultAlerts.Count(), expectedAllRecordsCount);
             

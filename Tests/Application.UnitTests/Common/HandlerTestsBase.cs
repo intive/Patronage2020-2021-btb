@@ -16,7 +16,6 @@ namespace Application.UnitTests
         protected readonly Mock<IBTBBinanceClient> _btbBinanceClientMock;
         protected readonly BTBDbContext _context;
         protected readonly IMapper _mapper;
-        protected readonly IHubContext<NotificationHub> _hubcontext;
 
         public HandlerTestsBase()
         {
@@ -26,7 +25,6 @@ namespace Application.UnitTests
 
             _binanceClientMock = BinanceClientMockFactory.ClientMock;
             _btbBinanceClientMock = BTBBinanceClientMockFactory.ClientMock;
-
         }
 
         public void Dispose()

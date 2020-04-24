@@ -24,6 +24,8 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         private readonly IEmailService _emailService;
         private readonly IHubContext<NotificationHub> _hubcontext;
 
+        private readonly IBrowserNotificationHub _browserAlert;
+
         private TimestampInterval _klineInterval;
 
         private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
@@ -41,12 +43,13 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         public SendNotificationsCommandHandler(
             IBTBDbContext context,
             IEmailService emailService,
-            IHubContext<NotificationHub> hubContext)
+            IBrowserNotificationHub browserAlert)
         {
             _context = context;
             _emailService = emailService;
-            _hubcontext = hubContext;
-            
+
+            _browserAlert = browserAlert;
+
             _crossingConditionDetector = new CrossingConditionDetector();
             _crossingUpConditionDetector = new CrossingUpConditionDetector();
             _crossingDownConditionDetector = new CrossingDownConditionDetector();
@@ -66,12 +69,7 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
                     continue;
                 }
 
-                if (!alert.SendEmail)
-                {
-                    continue;
-                }
-
-                if (!alert.SendInBrowser)
+                if (!alert.SendEmail && !alert.SendInBrowser)
                 {
                     continue;
                 }
@@ -171,8 +169,9 @@ namespace BTB.Application.System.Commands.SendNotificationsCommand
         }
 
         private async Task SendInBrowserNotificationAsync(Alert alert)
-         =>   await _hubcontext.Clients.User(alert.UserId)
-                    .SendAsync("inbrowser", $"{alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
+        {
+            await _browserAlert.SendToUserAsync(alert.UserId, $"{alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
+        }
 
         public static void ResetTriggerFlags()
         {
