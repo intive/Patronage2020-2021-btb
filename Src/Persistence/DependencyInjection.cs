@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BTB.Persistence.Configurations.Policy;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using System.Text;
@@ -27,6 +28,7 @@ namespace BTB.Persistence
                 .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<BTBDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddPoliciesConfiguration();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

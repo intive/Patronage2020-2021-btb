@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using BTB.Client.Services.Implementations;
 using BTB.Client.Services.Contracts;
+using BTB.Domain.Policies;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 
@@ -15,7 +16,11 @@ namespace BTB.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddOptions();
-            builder.Services.AddAuthorizationCore();
+            builder.Services.AddAuthorizationCore(config =>
+            {
+                config.AddPolicy(Policies.IsAdmin, Policies.IsAdminPolicy());
+                config.AddPolicy(Policies.IsUser, Policies.IsUserPolicy());
+            });
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.RootComponents.Add<App>("app");
