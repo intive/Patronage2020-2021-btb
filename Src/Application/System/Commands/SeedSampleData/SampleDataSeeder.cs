@@ -4,7 +4,6 @@ using BTB.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Linq;
 
 namespace BTB.Application.System.SeedSampleData
 {
@@ -25,12 +24,45 @@ namespace BTB.Application.System.SeedSampleData
         {
             await SeedRolesAsync(cancellationToken);
 
-            var adminEmail = _configuration["MainAdmin:email"];
-            var user = await _userManager.FindByEmailAsync(adminEmail);
-            if (user == null)
+            var userByEmail = await _userManager.FindByEmailAsync(_configuration["MainAdmin:email"]);
+            var userByUsername = await _userManager.FindByNameAsync(_configuration["MainAdmin:username"]);
+            if (userByEmail == null && userByUsername == null) // both email and username are free
             {
                 await SeedAdminAsync(cancellationToken);
             }
+            else if (userByEmail == null && userByUsername != null) // username is taken
+            {
+                await _userManager.DeleteAsync(userByUsername);
+                await SeedAdminAsync(cancellationToken);
+            }
+            else if (userByEmail != null && userByUsername == null) // email is taken
+            {
+                await _userManager.DeleteAsync(userByEmail);
+                await SeedAdminAsync(cancellationToken);
+            }
+            else // both email and username are taken
+            {
+                if (userByEmail == userByUsername) // email and username belong to one user
+                {
+                    var roles = await _userManager.GetRolesAsync(userByEmail);
+                    if (roles.Contains("Admin")) // user is admin
+                    {
+                        // nothing to do here
+                    }
+                    else
+                    {
+                        await _userManager.DeleteAsync(userByUsername);
+                        await SeedAdminAsync(cancellationToken);
+                    }
+                }
+                else // email and username belong to different users
+                {
+                    await _userManager.DeleteAsync(userByUsername);
+                    await _userManager.DeleteAsync(userByEmail);
+                    await SeedAdminAsync(cancellationToken);
+                }
+            }
+
         }
 
         private async Task SeedRolesAsync(CancellationToken cancellationToken)
