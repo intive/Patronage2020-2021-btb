@@ -16,7 +16,6 @@ namespace BTB.Server.Services
 
         private readonly SmtpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _domainUrl;
 
         static EmailService()
         {
@@ -27,7 +26,6 @@ namespace BTB.Server.Services
         {
             _client = _configurator.Configure(config.Value);
             _httpContextAccessor = httpContextAccessor;
-            _domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
         }
 
         public void Send(string to, string title, string message)
@@ -52,6 +50,8 @@ namespace BTB.Server.Services
 
         public void Send(string to, string title, string message, EmailTemplate emailTemplate)
         {
+            var domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+
             if (emailTemplate == null)
             {
                 throw new ArgumentNullException(nameof(emailTemplate));
@@ -59,7 +59,7 @@ namespace BTB.Server.Services
 
             try
             {
-                string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", _domainUrl).Replace("[MESSAGE]", message);
+                string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", domainUrl).Replace("[MESSAGE]", message);
 
                 var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
                 {
