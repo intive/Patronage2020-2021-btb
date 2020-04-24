@@ -259,6 +259,17 @@ else
 
     public async Task LoadLogsFromDb()
     {
+        string date = "";
+
+        if (ValidateDate())
+        {
+            date = QueryModel.LogDate;
+        }
+        else
+        {
+            date = "";
+        }
+
         var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage-1)*(int)_currentQuantity+1}");
         _totalAmount = int.Parse(response.Headers.GetValues("quantity").First());
         var jsonString = await response.Content.ReadAsStringAsync();
@@ -292,7 +303,7 @@ else
                 }
             }
 
-        _processingHttpRequest = false;
+            _processingHttpRequest = false;
         }
         else
         {
@@ -317,7 +328,7 @@ else
         return Http.GetAsync($"api/filelog/config?property={LogDateFormatName}");
     }
 
-     private async Task SelectPage(int page)
+    private async Task SelectPage(int page)
     {
         _currentPage = page;
         await LoadLogsFromDb();
@@ -328,13 +339,12 @@ else
         SelectedStackTrace = stackTrace;
     }
 
-    public bool CanDownloadFile()
+    public bool ValidateDate()
     {
-        bool correct = true;
         Regex letterRegex = new Regex("[a-zA-Z]+");
         string[] input = new string[] { QueryModel.Day, QueryModel.Month, QueryModel.Year };
         int[] correctLengths = new int[] { 2, 2, 4 };
-
+        bool correct = true;
 
         for (int i = 0; i < input.Length; i++)
         {
@@ -345,14 +355,21 @@ else
 
             if (input[i].Length != correctLengths[i])
             {
-                correct = false;
+                return false;
             }
 
             if (letterRegex.IsMatch(input[i]))
             {
-                correct = false;
+                return false;
             }
         }
+
+        return correct;
+    }
+
+    public bool CanDownloadFile()
+    {
+        bool correct = ValidateDate();
 
         if (string.IsNullOrEmpty(QueryModel.Contains))
         {
