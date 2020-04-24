@@ -1,9 +1,6 @@
 ﻿using BTB.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Persistence.Configurations
 {
@@ -13,10 +10,7 @@ namespace BTB.Persistence.Configurations
         {
             builder.HasKey(a => a.Id);
 
-            builder.Property(a => a.Header)
-                .IsRequired();
-
-            builder.Property(a => a.Footer)
+            builder.Property(a => a.Content)
                 .IsRequired();
         }
     }

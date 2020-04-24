@@ -1,11 +1,12 @@
 ﻿using BTB.Application.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 
 namespace BTB.Server.Services
 {
@@ -13,16 +14,31 @@ namespace BTB.Server.Services
     {
         private static EmailConfigurator _configurator;
 
-        private SmtpClient _client { get; }
+        private readonly SmtpClient _client;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _domainUrl;
+        private ILogger _logger;
+        private const string DefaultDomainUrl = "https://dev-patronage-btb.azurewebsites.net/";
 
         static EmailService()
         {
             _configurator = new EmailConfigurator();
         }
 
-        public EmailService(IOptions<EmailConfig> config)
+        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor, ILogger<EmailService> logger)
         {
             _client = _configurator.Configure(config.Value);
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+
+            if (httpContextAccessor.HttpContext == null)
+            {
+                _domainUrl = DefaultDomainUrl;
+            }
+            else
+            {
+                _domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+            }
         }
 
         public void Send(string to, string title, string message)
@@ -37,10 +53,11 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
+                _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
-            { 
-                // TODO: Log exception
+            {
+                _logger.LogError(e, $"Error occured during attempt to send an email titled {title} to adress {to}");
                 Console.WriteLine(e);
             }
         }
@@ -54,23 +71,21 @@ namespace BTB.Server.Services
 
             try
             {
-                var builder = new StringBuilder();
-                builder.Append(emailTemplate.Header);
-                builder.Append(message);
-                builder.Append(emailTemplate.Footer);
+                string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", _domainUrl).Replace("[MESSAGE]", message);
 
                 var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
                 {
                     Subject = title,
-                    Body = builder.ToString(),
+                    Body = mailMessage,
                     IsBodyHtml = true
                 };
 
                 _client.Send(mail);
+                _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
             {
-                // TODO: Log exception
+                _logger.LogError(e, $"Error occured during attempt to send an email titled {title} to adress {to}");
                 Console.WriteLine(e);
             }            
         }

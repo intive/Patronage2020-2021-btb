@@ -2,6 +2,7 @@
 using BTB.Application.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.System.Commands.SendEmailCommand;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System;
@@ -42,7 +43,8 @@ namespace Application.UnitTests.System.Commands
                 Content = expectedContent,
             };
 
-            var sut = new SendEmailCommandHandler(emailServiceMock.Object, configMock, _context);
+            ILoggerFactory factory = new LoggerFactory();
+            var sut = new SendEmailCommandHandler(emailServiceMock.Object, configMock, _context, factory.CreateLogger<SendEmailCommandHandler>());
             await sut.Handle(command, CancellationToken.None);
 
             if (string.IsNullOrWhiteSpace(expectedTo))

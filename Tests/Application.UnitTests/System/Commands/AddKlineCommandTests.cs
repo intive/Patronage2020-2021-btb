@@ -3,6 +3,7 @@ using BTB.Application.Common.Exceptions;
 using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -35,7 +36,8 @@ namespace Application.UnitTests.System.Commands
                 ClosePrice = closePrice
             };
 
-            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper);
+            ILoggerFactory factory = new LoggerFactory();
+            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper, factory.CreateLogger<AddKlineCommandHandler>());
             await sut.Handle(command, CancellationToken.None);
 
             Kline dbKline = await _context.Klines
@@ -66,7 +68,7 @@ namespace Application.UnitTests.System.Commands
                 ClosePrice = closePrice
             };
 
-            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper);
+            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper, _disabledLoggerFactory.CreateLogger<AddKlineCommandHandler>());
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));
         }
     }

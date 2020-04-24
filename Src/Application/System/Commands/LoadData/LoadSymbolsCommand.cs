@@ -6,6 +6,7 @@ using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.Extensions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace BTB.Application.System.Commands.LoadData
         {
             private readonly IBTBDbContext _context;
             private readonly IBinanceClient _client;
+            private readonly ILogger _logger;
 
             private IEnumerable<BinanceSymbol> _exchangeData;
             private List<Binance24HPrice> _prices24hList;
@@ -32,11 +34,11 @@ namespace BTB.Application.System.Commands.LoadData
             private Dictionary<string, int> _allowedSymbols;
             private const int PerSymbolLimit = 7;
 
-            public LoadSymbolsCommandHandler(IBTBDbContext context, IBinanceClient client)
+            public LoadSymbolsCommandHandler(IBTBDbContext context, IBinanceClient client, ILogger<LoadSymbolsCommandHandler> logger)
             {
                 _context = context;
                 _client = client;
-
+                _logger = logger;
                 _symbolsTemp = new Hashtable();
 
                 _tableChecker = (hashtable, value) =>
@@ -58,7 +60,12 @@ namespace BTB.Application.System.Commands.LoadData
 
                 if (!AreSymbolsAdded())
                 {
-                     await LoadAllSymbolsToDb();
+                    await LoadAllSymbolsToDb();
+                    _logger.LogInformation("Symbols has been loaded from Binance.");
+                }
+                else
+                {
+                    _logger.LogInformation("No need to load Symbols from Binance. (database is not empty)");
                 }
 
                 if (!ArePairsAdded())
@@ -67,7 +74,12 @@ namespace BTB.Application.System.Commands.LoadData
                     ValidateResponse((HttpStatusCode)priceResponse.ResponseStatusCode, priceResponse.Error);
 
                     _prices24hList = priceResponse.Data.ToList();
-                    await LoadPairsToDb();                 
+                    await LoadPairsToDb();
+                    _logger.LogInformation("SymbolPairs has been loaded from Binance.");
+                }
+                else
+                {
+                    _logger.LogInformation("No need to load SymbolPairs from Binance. (database is not empty)");
                 }
 
                 return Unit.Value;
@@ -121,6 +133,8 @@ namespace BTB.Application.System.Commands.LoadData
                     index++;
                 }
                 await _context.Symbols.AddRangeAsync(symbolArray);
+
+                _logger.LogInformation($"An amount of {symbolArray.Length} symbols is going to be saved in Database.");
                 _context.SaveChanges();
             }
 
@@ -166,6 +180,8 @@ namespace BTB.Application.System.Commands.LoadData
                 }
 
                 await _context.SymbolPairs.AddRangeAsync(symbolPairs.ToArray());
+
+                _logger.LogInformation($"An amount of {symbolPairs.Count} symbols is going to be saved in Database.");
                 _context.SaveChanges();
             }
 

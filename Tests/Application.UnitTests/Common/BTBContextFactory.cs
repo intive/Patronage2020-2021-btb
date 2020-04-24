@@ -66,7 +66,7 @@ namespace Application.UnitTests.Common
                 new Alert() { Id = 6, UserId = "3", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 6000.0m, SendEmail = false, Email = null, Message = null }
             );
 
-            context.EmailTemplates.Add(new EmailTemplate() { Id = 1, Header = "<EmailHeader />", Footer = "<EmailFooter />" });
+            context.EmailTemplates.Add(new EmailTemplate() { Id = 1, Content = "<MESSAGE><br><DOMAIN_URL>"});
 
             context.SaveChanges();
 
