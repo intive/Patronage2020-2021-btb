@@ -34,6 +34,8 @@ namespace BTB.Application.Authorize.Commands.Register
                 throw new BadRequestException(errors.ToString());
             }
 
+            await _userManager.AddToRoleAsync(user, "User");
+
             return Unit.Value;
         }
     }

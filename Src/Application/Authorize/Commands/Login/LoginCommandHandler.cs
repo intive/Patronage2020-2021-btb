@@ -29,10 +29,12 @@ namespace BTB.Application.Authorize.Commands.Login
                 throw new BadRequestException("Incorrect username or password.");
             }
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (singInResult.Succeeded)
             {
-                return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName);
+                return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName, roles);
             }
 
             throw new BadRequestException("Incorrect username or password.");

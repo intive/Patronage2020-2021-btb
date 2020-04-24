@@ -18,7 +18,7 @@ namespace BTB.Infrastructure.Identity
             _configuration = configuration;
         }
 
-        public string GenerateToken(string identifier, string email, string name)
+        public string GenerateToken(string identifier, string email, string name, IList<string> roles)
         {
             var claims = new List<Claim>()
                 {
@@ -27,10 +27,15 @@ namespace BTB.Infrastructure.Identity
                     new Claim(ClaimTypes.Name, name)
                 };
 
+            foreach(var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwt:key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.UtcNow.AddDays(7);
+            var expiration = DateTime.UtcNow.AddDays(30);
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: null,
