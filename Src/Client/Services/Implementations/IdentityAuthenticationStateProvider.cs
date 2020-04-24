@@ -32,9 +32,9 @@ namespace BTB.Client.Services.Implementations
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(savedToken.ParseClaimsFromJwt(), "jwt")));
         }
 
-        public void MarkUserAsAuthenticated(string name)
+        public void MarkUserAsAuthenticated(string token)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, name) }, "jwt"));
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(token.ParseClaimsFromJwt(), "jwt"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }
