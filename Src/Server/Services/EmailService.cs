@@ -1,6 +1,7 @@
 ﻿using BTB.Application.Common;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net;
@@ -13,16 +14,20 @@ namespace BTB.Server.Services
     {
         private static EmailConfigurator _configurator;
 
-        private SmtpClient _client { get; }
+        private readonly SmtpClient _client;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _domainUrl;
 
         static EmailService()
         {
             _configurator = new EmailConfigurator();
         }
 
-        public EmailService(IOptions<EmailConfig> config)
+        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor)
         {
             _client = _configurator.Configure(config.Value);
+            _httpContextAccessor = httpContextAccessor;
+            _domainUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
         }
 
         public void Send(string to, string title, string message)
@@ -54,15 +59,12 @@ namespace BTB.Server.Services
 
             try
             {
-                var builder = new StringBuilder();
-                builder.Append(emailTemplate.Header);
-                builder.Append(message);
-                builder.Append(emailTemplate.Footer);
+                string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", _domainUrl).Replace("[MESSAGE]", message);
 
                 var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
                 {
                     Subject = title,
-                    Body = builder.ToString(),
+                    Body = mailMessage,
                     IsBodyHtml = true
                 };
 
