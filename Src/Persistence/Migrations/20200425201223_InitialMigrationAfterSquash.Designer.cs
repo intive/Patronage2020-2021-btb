@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200324193844_KlinesInDb")]
-    partial class KlinesInDb
+    [Migration("20200425201223_InitialMigrationAfterSquash")]
+    partial class InitialMigrationAfterSquash
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,11 +28,25 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Condition")
-                        .IsRequired()
+                    b.Property<decimal>("AdditionalValue")
+                        .HasColumnType("decimal(18, 9)");
+
+                    b.Property<int>("Condition")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
@@ -42,27 +56,95 @@ namespace BTB.Persistence.Migrations
                     b.Property<bool>("SendEmail")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                    b.Property<int>("SymbolPairId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("TriggerOnce")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(18, 9)");
 
-                    b.Property<string>("ValueType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ValueType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("WasTriggered")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SymbolPairId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Alerts");
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.AuditTrail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Column")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NewValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Table")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditTrail");
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.EmailTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailTemplates");
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.FavoriteSymbolPair", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SymbolPairId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ApplicationUserId", "SymbolPairId");
+
+                    b.HasIndex("SymbolPairId");
+
+                    b.ToTable("FavoriteSymbolPairs");
                 });
 
             modelBuilder.Entity("BTB.Domain.Entities.Kline", b =>
@@ -73,19 +155,19 @@ namespace BTB.Persistence.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("ClosePrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<int>("DurationTimestamp")
                         .HasColumnType("int");
 
                     b.Property<decimal>("HighestPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<decimal>("LowestPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<decimal>("OpenPrice")
-                        .HasColumnType("decimal(16, 5)");
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<long>("OpenTimestamp")
                         .HasColumnType("bigint");
@@ -94,13 +176,64 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Volume")
-                        .HasColumnType("decimal(16, 8)");
+                        .HasColumnType("decimal(18, 9)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.HasIndex("SymbolPairId");
+                    b.HasIndex("DurationTimestamp")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("SymbolPairId")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("Klines");
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.LogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StackTrace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStampUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Category")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Level")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("TimeStampUtc")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("BTB.Domain.Entities.Symbol", b =>
@@ -149,9 +282,21 @@ namespace BTB.Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FavouriteTradingPair")
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfileBio")
                         .HasColumnType("nvarchar(256)")
@@ -385,10 +530,31 @@ namespace BTB.Persistence.Migrations
 
             modelBuilder.Entity("BTB.Domain.Entities.Alert", b =>
                 {
+                    b.HasOne("BTB.Domain.Entities.SymbolPair", "SymbolPair")
+                        .WithMany("Alerts")
+                        .HasForeignKey("SymbolPairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BTB.Domain.Entities.ApplicationUser", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BTB.Domain.Entities.FavoriteSymbolPair", b =>
+                {
+                    b.HasOne("BTB.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("FavoritePairs")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BTB.Domain.Entities.SymbolPair", "SymbolPair")
+                        .WithMany("FavoritePairs")
+                        .HasForeignKey("SymbolPairId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
