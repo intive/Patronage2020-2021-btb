@@ -29,7 +29,7 @@ namespace BTB.Server.Common.Logger
             return _provider.IsEnabled(logLevel);
         }
 
-        public async void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (IsEnabled(logLevel))
             {
@@ -39,7 +39,7 @@ namespace BTB.Server.Common.Logger
                 entry.Text = exception?.Message ?? exception?.Source ?? state?.ToString();
 
 
-                await _provider.WriteLogAsync(entry);
+                _provider.WriteLogAsync(entry);
             }
         }
     }

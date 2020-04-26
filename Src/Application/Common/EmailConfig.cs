@@ -11,5 +11,6 @@ namespace BTB.Application.Common
         public bool EnableSsl { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
+        public string ApplicationDefaultUrl { get; set; }
     }
 }

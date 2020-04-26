@@ -75,9 +75,9 @@ namespace BTB.Server
 
                 services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
 
+                services.AddApplication();
                 services.AddInfrastructure(Configuration, Environment);
                 services.AddPersistence(Configuration);
-                services.AddApplication();
 
                 services.Configure<ApiBehaviorOptions>(options =>
                 {
