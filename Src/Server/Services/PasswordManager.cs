@@ -29,7 +29,7 @@ namespace BTB.Server.Services
 
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
-            logger = logger;
+            _logger = logger;
         }
 
         public async Task<Unit> ChangePassword(ChangePasswordCommand changePasswordCommand)
