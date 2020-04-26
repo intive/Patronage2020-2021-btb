@@ -7,32 +7,33 @@ namespace BTB.Infrastructure.Identity
 {
     public class UserAccessor : IUserAccessor
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private string _userId;
+        private string _username;
+        private string _userEmail;
 
         public UserAccessor(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _userId = httpContextAccessor.HttpContext?.User?.Claims?
+                .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            _username = httpContextAccessor.HttpContext?.User?.Claims?
+                .FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+            _userEmail = httpContextAccessor.HttpContext?.User?.Claims?
+                .FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
         }
 
         public string GetCurrentUserId()
         {
-            var userId = _httpContextAccessor.HttpContext.User?.Claims?
-                .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            return _userId;
         }
 
         public string GetCurrentUserName()
         {
-            var username = _httpContextAccessor.HttpContext.User?.Claims?
-                .FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
-            return username;
+            return _username;
         }
 
         public string GetCurrentUserEmail()
         {
-            var email = _httpContextAccessor.HttpContext.User?.Claims?
-                .FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-            return email;
+            return _userEmail;
         }
 
     }

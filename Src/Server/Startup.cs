@@ -75,9 +75,9 @@ namespace BTB.Server
 
                 services.Configure<BinanceSettings>(Configuration.GetSection("BinanceSettings"));
 
+                services.AddApplication();
                 services.AddInfrastructure(Configuration, Environment);
                 services.AddPersistence(Configuration);
-                services.AddApplication();
 
                 services.Configure<ApiBehaviorOptions>(options =>
                 {
@@ -107,7 +107,6 @@ namespace BTB.Server
                 });
 
                 services.AddScoped<IEmailService, EmailService>();
-                services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
                 services.AddTransient<IPasswordManager, PasswordManager>();
                 services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
                 services.AddScoped<ILogFileService, LogFileSystemService>();
