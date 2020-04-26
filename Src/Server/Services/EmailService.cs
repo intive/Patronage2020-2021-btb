@@ -18,7 +18,6 @@ namespace BTB.Server.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _domainUrl;
         private ILogger _logger;
-        private const string DefaultDomainUrl = "https://dev-patronage-btb.azurewebsites.net/";
 
         static EmailService()
         {
@@ -33,7 +32,7 @@ namespace BTB.Server.Services
 
             if (httpContextAccessor.HttpContext == null)
             {
-                _domainUrl = DefaultDomainUrl;
+                _domainUrl = config.Value.ApplicationDefaultUrl;
             }
             else
             {
