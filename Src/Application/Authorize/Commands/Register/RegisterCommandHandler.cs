@@ -6,16 +6,21 @@ using System.Threading;
 using System.Text;
 using System.Linq;
 using MediatR;
+using BTB.Application.Common.Interfaces;
 
 namespace BTB.Application.Authorize.Commands.Register
 {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand>
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IGamblePointManager _gamblePointManager;
 
-        public RegisterCommandHandler(UserManager<ApplicationUser> userManager)
+        private const decimal NumberOfPointsToAddToNewUser = 1000;
+
+        public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IGamblePointManager gamblePointManager)
         {
             _userManager = userManager;
+            _gamblePointManager = gamblePointManager;
         }
 
         public async Task<Unit> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -35,6 +40,8 @@ namespace BTB.Application.Authorize.Commands.Register
             }
 
             await _userManager.AddToRoleAsync(user, "User");
+
+            await _gamblePointManager.InitGamblePoints(user.UserName, NumberOfPointsToAddToNewUser, cancellationToken);
 
             return Unit.Value;
         }

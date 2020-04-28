@@ -14,13 +14,13 @@ namespace BTB.Persistence.Configurations
                 .WithMany(s => s.FavoritePairs)
                 .HasForeignKey(f => f.SymbolPairId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(f => f.ApplicationUser)
                 .WithMany(u => u.FavoritePairs)
                 .HasForeignKey(f => f.ApplicationUserId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

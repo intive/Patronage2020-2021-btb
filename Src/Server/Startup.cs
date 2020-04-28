@@ -20,13 +20,10 @@ using Newtonsoft.Json.Converters;
 using System.Net.Mime;
 using System.Linq;
 using System;
-using MediatR;
-using BTB.Application.Common;
 using BTB.Server.Common.Logger;
 using BTB.Server.Common.Logger.Database;
 using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Behaviours;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
 namespace BTB.Server
@@ -111,6 +108,7 @@ namespace BTB.Server
                 services.AddTransient<IPasswordManager, PasswordManager>();
                 services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
                 services.AddScoped<ILogFileService, LogFileSystemService>();
+                services.AddScoped<IGamblePointManager, GamblePointManager>();
 
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
@@ -122,7 +120,13 @@ namespace BTB.Server
                 {
                     c.TimeZoneInfo = TimeZoneInfo.Local;
                     c.CronExpression = @"* * * * *";
-                }); ;
+                });
+
+                services.AddCronJob<DailyAddGamblePointsJob>(c =>
+                {
+                    c.TimeZoneInfo = TimeZoneInfo.Local;
+                    c.CronExpression = @"0 1 * * *";
+                });
 
                 services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
             }

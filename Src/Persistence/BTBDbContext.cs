@@ -1,5 +1,4 @@
-﻿using Binance.Net.Objects;
-using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Interfaces;
 using BTB.Common;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +23,7 @@ namespace BTB.Persistence
         public DbSet<FavoriteSymbolPair> FavoriteSymbolPairs { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<LogEntry> Logs { get; set; }
+        public DbSet<GamblePoint> GamblePoints { get; set; }
 
         private readonly IUserAccessor _userAccessor;
         private readonly IDateTime _dateTime;
@@ -60,6 +59,7 @@ namespace BTB.Persistence
             builder.ApplyConfiguration(new AuditTrailConfiguration());
             builder.ApplyConfiguration(new FavoriteSymbolPairConfiguration());
             builder.ApplyConfiguration(new LogEntryConfiguration());
+            builder.ApplyConfiguration(new GamblePointConfiguration());
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

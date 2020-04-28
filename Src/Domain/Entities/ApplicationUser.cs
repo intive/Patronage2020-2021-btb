@@ -8,5 +8,6 @@ namespace BTB.Domain.Entities
         public virtual IList<Alert> Alerts { get; set; } = new List<Alert>();
         public virtual UserProfileInfo ProfileInfo { get; set; }
         public virtual IEnumerable<FavoriteSymbolPair> FavoritePairs { get; set; } = new List<FavoriteSymbolPair>();
+        public virtual GamblePoint GamblePoints { get; set; }
     }
 }
