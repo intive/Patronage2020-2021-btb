@@ -16,13 +16,17 @@ namespace BTB.Application.System.Commands.SeedSampleData
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IBTBDbContext _context;
+        private readonly IGamblePointManager _gamblePointManager;
 
-        public SeedSampleDataCommandHandler(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IBTBDbContext context)
+        private const decimal NumberOfPointsToAddToNewUser = 1000;
+
+        public SeedSampleDataCommandHandler(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IBTBDbContext context, IGamblePointManager gamblePointManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
+            _gamblePointManager = gamblePointManager;
         }
 
         public async Task<Unit> Handle(SeedSampleDataCommand request, CancellationToken cancellationToken)
@@ -109,6 +113,7 @@ namespace BTB.Application.System.Commands.SeedSampleData
             };
             await _userManager.CreateAsync(user, _configuration["MainAdmin:password"]);
             await _userManager.AddToRoleAsync(user, "Admin");
+            await _gamblePointManager.InitGamblePoints(user.UserName, NumberOfPointsToAddToNewUser, cancellationToken);
         }
 
         public async Task SeedTemplateAsync(CancellationToken cancellationToken)

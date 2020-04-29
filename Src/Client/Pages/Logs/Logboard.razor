@@ -79,7 +79,7 @@ else
             <div>
                 @if (CanDownloadFile())
                 {
-                    <a class="btn btn-primary btn-sm" href="api/filelog/download?logDate=@QueryModel.LogDate&logLevel=@QueryModel.LogLevel&contains=@QueryModel.Contains" download="logs">Download logs</a>
+                    <a class="btn btn-primary btn-sm" href="api/filelog/download?logDate=@QueryModel.LogDate&logLevel=@QueryModel.LogLevel&contains=@QueryModel.Contains" download="logs.zip" target="_blank" >Download logs</a>
                 }
                 else
                 {
