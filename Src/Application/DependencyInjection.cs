@@ -31,6 +31,7 @@ using BTB.Application.Logs;
 using BTB.Application.Logs.Commands;
 using BTB.Application.Authorize.Commands.SendResetLink;
 using BTB.Application.Authorize.Commands.ResetPassword;
+using BTB.Application.Bets.Commands.CreateBetCommand;
 
 namespace BTB.Application
 {
@@ -64,12 +65,12 @@ namespace BTB.Application
             services.AddTransient<IValidator<CalculateRSICommand>, CalculateRSICommandValidator>();
             services.AddTransient<IValidator<CalculateSMACommand>, CalculateSMACommandValidator>();
             services.AddTransient<IValidator<ChangePasswordCommand>, ChangePasswordCommandValidator>();
-
             services.AddTransient<IValidator<GetLogsFromFileSystemQuery>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromDBCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromFileSystemCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<SendResetLinkCommand>, SendResetLinkCommandValidator>();
             services.AddTransient<IValidator<ResetPasswordCommand>, ResetPasswordCommandValidator>();
+            services.AddTransient<IValidator<CreateBetCommand>, CreateBetCommandValidator>();
             services.AddHttpContextAccessor();
 
             return services;

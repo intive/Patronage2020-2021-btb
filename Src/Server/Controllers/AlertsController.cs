@@ -26,6 +26,11 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message = "Invalid pagination data." });
+            }
+
             var paginatedResult = await Mediator.Send(new GetAllAlertsQuery() { Pagination = pagination }, cancellationToken);
             HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecordsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);

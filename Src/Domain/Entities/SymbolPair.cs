@@ -6,7 +6,8 @@ namespace BTB.Domain.Entities
     {
         public virtual IEnumerable<Kline> Klines { get; set; } = new List<Kline>();
         public virtual IEnumerable<FavoriteSymbolPair> FavoritePairs { get; set; } = new List<FavoriteSymbolPair>();
-        public IEnumerable<Alert> Alerts { get; set; } = new List<Alert>();
+        public virtual IEnumerable<Alert> Alerts { get; set; } = new List<Alert>();
+        public virtual IEnumerable<Bet> Bets { get; set; } = new List<Bet>();
 
         public int Id { get; set; }
 
