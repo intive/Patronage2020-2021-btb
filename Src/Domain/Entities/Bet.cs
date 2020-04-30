@@ -1,11 +1,12 @@
-﻿using BTB.Domain.Enums;
+﻿using BTB.Domain.Common;
+using BTB.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BTB.Domain.Entities
 {
-    public class Bet
+    public class Bet : AuditableEntity
     {
         public int Id { get; set; }
         public string UserId { get; set; }
