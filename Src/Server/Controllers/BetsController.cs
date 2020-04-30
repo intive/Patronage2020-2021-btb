@@ -41,7 +41,7 @@ namespace BTB.Server.Controllers
         /// Creates a bet for the logged in user.
         /// </summary>
         /// <param name="command"> From-body data to create a bet.</param>
-        /// <returns>An object that was created.</returns>
+        /// <returns>The object that was created.</returns>
         /// <response code="201">When the bet is created successfully.</response>
         /// <response code="400">When validation error occurs.</response>
         [HttpPost]
