@@ -9,5 +9,6 @@ namespace BTB.Domain.Entities
         public virtual UserProfileInfo ProfileInfo { get; set; }
         public virtual IEnumerable<FavoriteSymbolPair> FavoritePairs { get; set; } = new List<FavoriteSymbolPair>();
         public virtual GamblePoint GamblePoints { get; set; }
+        public virtual IEnumerable<Bet> Bets { get; set; } = new List<Bet>();
     }
 }

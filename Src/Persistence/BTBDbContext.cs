@@ -24,6 +24,7 @@ namespace BTB.Persistence
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<LogEntry> Logs { get; set; }
         public DbSet<GamblePoint> GamblePoints { get; set; }
+        public DbSet<Bet> Bets { get; set; }
 
         private readonly IUserAccessor _userAccessor;
         private readonly IDateTime _dateTime;
@@ -60,6 +61,7 @@ namespace BTB.Persistence
             builder.ApplyConfiguration(new FavoriteSymbolPairConfiguration());
             builder.ApplyConfiguration(new LogEntryConfiguration());
             builder.ApplyConfiguration(new GamblePointConfiguration());
+            builder.ApplyConfiguration(new BetConfiguration());
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

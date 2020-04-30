@@ -30,6 +30,7 @@ using System.Reflection;
 using FluentValidation;
 using AutoMapper;
 using MediatR;
+using BTB.Application.Bets.Commands.CreateBetCommand;
 
 namespace BTB.Application
 {
@@ -65,12 +66,12 @@ namespace BTB.Application
             services.AddTransient<IValidator<ChangePasswordCommand>, ChangePasswordCommandValidator>();
             services.AddTransient<IValidator<GiveRoleToUserCommand>, GiveRoleToUserCommandValidator>();
             services.AddTransient<IValidator<TakeRoleFromUserCommand>, TakeRoleFromUserCommandValidator>();
-
             services.AddTransient<IValidator<GetLogsFromFileSystemQuery>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromDBCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<ClearLogsFromFileSystemCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<SendResetLinkCommand>, SendResetLinkCommandValidator>();
             services.AddTransient<IValidator<ResetPasswordCommand>, ResetPasswordCommandValidator>();
+            services.AddTransient<IValidator<CreateBetCommand>, CreateBetCommandValidator>();
             services.AddHttpContextAccessor();
 
             return services;

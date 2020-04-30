@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BTB.Application.Alerts.Commands.CreateAlertCommand;
 using BTB.Application.Alerts.Commands.UpdateAlertCommand;
+using BTB.Application.Bets.Commands.CreateBetCommand;
 using BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair;
 using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
@@ -31,6 +32,9 @@ namespace BTB.Application.Common.Mappings
 
             CreateMap<AddKlineCommand, Kline>()
                 .ForMember(kline => kline.SymbolPair, opt => opt.Ignore());
+
+            CreateMap<CreateBetCommand, Bet>()
+                .ForMember(bet => bet.SymbolPair, opt => opt.Ignore());
         }
     }
 }

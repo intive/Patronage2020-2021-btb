@@ -40,6 +40,12 @@ namespace BTB.Application.Common.Mappings
                 .ForMember(k => k.LowestPrice, opts => opts.MapFrom(src => src.Low));
 
             CreateMap<ApplicationUser, ApplicationUserVO>();
+
+            CreateMap<Bet, BetVO>()
+                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(bet => bet.SymbolPair.PairName))
+                .ForMember(vo => vo.CreatedAt, opt => opt.MapFrom(bet => bet.CreatedAt.ToString("dddd, dd MMMM yyyy HH:mm:ss")))
+                .ForMember(vo => vo.RateType, opt => opt.MapFrom(bet => bet.RateType.ToString()))
+                .ForMember(vo => vo.TimeInterval, opt => opt.MapFrom(bet => bet.TimeInterval.ToString()));
         }
     }
 }
