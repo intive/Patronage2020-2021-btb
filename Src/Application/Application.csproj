@@ -28,6 +28,7 @@
     <Folder Include="Dashboard\Commands\" />
     <Folder Include="Details\Commands\" />
     <Folder Include="UserManagement\Commands\" />
+    <Folder Include="GamblePoints\Queries\" />
   </ItemGroup>
 
 </Project>

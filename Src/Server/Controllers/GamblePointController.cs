@@ -13,7 +13,6 @@ namespace BTB.Server.Controllers
         /// </summary>
         /// <returns>User gamble points vo.<see cref="GamblePointsVO"/></returns>
         /// <response code="200">When successful.</response>
-        /// <response code="400">When can't find user points.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
