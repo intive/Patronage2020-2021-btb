@@ -16,7 +16,19 @@ namespace BTB.Application.Bets.Commands.CreateBetCommand
                 .NotEmpty();
 
             RuleFor(b => b.Points)
-                .GreaterThan(0.0m);
+                .NotNull()
+                .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
+
+            RuleFor(b => b.LowerPriceThreshold)
+                .NotNull()
+                .GreaterThan(0.0m)
+                .LessThan(999999999.999999999m);
+
+            RuleFor(b => b.UpperPriceThreshold)
+                .NotNull()
+                .GreaterThan(b => b.LowerPriceThreshold)
+                .LessThan(999999999.999999999m);
 
             var validTypes = new string[] { "standard" };
             RuleFor(b => b.RateType)

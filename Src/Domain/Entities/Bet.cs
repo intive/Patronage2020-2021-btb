@@ -13,6 +13,8 @@ namespace BTB.Domain.Entities
         public int SymbolPairId { get; set; }
         public virtual SymbolPair SymbolPair { get; set; }
         public decimal Points { get; set; }
+        public decimal LowerPriceThreshold { get; set; }
+        public decimal UpperPriceThreshold { get; set; }
         public DateTime CreatedAt { get; set; }
         public BetRateType RateType { get; set; }
         public BetTimeInterval TimeInterval { get; set; }

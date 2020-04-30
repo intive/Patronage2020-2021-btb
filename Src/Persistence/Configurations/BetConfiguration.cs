@@ -17,6 +17,14 @@ namespace BTB.Persistence.Configurations
                 .IsRequired()
                 .HasColumnType("decimal(18, 9)");
 
+            builder.Property(b => b.LowerPriceThreshold)
+                .IsRequired()
+                .HasColumnType("decimal(18, 9)");
+
+            builder.Property(b => b.UpperPriceThreshold)
+                .IsRequired()
+                .HasColumnType("decimal(18, 9)");
+
             builder.Property(b => b.CreatedAt)
                 .IsRequired();
 

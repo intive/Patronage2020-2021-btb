@@ -21,9 +21,9 @@ namespace BTB.Server.Services
 
         /// <summary>
         /// This function is used when new user is registered.
-        /// Adding new gamble gamblePoints with free gamblePoints to database.
+        /// Adding new gamble gamblePoints with free gamble points to database.
         /// </summary>
-        /// <param name="amount">Number of gamblePoints to initialize.</param>
+        /// <param name="amount">Number of gamble points to initialize.</param>
         /// <param name="userName">Used to find user by name.</param>
         public async Task<Unit> InitGamblePoints(string userName, decimal amount, CancellationToken cancellationToken)
         {
@@ -32,6 +32,11 @@ namespace BTB.Server.Services
             if(user == null)
             {
                 throw new BadRequestException("Unable to find user.");
+            }
+
+            if(_context.GamblePoints.Find(user.Id) != null)
+            {
+                throw new BadRequestException("User already have points.");
             }
 
             _context.GamblePoints.Add(new GamblePoint() { UserId = user.Id, FreePoints = amount });
@@ -59,10 +64,10 @@ namespace BTB.Server.Services
         }
 
         /// <summary>
-        /// Add or substract amount from free gamblePoints.
+        /// Add or substract amount from free gamble points.
         /// </summary>
-        /// <param name="userId">Used to find user gamblePoints.</param>
-        /// <param name="amount">Number of gamblePoints to add or substract.</param>
+        /// <param name="userId">Used to find user gamble points.</param>
+        /// <param name="amount">Number of gamble points to add or substract.</param>
         public async Task<Unit> ChangeFreePointsAmount(string userId, decimal amount, CancellationToken cancellationToken)
         {
             GamblePoint userPoints = _context.GamblePoints.Find(userId);
@@ -79,10 +84,10 @@ namespace BTB.Server.Services
         }
 
         /// <summary>
-        /// Add or substract amount from sealed gamblePoints.
+        /// Add or substract amount from sealed gamble points.
         /// </summary>
-        /// <param name="userId">Used for find user gamblePoints.</param>
-        /// <param name="amount">Number of gamblePoints to add or substract.</param>
+        /// <param name="userId">Used for find user gamble points.</param>
+        /// <param name="amount">Number of gamble points to add or substract.</param>
         public async Task<Unit> ChangeSealedPointsAmount(string userId, decimal amount, CancellationToken cancellationToken)
         {
             GamblePoint userPoints = _context.GamblePoints.Find(userId);
@@ -100,10 +105,10 @@ namespace BTB.Server.Services
 
 
         /// <summary>
-        /// Transfer amount from free gamblePoints to sealed gamblePoints.
+        /// Transfer amount from free gamble points to sealed gamble points.
         /// </summary>
-        /// <param name="userId">Used for find user gamblePoints.</param>
-        /// <param name="amount">Number of gamblePoints to transfer.</param>
+        /// <param name="userId">Used for find user gamble points.</param>
+        /// <param name="amount">Number of gamble points to transfer.</param>
         public async Task<Unit> SealGamblePoints(string userId, decimal amount, CancellationToken cancellationToken)
         {
             GamblePoint userPoints = _context.GamblePoints.Find(userId);
@@ -122,10 +127,10 @@ namespace BTB.Server.Services
         }
 
         /// <summary>
-        /// Transfer amount from sealed gamblePoints to free gamblePoints.
+        /// Transfer amount from sealed gamble points to free gamble points.
         /// </summary>
-        /// <param name="userId">Used for find user gamblePoints.</param>
-        /// <param name="amount">Number of gamblePoints to transfer.</param>
+        /// <param name="userId">Used for find user gamble points.</param>
+        /// <param name="amount">Number of gamble points to transfer.</param>
         public async Task<Unit> UnsealGamblePoints(string userId, decimal amount, CancellationToken cancellationToken)
         {
             GamblePoint userPoints = _context.GamblePoints.Find(userId);
@@ -144,9 +149,9 @@ namespace BTB.Server.Services
         }
 
         /// <summary>
-        /// Used to get number of user free gamblePoints
+        /// Used to get number of user free gamble points
         /// </summary>
-        /// <param name="userId">Used for find user gamblePoints.</param>
+        /// <param name="userId">Used for find user gamble points.</param>
         public decimal GetNumberOfFreePoints(string userId)
         {
             GamblePoint userPoints = _context.GamblePoints.Find(userId);
@@ -157,6 +162,22 @@ namespace BTB.Server.Services
             }
 
             return userPoints.FreePoints;
+        }
+
+        /// <summary>
+        /// Used to get user gamble points.
+        /// </summary>
+        /// <param name="userId">Used for find user gamble points.</param>
+        public GamblePoint GetGamblePoint(string userId)
+        {
+            GamblePoint userPoints = _context.GamblePoints.Find(userId);
+
+            if (userPoints == null)
+            {
+                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+            }
+
+            return userPoints;
         }
     }
 }

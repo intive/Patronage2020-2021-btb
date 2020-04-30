@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200429203035_AddedBetEntity")]
+    [Migration("20200430160826_AddedBetEntity")]
     partial class AddedBetEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,6 +133,9 @@ namespace BTB.Persistence.Migrations
                     b.Property<long>("KlineOpenTimestamp")
                         .HasColumnType("bigint");
 
+                    b.Property<decimal>("LowerPriceThreshold")
+                        .HasColumnType("decimal(18, 9)");
+
                     b.Property<decimal>("Points")
                         .HasColumnType("decimal(18, 9)");
 
@@ -144,6 +147,9 @@ namespace BTB.Persistence.Migrations
 
                     b.Property<int>("TimeInterval")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("UpperPriceThreshold")
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<string>("UserId")
                         .IsRequired()

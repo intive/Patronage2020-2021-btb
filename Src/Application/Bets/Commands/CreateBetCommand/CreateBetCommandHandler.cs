@@ -7,8 +7,7 @@ using BTB.Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,7 +38,6 @@ namespace BTB.Application.Bets.Commands.CreateBetCommand
             {
                 throw new BadRequestException($"Trading pair symbol '{request.SymbolPair}' does not exist.");
             }
-            SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
 
             string userId = _userAccessor.GetCurrentUserId();
             if (request.Points > _gamblePointsManager.GetNumberOfFreePoints(userId))
@@ -47,24 +45,27 @@ namespace BTB.Application.Bets.Commands.CreateBetCommand
                 throw new BadRequestException($"User (id: {userId}) does not have enough points to place a bet with {request.Points} points.");
             }
 
+            SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
+            Kline lastPairKline = await GetLastKlineBySymbolPairIdAsync(symbolPair.Id);
+            if (IsBetPriceRangeAboveLimit(request, lastPairKline))
+            {
+                throw new BadRequestException($"Cannot place bet. Price range is above limit. Current price for {symbolPair.PairName} is {lastPairKline.ClosePrice}.");
+            }
+
             var bet = _mapper.Map<Bet>(request);
             bet.UserId = userId;
+            bet.SymbolPair = symbolPair;
             bet.SymbolPairId = symbolPair.Id;
             bet.IsActive = true;
 
             var now = DateTime.Now;
             bet.CreatedAt = now;
-            long lastKlineTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
-            bet.KlineOpenTimestamp = lastKlineTimestamp + (long)bet.TimeInterval;
-            
+            long lastFiveMinPeriodTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
+            bet.KlineOpenTimestamp = lastFiveMinPeriodTimestamp + (long)bet.TimeInterval;
+
             await _context.Bets.AddAsync(bet, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             await _gamblePointsManager.SealGamblePoints(userId, bet.Points, cancellationToken);
-
-            bet.SymbolPair = await _context.SymbolPairs
-                .Include(sp => sp.BuySymbol)
-                .Include(sp => sp.SellSymbol)
-                .SingleOrDefaultAsync(sp => sp.Id == bet.SymbolPairId);
             return _mapper.Map<BetVO>(bet);
         }
 
@@ -72,6 +73,20 @@ namespace BTB.Application.Bets.Commands.CreateBetCommand
         {
             var delta = dateTime.Ticks % span.Ticks;
             return new DateTime(dateTime.Ticks - delta, dateTime.Kind);
+        }
+
+        private Task<Kline> GetLastKlineBySymbolPairIdAsync(int symbolPairId)
+        {
+            return _context.Klines
+                .OrderByDescending(kline => kline.OpenTimestamp)
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.DurationTimestamp == TimestampInterval.FiveMin);
+        }
+
+        private bool IsBetPriceRangeAboveLimit(CreateBetCommand request, Kline lastPairKline)
+        {
+            decimal delta = request.UpperPriceThreshold - request.LowerPriceThreshold;
+            decimal rangeLimit = lastPairKline.ClosePrice * 0.1m;
+            return delta > rangeLimit;
         }
     }
 }

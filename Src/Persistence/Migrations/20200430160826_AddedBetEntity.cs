@@ -16,6 +16,8 @@ namespace BTB.Persistence.Migrations
                     UserId = table.Column<string>(nullable: false),
                     SymbolPairId = table.Column<int>(nullable: false),
                     Points = table.Column<decimal>(type: "decimal(18, 9)", nullable: false),
+                    LowerPriceThreshold = table.Column<decimal>(type: "decimal(18, 9)", nullable: false),
+                    UpperPriceThreshold = table.Column<decimal>(type: "decimal(18, 9)", nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     RateType = table.Column<int>(nullable: false),
                     TimeInterval = table.Column<int>(nullable: false),

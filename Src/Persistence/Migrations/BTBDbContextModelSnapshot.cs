@@ -131,6 +131,9 @@ namespace BTB.Persistence.Migrations
                     b.Property<long>("KlineOpenTimestamp")
                         .HasColumnType("bigint");
 
+                    b.Property<decimal>("LowerPriceThreshold")
+                        .HasColumnType("decimal(18, 9)");
+
                     b.Property<decimal>("Points")
                         .HasColumnType("decimal(18, 9)");
 
@@ -142,6 +145,9 @@ namespace BTB.Persistence.Migrations
 
                     b.Property<int>("TimeInterval")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("UpperPriceThreshold")
+                        .HasColumnType("decimal(18, 9)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
