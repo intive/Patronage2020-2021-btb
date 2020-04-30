@@ -42,7 +42,7 @@ namespace BTB.Server.Controllers
         /// <param name="command"> From-body data to create an alert.</param>
         /// <returns>An object containing the data that was created.</returns>
         /// <response code="201">When alert is created successfully.</response>
-        /// <response code="400">When validation error occurs.</response>
+        /// <response code="400">When a validation error occurs.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,7 +62,7 @@ namespace BTB.Server.Controllers
         /// <param name="id">Id of the alert.</param>
         /// <param name="command"> From-body data to update an alert.</param>
         /// <response code="200">When successful.</response>
-        /// <response code="400">When validation error occurs.</response>
+        /// <response code="400">When a validation error occurs.</response>
         /// <response code="404">When alert with given id does not exist or does not belong to the user.</response>
         [Route("{id}")]
         [HttpPut]

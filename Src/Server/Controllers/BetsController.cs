@@ -43,7 +43,7 @@ namespace BTB.Server.Controllers
         /// <param name="command"> From-body data to create a bet.</param>
         /// <returns>The object that was created.</returns>
         /// <response code="201">When the bet is created successfully.</response>
-        /// <response code="400">When validation error occurs.</response>
+        /// <response code="400">When a validation error occurs.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
