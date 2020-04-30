@@ -1,14 +1,13 @@
-﻿using AutoMapper;
-using BTB.Application.Common.Models;
-using BTB.Domain.Entities;
+﻿using BTB.Application.Common.Models;
 using BTB.Domain.ValueObjects;
-using MediatR;
+using BTB.Domain.Extensions;
+using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using BTB.Domain.Extensions;
+using System.Threading;
+using System.Linq;
+using MediatR;
 
 namespace BTB.Application.UserManagement.Queries.GetUserListQuery
 {
