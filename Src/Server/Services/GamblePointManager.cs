@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace BTB.Server.Services
 {
@@ -12,11 +13,15 @@ namespace BTB.Server.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBTBDbContext _context;
+        private ILoggerFactory _loggerFactory;
+        private ILogger<GamblePointManager> _logger;
 
-        public GamblePointManager(UserManager<ApplicationUser> userManager, IBTBDbContext context)
+        public GamblePointManager(UserManager<ApplicationUser> userManager, IBTBDbContext context, ILoggerFactory loggerFactory)
         {
             _userManager = userManager;
             _context = context;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<GamblePointManager>();
         }
 
         /// <summary>
@@ -31,12 +36,13 @@ namespace BTB.Server.Services
 
             if(user == null)
             {
-                throw new BadRequestException("Unable to find user.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding user with username {userName} returned null.");
+                throw new DoesNotExistException("Unable to find user.");          
             }
 
             if(_context.GamblePoints.Find(user.Id) != null)
             {
-                throw new BadRequestException("User already have points.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Tried to add points to the user with name: {userName}. This user already has points.");
             }
 
             _context.GamblePoints.Add(new GamblePoint() { UserId = user.Id, FreePoints = amount });
@@ -74,7 +80,8 @@ namespace BTB.Server.Services
 
             if(userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             userPoints.FreePoints += amount;
@@ -94,7 +101,8 @@ namespace BTB.Server.Services
 
             if (userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             userPoints.SealedPoints += amount;
@@ -115,7 +123,8 @@ namespace BTB.Server.Services
 
             if (userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             userPoints.FreePoints -= amount;
@@ -137,7 +146,8 @@ namespace BTB.Server.Services
 
             if (userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             userPoints.SealedPoints -= amount;
@@ -158,7 +168,8 @@ namespace BTB.Server.Services
 
             if (userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             return userPoints.FreePoints;
@@ -174,7 +185,8 @@ namespace BTB.Server.Services
 
             if (userPoints == null)
             {
-                throw new BadRequestException($"Unable to find gamblePoints for user with id {userId}.");
+                _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
+                throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
             return userPoints;
