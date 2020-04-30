@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using BTB.Domain.Entities;
+using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,5 +14,6 @@ namespace BTB.Application.Common.Interfaces
         Task<Unit> SealGamblePoints(string userId, decimal amount, CancellationToken cancellationToken);
         Task<Unit> UnsealGamblePoints(string userId, decimal amount, CancellationToken cancellationToken);
         decimal GetNumberOfFreePoints(string userId);
+        GamblePoint GetGamblePoint(string userId);
     }
 }

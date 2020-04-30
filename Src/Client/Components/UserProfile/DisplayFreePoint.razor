@@ -1,0 +1,35 @@
+﻿@using System.Text.Json
+@using System.Threading
+@inject HttpClient Http
+@if (!_loading)
+{
+    <span class="font-weight-bold" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">&#9830;</span>
+    <span>@_points</span>
+}
+@code {
+
+    private bool _loading = true;
+    private decimal _points;
+    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpResponse = await Http.GetAsync("/api/GamblePoint");
+
+        if (_tokenSource.Token.IsCancellationRequested)
+        {
+            return;
+        }
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
+            GamblePointsVO pointsVO = JsonSerializer.Deserialize<GamblePointsVO>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            _points = Decimal.Round(pointsVO.FreePoints, 2);
+            _loading = false;
+        }
+
+    }
+
+}
