@@ -55,7 +55,7 @@ namespace BTB.Server.Services
             bet.IsActive = true;
 
             // this line was here for easier testing
-            //bet.TimeInterval = (BetTimeInterval)52;
+            //bet.TimeInterval = (BetTimeInterval)60;
 
             var now = DateTime.Now;
             bet.CreatedAt = now;

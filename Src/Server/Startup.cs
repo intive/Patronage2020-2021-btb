@@ -132,7 +132,7 @@ namespace BTB.Server
                 services.AddCronJob<CheckBetsJob>(c =>
                 {
                     c.TimeZoneInfo = TimeZoneInfo.Local;
-                    c.CronExpression = @"* * * * *";
+                    c.CronExpression = @"0 * * * *";
                 });
 
                 services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
