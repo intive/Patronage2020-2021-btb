@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Between
 {
-    public class BetweenConditionDetector : ConditionDetectorBase, IAlertConditionDetector<BasicConditionDetectorParameters>
+    public class BetweenConditionDetector : ConditionDetectorBase, IConditionDetector<BasicConditionDetectorParameters>
     {
         public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {
@@ -21,6 +21,17 @@ namespace BTB.Application.ConditionDetectors.Between
             decimal upperThreshold = alert.AdditionalValue;
 
             if (lowerThreshold <= value && value <= upperThreshold)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool IsConditionMet(Bet bet, BasicConditionDetectorParameters parameters)
+        {
+            decimal value = parameters.Kline.ClosePrice;
+            if (bet.LowerPriceThreshold <= value && value <= bet.UpperPriceThreshold)
             {
                 return true;
             }

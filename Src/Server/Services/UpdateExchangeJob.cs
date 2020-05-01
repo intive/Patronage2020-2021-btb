@@ -2,7 +2,6 @@
 using BTB.Application.System.Commands.LoadData;
 using BTB.Domain.Common;
 using BTB.Server.Common.CronGeneric;
-using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +10,8 @@ using BTB.Application.Common.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Interfaces;
-using BTB.Application.ConditionDetectors.Crossing;
 using static BTB.Application.System.Commands.LoadData.LoadKlinesCommand;
 using Binance.Net.Interfaces;
-using BTB.Application.ConditionDetectors;
 
 namespace BTB.Server.Services
 {

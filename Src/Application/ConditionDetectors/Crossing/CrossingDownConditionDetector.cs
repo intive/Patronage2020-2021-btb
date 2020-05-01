@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Crossing
 {
-    public class CrossingDownConditionDetector : ConditionDetectorBase, IAlertConditionDetector<BasicConditionDetectorParameters>
+    public class CrossingDownConditionDetector : ConditionDetectorBase, IConditionDetector<BasicConditionDetectorParameters>
     {
         public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {
@@ -25,6 +25,11 @@ namespace BTB.Application.ConditionDetectors.Crossing
             }
 
             return false;
+        }
+
+        public bool IsConditionMet(Bet bet, BasicConditionDetectorParameters parameters)
+        {
+            throw new NotImplementedException();
         }
     }
 }

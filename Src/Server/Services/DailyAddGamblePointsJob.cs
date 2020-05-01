@@ -38,7 +38,7 @@ namespace BTB.Server.Services
 
         public async override Task DoWork(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"{nameof(DailyAddGamblePointsJob)} just runned periodic work.");
+            _logger.LogInformation($"{nameof(DailyAddGamblePointsJob)} just ran periodic work.");
 
             using (var scope = _serviceProvider.CreateScope())
             {

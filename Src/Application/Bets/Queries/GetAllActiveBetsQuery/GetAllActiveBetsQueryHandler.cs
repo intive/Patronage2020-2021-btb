@@ -16,32 +16,16 @@ namespace BTB.Application.Bets.Queries.GetAllActiveBetsQuery
 {
     public class GetAllActiveBetsQueryHandler : IRequestHandler<GetAllActiveBetsQuery, PaginatedResult<BetVO>>
     {
-        private readonly IBTBDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IBetsManager _betsManager;
 
-        public GetAllActiveBetsQueryHandler(IBTBDbContext context, IMapper mapper)
+        public GetAllActiveBetsQueryHandler(IBetsManager betsManager)
         {
-            _context = context;
-            _mapper = mapper;
+            _betsManager = betsManager;
         }
 
         public async Task<PaginatedResult<BetVO>> Handle(GetAllActiveBetsQuery request, CancellationToken cancellationToken)
         {
-            IQueryable<BetVO> bets =
-                from bet in _context.Bets
-                .Include(bet => bet.SymbolPair).ThenInclude(sp => sp.BuySymbol)
-                .Include(bet => bet.SymbolPair).ThenInclude(sp => sp.SellSymbol)
-                select _mapper.Map<BetVO>(bet);
-
-            int betsCount = await bets.CountAsync(cancellationToken);
-            var list = bets.ToList();
-
-            return new PaginatedResult<BetVO>()
-            {
-                Result = bets.Paginate(request.Pagination),
-                AllRecordsCount = betsCount,
-                RecordsPerPage = (int)request.Pagination.Quantity
-            };
+            return await _betsManager.GetAllActiveBetsAsync(request.Pagination, cancellationToken);
         }
     }
 }
