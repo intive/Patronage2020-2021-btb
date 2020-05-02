@@ -1,4 +1,4 @@
-﻿using BTB.Application.Common.Exceptions;
+using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Exceptions.BetsManager;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.ValueObjects;
