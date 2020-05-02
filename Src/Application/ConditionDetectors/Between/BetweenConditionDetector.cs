@@ -17,21 +17,22 @@ namespace BTB.Application.ConditionDetectors.Between
             }
 
             (_, decimal value) = GetKlineValuesByAlertValueType(alert.ValueType, parameters.Kline);
-            decimal lowerThreshold = alert.Value;
-            decimal upperThreshold = alert.AdditionalValue;
-
-            if (lowerThreshold <= value && value <= upperThreshold)
-            {
-                return true;
-            }
-
-            return false;
+            decimal lower = alert.Value;
+            decimal upper = alert.AdditionalValue;
+            return ConditionCheck(lower, value, upper);
         }
 
         public bool IsConditionMet(Bet bet, BasicConditionDetectorParameters parameters)
         {
             decimal value = parameters.Kline.ClosePrice;
-            if (bet.LowerPriceThreshold <= value && value <= bet.UpperPriceThreshold)
+            decimal lower = bet.LowerPriceThreshold;
+            decimal upper = bet.UpperPriceThreshold;
+            return ConditionCheck(lower, value, upper);
+        }
+
+        private bool ConditionCheck(decimal lower, decimal value, decimal upper)
+        {
+            if (lower <= value && value <= upper)
             {
                 return true;
             }

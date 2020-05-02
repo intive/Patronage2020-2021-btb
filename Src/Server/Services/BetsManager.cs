@@ -17,6 +17,7 @@ using BTB.Application.ConditionDetectors;
 using BTB.Application.ConditionDetectors.Between;
 using BTB.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using BTB.Common;
 
 namespace BTB.Server.Services
 {
@@ -27,15 +28,18 @@ namespace BTB.Server.Services
         private readonly IBTBBinanceClient _client;
         private readonly IGamblePointManager _gamblePointsManager;
         private ILogger<GamblePointManager> _logger;
+        private readonly IDateTime _dateTime;
         private readonly IConditionDetector<BasicConditionDetectorParameters> _betweenConditionDetector = new BetweenConditionDetector();
 
-        public BetsManager(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, IGamblePointManager gamblePointsManager, ILoggerFactory loggerFactory)
+        public BetsManager(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, IGamblePointManager gamblePointsManager,
+            ILoggerFactory loggerFactory, IDateTime dateTime)
         {
             _context = context;
             _mapper = mapper;
             _client = client;
             _gamblePointsManager = gamblePointsManager;
             _logger = loggerFactory.CreateLogger<GamblePointManager>();
+            _dateTime = dateTime;
         }
 
         public async Task<BetVO> CreateBetAsync(CreateBetCommand request, string userId, CancellationToken cancellationToken)
@@ -57,7 +61,7 @@ namespace BTB.Server.Services
             // this line was here for easier testing
             //bet.TimeInterval = (BetTimeInterval)300;
 
-            var now = DateTime.Now;
+            var now = _dateTime.Now;
             bet.CreatedAt = now;
             long lastFiveMinPeriodTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
             bet.KlineOpenTimestamp = lastFiveMinPeriodTimestamp + (long)bet.TimeInterval;
@@ -69,9 +73,9 @@ namespace BTB.Server.Services
 
         public async Task CheckBetsAsync(CancellationToken cancellationToken)
         {
-            var now = DateTime.Now;
-            var allActiveBets = await _context.Bets.Where(bet => bet.IsActive).ToListAsync();
-            foreach (var activeBet in allActiveBets)
+            var now = _dateTime.Now;
+            var activeBets = await _context.Bets.Where(bet => bet.IsActive).ToListAsync();
+            foreach (var activeBet in activeBets)
             {
                 if (!DidBetCooldownPeriodExpire(activeBet, now))
                 {
@@ -83,17 +87,17 @@ namespace BTB.Server.Services
                     activeBet.IsActive = false;
                 }
             }
-            _context.Bets.UpdateRange(allActiveBets);
+            _context.Bets.UpdateRange(activeBets);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task HandleBetOutcomeAsync(Bet bet, CancellationToken cancellationToken)
         {
-            decimal delta;
+            decimal delta = 0.0m;
             Kline kline = await GetKlineByOpenTimestampAsync(bet.SymbolPairId, bet.KlineOpenTimestamp);
             if (kline == null)
             {
-                delta = 0;
+                delta = 0.0m;
                 _logger.LogError($"Could not find kline while checking bet. SymbolPairId: {bet.SymbolPairId}, OpenTimestamp: {bet.KlineOpenTimestamp}");
             }
             else
@@ -130,7 +134,7 @@ namespace BTB.Server.Services
 
             return new PaginatedResult<BetVO>()
             {
-                Result = bets.Paginate(pagination),
+                Result = list.Paginate(pagination),
                 AllRecordsCount = betsCount,
                 RecordsPerPage = (int)pagination.Quantity
             };

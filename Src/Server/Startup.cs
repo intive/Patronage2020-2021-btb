@@ -132,7 +132,7 @@ namespace BTB.Server
                 services.AddCronJob<CheckBetsJob>(c =>
                 {
                     c.TimeZoneInfo = TimeZoneInfo.Local;
-                    //c.CronExpression = @"*/5 * * * *"; every fifth minute
+                    //c.CronExpression = @"*/5 * * * *"; // every fifth minute
                     c.CronExpression = @"0 * * * *";
                 });
 
