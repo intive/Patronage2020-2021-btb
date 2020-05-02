@@ -55,7 +55,7 @@ namespace BTB.Server.Services
             bet.IsActive = true;
 
             // this line was here for easier testing
-            //bet.TimeInterval = (BetTimeInterval)60;
+            //bet.TimeInterval = (BetTimeInterval)300;
 
             var now = DateTime.Now;
             bet.CreatedAt = now;
@@ -69,9 +69,9 @@ namespace BTB.Server.Services
 
         public async Task CheckBetsAsync(CancellationToken cancellationToken)
         {
-           var now = DateTime.Now;
-            var allBets = await _context.Bets.Where(bet => bet.IsActive).ToListAsync();
-            foreach (var activeBet in allBets)
+            var now = DateTime.Now;
+            var allActiveBets = await _context.Bets.Where(bet => bet.IsActive).ToListAsync();
+            foreach (var activeBet in allActiveBets)
             {
                 if (!DidBetCooldownPeriodExpire(activeBet, now))
                 {
@@ -81,10 +81,10 @@ namespace BTB.Server.Services
                 {
                     await HandleBetOutcomeAsync(activeBet, cancellationToken);
                     activeBet.IsActive = false;
-                    _context.Bets.Update(activeBet); // UpdateRange()?
-                    await _context.SaveChangesAsync(cancellationToken);
                 }
             }
+            _context.Bets.UpdateRange(allActiveBets);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task HandleBetOutcomeAsync(Bet bet, CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ namespace BTB.Server.Services
             if (kline == null)
             {
                 delta = 0;
-                _logger.LogError($"Could not find kline while checking bet. SymbolPairId: {bet.SymbolPairId}, PpenTimestamp: {bet.KlineOpenTimestamp}");
+                _logger.LogError($"Could not find kline while checking bet. SymbolPairId: {bet.SymbolPairId}, OpenTimestamp: {bet.KlineOpenTimestamp}");
             }
             else
             {
@@ -183,7 +183,12 @@ namespace BTB.Server.Services
 
         private Task<Kline> GetKlineByOpenTimestampAsync(int symbolPairId, long openTimestamp)
         {
-            return _context.Klines.SingleOrDefaultAsync(kline => kline.SymbolPairId == symbolPairId && kline.OpenTimestamp == openTimestamp);
+            // Changed SingleOrDefault() to FirstOrDefaultAsync() to make sure this does not throw any exception
+            // when there are duplicate klines in the db (klines with the same open and duration timestamps).
+            return _context.Klines.FirstOrDefaultAsync(kline =>
+                kline.SymbolPairId == symbolPairId &&
+                kline.OpenTimestamp == openTimestamp &&
+                kline.DurationTimestamp == TimestampInterval.FiveMin);
         }
     }
 }
