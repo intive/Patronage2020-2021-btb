@@ -109,6 +109,7 @@ namespace BTB.Server
                 services.AddScoped<IBTBBinanceClient, BinanceMiddleService>();
                 services.AddScoped<ILogFileService, LogFileSystemService>();
                 services.AddScoped<IGamblePointManager, GamblePointManager>();
+                services.AddScoped<IBetsManager, BetsManager>();
 
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
@@ -126,6 +127,13 @@ namespace BTB.Server
                 {
                     c.TimeZoneInfo = TimeZoneInfo.Local;
                     c.CronExpression = @"0 1 * * *";
+                });
+
+                services.AddCronJob<CheckBetsJob>(c =>
+                {
+                    c.TimeZoneInfo = TimeZoneInfo.Local;
+                    //c.CronExpression = @"*/5 * * * *"; // every fifth minute
+                    c.CronExpression = @"0 * * * *";
                 });
 
                 services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));

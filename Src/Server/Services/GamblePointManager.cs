@@ -1,11 +1,11 @@
-﻿using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using BTB.Application.Common.Exceptions.GamblePointManager;
 
 namespace BTB.Server.Services
 {
@@ -127,6 +127,11 @@ namespace BTB.Server.Services
                 throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
             }
 
+            if (userPoints.FreePoints - amount < 0)
+            {
+                throw new NotEnoughGamblePointsException($"Cannot seal {amount} points. User {userId} has only {userPoints.FreePoints} free points.");
+            }
+
             userPoints.FreePoints -= amount;
             userPoints.SealedPoints += amount;
 
@@ -148,6 +153,11 @@ namespace BTB.Server.Services
             {
                 _logger.LogDebug($"{nameof(GamblePointManager)} Finding gamble points with id {userId} returned null.");
                 throw new DoesNotExistException($"Unable to find gamble points for user with id {userId}.");
+            }
+
+            if (userPoints.SealedPoints - amount < 0)
+            {
+                throw new NotEnoughGamblePointsException($"Cannot unseal {amount} points. User {userId} has only {userPoints.SealedPoints} sealed points.");
             }
 
             userPoints.SealedPoints -= amount;

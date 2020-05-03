@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BTB.Application.Common.Exceptions
+namespace BTB.Application.Common.Exceptions.GamblePointManager
 {
     public class DoesNotExistException : Exception
     {

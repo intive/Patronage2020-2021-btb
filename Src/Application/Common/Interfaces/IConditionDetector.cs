@@ -5,8 +5,9 @@ using System.Text;
 
 namespace BTB.Application.Common.Interfaces
 {
-    public interface IAlertConditionDetector<TParameters>
+    public interface IConditionDetector<TParameters>
     {
         bool IsConditionMet(Alert alert, TParameters parameters);
+        bool IsConditionMet(Bet bet, TParameters parameters);
     }
 }
