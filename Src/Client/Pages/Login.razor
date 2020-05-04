@@ -1,61 +1,148 @@
 ﻿@page "/login"
+
 @layout LoginLayout
+
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 
-<h1 class="h2 font-weight-normal login-title text-center">
-    Intive Patronage 2020
-</h1>
+@implements IDisposable
 
-<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
-    <DataAnnotationsValidator />
-    <h5 class="font-weight-normal text-center">Log in to access the content</h5>
-    <br />
+<div class="card shadow-lg" style="height: @(_height)px">
+    <div class="card-body">
+        <h5 class="card-title text-center">Sign In</h5>
 
-    <div class="form-group">
-        <label for="inputUsername">Username</label>
-        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="loginParameters.UserName" />
-        <ValidationMessage For="@(() => loginParameters.UserName)" />
+        <label class="validation-message">@_errorMessage</label>
+
+        <EditForm class="form-signin" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit"
+                  EditContext="_editContext">
+            <DataAnnotationsValidator />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-person"></i></span>
+                </div>
+                <InputText id="inputUsername" class="form-control" autofocus placeholder="Username"
+                           @bind-Value="_loginParameters.UserName" />
+            </div>
+            <ValidationMessage For="@(() => _loginParameters.UserName)" />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-key"></i></span>
+                </div>
+                <InputText type="password" id="inputPassword" class="form-control" placeholder="Password"
+                           @bind-Value="_loginParameters.Password" />
+            </div>
+            <ValidationMessage For="@(() => _loginParameters.Password)" />
+
+            <div class="custom-control custom-checkbox mb-3">
+                <InputCheckbox id="inputRememberMe" class="form-check-input"
+                               @bind-Value="@_loginParameters.RememberMe" />
+                <label class="form-check-label" for="inputRememberMe">
+                    Remember Me
+                </label>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Sign In" class="btn btn-lg btn-block login_btn">
+            </div>
+
+            <hr class="my-3">
+
+            <div class="d-flex justify-content-center links">
+                Don't have an account?
+                <NavLink href="register">
+                    Sign Up!
+                </NavLink>
+            </div>
+            <div class="d-flex justify-content-center links">
+                <NavLink href="forgotpassword">
+                    Forgot password?
+                </NavLink>
+            </div>
+
+        </EditForm>
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="inputPassword">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="loginParameters.Password" />
-        <ValidationMessage For="@(() => loginParameters.Password)" />
-    </div>
+@code
+{
+    private const int MessageHeight = 24;
 
-    <div class="form-check m-3">
-        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
-        <label class="form-check-label" for="inputRememberMe">Remember Me</label>
-    </div>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    private int _baseHeight = 360;
+    private int _height { get; set; }
 
-    <label class="text-danger text-center">@error</label>
+    private string _errorMessage { get; set; }
 
-    <NavLink href="register">
-        <h6 class="font-weight-normal text-center">Create account</h6>
-    </NavLink>
-    <NavLink href="forgotpassword">
-        <h6 class="font-weight-normal text-center">Forgot password</h6>
-    </NavLink>
-</EditForm>
+    private LoginParametersDto _loginParameters { get; set; }
 
-@code{
-    LoginParametersDto loginParameters { get; set; } = new LoginParametersDto();
-    string error { get; set; }
+    private EditContext _editContext { get; set; }
 
-    async Task OnSubmit()
+    public Login()
     {
-        error = null;
-        
+        _height = _baseHeight;
+        _errorMessage = string.Empty;
+
+        _loginParameters = new LoginParametersDto();
+
+        _editContext = new EditContext(_loginParameters);
+
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        _editContext.OnValidationStateChanged += HandleValidationStateChanged;
+    }
+
+    private async Task OnValidSubmit()
+    {
         try
         {
-            await authorizeService.Login(loginParameters);
+            await authorizeService.Login(_loginParameters);
             navigationManager.NavigateTo("");
         }
-        catch (Exception e)
+        catch
         {
-            error = "Incorrect username or password.";
+            OnInvalidSubmit();
         }
+        finally
+        {
+
+        }
+    }
+
+    private void OnInvalidSubmit()
+    {
+        if (_errorMessage == string.Empty)
+        {
+            _baseHeight += MessageHeight;
+            _height += MessageHeight;
+        }
+
+        _errorMessage = "Incorrect username or password.";
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        HandleChanged();
+
+        StateHasChanged();
+    }
+
+    private void HandleValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        HandleChanged();
+
+        StateHasChanged();
+    }
+
+    private void HandleChanged()
+    {
+        var errorsCount = _editContext.GetValidationMessages().Count();
+
+        _height = _baseHeight + MessageHeight * errorsCount;
+    }
+
+    public void Dispose()
+    {
+        _editContext.OnFieldChanged -= HandleFieldChanged;
+        _editContext.OnValidationStateChanged -= HandleValidationStateChanged;
     }
 }

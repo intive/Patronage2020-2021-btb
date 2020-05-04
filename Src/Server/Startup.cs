@@ -111,6 +111,7 @@ namespace BTB.Server
                 services.AddScoped<IGamblePointManager, GamblePointManager>();
                 services.AddScoped<IBetsManager, BetsManager>();
 
+
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
                     c.TimeZoneInfo = TimeZoneInfo.Local;
