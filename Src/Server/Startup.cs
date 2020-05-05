@@ -57,14 +57,9 @@ namespace BTB.Server
                     {
                         policy.AllowAnyOrigin()
                             .AllowAnyMethod()
-                            .AllowAnyHeader();
+                            .AllowAnyHeader()
+                            .SetIsOriginAllowed((host) => true);
                     });
-                });
-
-                services.AddSignalR(options =>
-                {
-                    options.MaximumReceiveMessageSize = 150;
-                    options.EnableDetailedErrors = true;
                 });
 
                 services.Configure<FileLoggerConfig>(Configuration.GetSection("FileLoggerConfig"));
@@ -93,21 +88,6 @@ namespace BTB.Server
                 services.AddInfrastructure(Configuration, Environment);
                 services.AddPersistence(Configuration);
 
-                services.Configure<ApiBehaviorOptions>(options =>
-                {
-                    options.SuppressModelStateInvalidFilter = true;
-                });
-
-                services.AddControllers().AddNewtonsoftJson();
-
-                services.AddResponseCompression(opts =>
-                {
-                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                        new[] { "application/octet-stream" });
-                });
-
-            services.AddSwaggerDocumentation();
-
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
@@ -119,6 +99,20 @@ namespace BTB.Server
                     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                         new[] { "application/octet-stream" });
                 });
+
+                services.AddSignalR(options =>
+                {
+                    //options.MaximumReceiveMessageSize = 150;
+                    options.EnableDetailedErrors = true;
+                });
+
+                services.Configure<ApiBehaviorOptions>(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                });
+
+                services.AddControllers().AddNewtonsoftJson();
+                services.AddSwaggerDocumentation();
 
                 services.AddScoped<IEmailService, EmailService>();
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -166,7 +160,7 @@ namespace BTB.Server
         {
             try
             {
-                app.UseCors("CorsPolicy"); 
+                app.UseCors("CorsPolicy");
                 app.UseResponseCompression();
 
                 if (env.IsDevelopment())
@@ -197,7 +191,7 @@ namespace BTB.Server
             {
                 ConfigureExceptions[e.ToString()] = e;
             }
-            
+
         }
     }
 }

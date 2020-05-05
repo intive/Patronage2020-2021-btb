@@ -15,6 +15,13 @@ namespace BTB.Application.Common.Hubs
     {
         public static readonly ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();
 
+        private readonly IUserAccessor _userAccessor;
+
+        public NotificationHub(IUserAccessor userAccessor)
+        {
+            _userAccessor = userAccessor;
+        }
+
         public override Task OnConnectedAsync()
         {
             AddConnectionToUser();
@@ -23,7 +30,9 @@ namespace BTB.Application.Common.Hubs
 
         private void AddConnectionToUser()
         {
+            string testId = _userAccessor.GetCurrentUserId();
             string userId = Context.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            
 
             if (!string.IsNullOrEmpty(userId))
             {

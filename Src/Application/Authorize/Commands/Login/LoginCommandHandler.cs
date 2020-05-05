@@ -32,7 +32,9 @@ namespace BTB.Application.Authorize.Commands.Login
             
             var roles = await _userManager.GetRolesAsync(user);
 
-            var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            //var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+            var singInResult = await _signInManager.PasswordSignInAsync(request.UserName, request.Password, request.RememberMe, false);
 
             if (singInResult.Succeeded)
             {
