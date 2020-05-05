@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Common.Hubs
 {
+    [Authorize]
     public class NotificationHub : Hub
     {
         public static readonly ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();
@@ -30,11 +31,10 @@ namespace BTB.Application.Common.Hubs
 
         private void AddConnectionToUser()
         {
-            string testId = _userAccessor.GetCurrentUserId();
             string userId = Context.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             
 
-            if (!string.IsNullOrEmpty(userId))
+          if (!string.IsNullOrEmpty(userId))
             {
                 var connections = UserConnections.GetValueOrDefault(userId);
                 connections.Add(Context.ConnectionId);

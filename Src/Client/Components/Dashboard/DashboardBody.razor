@@ -12,7 +12,6 @@
 @using Blazored.Toast
 @using Blazored.Toast.Services
 @using Blazored.LocalStorage;
-@using System.IdentityModel.Tokens.Jwt;
 
 @inject HttpClient Http
 @implements IDisposable
@@ -242,10 +241,6 @@
 
     private async Task ConnectToSignalRAsync()
     {
-        string token = await localStorage.GetItemAsync<string>("authToken");
-        Console.WriteLine($"TOKEN: {token}");
-        string uri = navigationManager.ToAbsoluteUri("/hub/notifications").ToString();
-        Console.WriteLine($"URI: {uri}");
         try
         {
             _connection = new HubConnectionBuilder()
@@ -255,30 +250,26 @@
 
                 })
                 .Build();
-
-            Console.WriteLine($"STARTING CONNECTION...");
             await _connection.StartAsync();
-            Console.WriteLine($"CONNECTION STARTED");
 
         }
         catch (Exception e)
         {
-            Console.WriteLine($"MAMY EXCEPTIONA: {e.Message}");
             // TODO: Log exception
         }
 
-        //_connection.Closed += async (exception) =>
-        //{
-        //    await _connection.StartAsync();
-        //};
+        _connection.Closed += async (exception) =>
+        {
+            await _connection.StartAsync();
+        };
 
-        //_connection.On<string>("inbrowser", response =>
-        //{
-        //    if (!lastNotification.Equals(response))
-        //    {
-        //        Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
-        //        lastNotification = response;
-        //    }
-        //});
+        _connection.On<string>("inbrowser", response =>
+        {
+            if (!lastNotification.Equals(response))
+            {
+                Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
+                lastNotification = response;
+            }
+        });
     }
 }
