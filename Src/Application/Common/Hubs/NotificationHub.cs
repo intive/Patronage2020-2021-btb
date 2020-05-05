@@ -16,13 +16,6 @@ namespace BTB.Application.Common.Hubs
     {
         public static readonly ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();
 
-        private readonly IUserAccessor _userAccessor;
-
-        public NotificationHub(IUserAccessor userAccessor)
-        {
-            _userAccessor = userAccessor;
-        }
-
         public override Task OnConnectedAsync()
         {
             AddConnectionToUser();
