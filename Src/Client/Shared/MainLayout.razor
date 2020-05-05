@@ -2,7 +2,11 @@
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 
+@using Blazored.Toast.Configuration
+
 <BlazoredModal />
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="10" />
+
 <AuthorizeView>
     <Authorized>
         <div class="sidebar">
