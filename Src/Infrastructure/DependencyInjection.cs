@@ -15,7 +15,7 @@ namespace BTB.Infrastructure
             services.AddTransient<IDateTime, MachineDateTime>();
             services.AddTransient<IIndicator, Indicator>();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
-            services.AddSingleton<IUserAccessor, UserAccessor>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
             return services;
         }
     }
