@@ -32,9 +32,9 @@ namespace BTB.Application.Authorize.Commands.Login
             
             var roles = await _userManager.GetRolesAsync(user);
 
-            var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
-            if (singInResult.Succeeded)
+            if (signInResult.Succeeded)
             {
                 return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName, roles);
             }

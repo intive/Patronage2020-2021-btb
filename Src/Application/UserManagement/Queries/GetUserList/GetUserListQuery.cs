@@ -3,7 +3,7 @@ using BTB.Domain.Common.Pagination;
 using BTB.Domain.ValueObjects;
 using MediatR;
 
-namespace BTB.Application.UserManagement.Queries.GetUserListQuery
+namespace BTB.Application.UserManagement.Queries.GetUserList
 {
     public class GetUserListQuery : IRequest<PaginatedResult<ApplicationUserVO>>
     {

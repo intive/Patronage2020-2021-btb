@@ -6,16 +6,19 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using System;
+using BTB.Common;
 
 namespace BTB.Infrastructure.Identity
 {
     public class JwtGenerator : IJwtGenerator
     {
         private readonly IConfiguration _configuration;
+        private readonly IDateTime _dateTime; 
 
-        public JwtGenerator(IConfiguration configuration)
+        public JwtGenerator(IConfiguration configuration, IDateTime dateTime)
         {
             _configuration = configuration;
+            _dateTime = dateTime;
         }
 
         public string GenerateToken(string identifier, string email, string name, IList<string> roles)
@@ -35,9 +38,9 @@ namespace BTB.Infrastructure.Identity
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwt:key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.UtcNow.AddDays(30);
+            DateTime expiration = _dateTime.Now.AddDays(30);
 
-            JwtSecurityToken token = new JwtSecurityToken(
+            var token = new JwtSecurityToken(
                 issuer: null,
                 audience: null,
                 claims: claims,

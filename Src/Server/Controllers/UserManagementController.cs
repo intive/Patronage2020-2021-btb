@@ -1,6 +1,7 @@
 ﻿using BTB.Application.UserManagement.Commands.TakeRoleFromUser;
-using BTB.Application.UserManagement.Queries.GetUserListQuery;
 using BTB.Application.UserManagement.Commands.GiveRoleToUser;
+using BTB.Application.UserManagement.Queries.GetRoleList;
+using BTB.Application.UserManagement.Queries.GetUserList;
 using BTB.Application.Common.Models;
 using BTB.Domain.Common.Pagination;
 using BTB.Domain.ValueObjects;
@@ -23,9 +24,8 @@ namespace BTB.Server.Controllers
         /// </summary>
         /// <param name="pagination">Data needed to perform pagination</param>
         /// <returns>List of users</returns>
-        [HttpGet]
+        [HttpGet("GetUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetUserList([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
@@ -33,6 +33,20 @@ namespace BTB.Server.Controllers
             PaginatedResult<ApplicationUserVO> paginatedResult = await Mediator.Send(new GetUserListQuery() { Pagination = pagination }, cancellationToken);
             HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecordsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);
+        }
+
+        /// <summary>
+        /// Gets list of all roles.
+        /// </summary>
+        /// <returns>List of roles.</returns>
+        [HttpGet("GetRoles")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetRoleList(CancellationToken cancellationToken)
+        {
+            List<string> roles = await Mediator.Send(new GetRoleListQuery(), cancellationToken);
+            return Ok(roles);
         }
 
         /// <summary>
@@ -66,5 +80,6 @@ namespace BTB.Server.Controllers
             IList<string> usersRoles = await Mediator.Send(command ?? new TakeRoleFromUserCommand(), cancellationToken);
             return Ok(usersRoles);
         }
+
     }
 }

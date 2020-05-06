@@ -9,7 +9,7 @@ using System.Threading;
 using System.Linq;
 using MediatR;
 
-namespace BTB.Application.UserManagement.Queries.GetUserListQuery
+namespace BTB.Application.UserManagement.Queries.GetUserList
 {
     public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, PaginatedResult<ApplicationUserVO>>
     {
