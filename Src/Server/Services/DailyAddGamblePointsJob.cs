@@ -1,6 +1,6 @@
 ﻿using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
-using BTB.Application.GamblePoints.Commands.AddValueToAllGamblePoints;
+using BTB.Application.System.Commands.AddValueToAllGamblePoints;
 using BTB.Server.Common.CronGeneric;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

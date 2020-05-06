@@ -18,6 +18,10 @@ using BTB.Application.ConditionDetectors.Between;
 using BTB.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using BTB.Common;
+using BTB.Application.Bets.Commands.UpdateBetCommand;
+using BTB.Application.Common.Exceptions;
+using MediatR;
+using BTB.Application.Bets.Commands.DeleteBetCommand;
 
 namespace BTB.Server.Services
 {
@@ -62,7 +66,7 @@ namespace BTB.Server.Services
             //bet.TimeInterval = (BetTimeInterval)300;
 
             var now = _dateTime.Now;
-            bet.CreatedAt = now;
+            bet.StartedAt = now;
             long lastFiveMinPeriodTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
             bet.KlineOpenTimestamp = lastFiveMinPeriodTimestamp + (long)bet.TimeInterval;
             
@@ -71,7 +75,72 @@ namespace BTB.Server.Services
             return _mapper.Map<BetVO>(bet);
         }
 
-        public async Task CheckBetsAsync(CancellationToken cancellationToken)
+        public async Task<BetVO> UpdateBetAsync(UpdateBetCommand request, string userId, CancellationToken cancellationToken)
+        {
+            Bet betToUpdate = await _context.Bets.SingleOrDefaultAsync(b => b.Id == request.Id && b.UserId == userId, cancellationToken);
+            if (betToUpdate == null)
+            {
+                throw new NotFoundException($"Bet '{request.Id}' does not exist or does not belong to user {userId}.");
+            }
+            if(!betToUpdate.IsEditable)
+            {
+                throw new BadRequestException($"Bet '{request.Id}' cannot be changed.");
+            }
+
+            SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
+            if (symbolPair == null)
+            {
+                throw new BadRequestException($"Trading pair symbol '{request.SymbolPair}' does not exist.");
+            }
+
+            Kline lastPairKline = await GetLastFiveMinuteKlineBySymbolPairIdAsync(symbolPair.Id);
+            if (IsBetPriceRangeAboveLimit(request.LowerPriceThreshold, request.UpperPriceThreshold, lastPairKline.ClosePrice))
+            {
+                throw new PriceRangeAboveLimitException($"Cannot place bet. Price range is above limit. Current price for" +
+                    $"{symbolPair.PairName} is {lastPairKline.ClosePrice}.");
+            }
+
+            var differenceInPoints = betToUpdate.Points - request.Points;
+
+            if (differenceInPoints > 0)
+            {
+                await _gamblePointsManager.UnsealGamblePoints(userId, differenceInPoints, cancellationToken);
+                await ChangeBetValues(request, betToUpdate, symbolPair, cancellationToken);
+            }
+            else if (differenceInPoints < 0)
+            {
+                if (-differenceInPoints > _gamblePointsManager.GetNumberOfFreePoints(userId))
+                {
+                    throw new BadRequestException($"User (id: {userId}) does not have enough points to place a bet with {request.Points} points.");
+                }
+
+                await _gamblePointsManager.SealGamblePoints(userId, -differenceInPoints, cancellationToken);
+                await ChangeBetValues(request, betToUpdate, symbolPair, cancellationToken);
+            }
+            else
+            {
+                await ChangeBetValues(request, betToUpdate, symbolPair, cancellationToken);
+            }
+
+            return _mapper.Map<BetVO>(betToUpdate);
+        }
+
+        public async Task<Unit> DeleteBetAsync(DeleteBetCommand request, string userId, CancellationToken cancellationToken)
+        {
+            Bet betToDelete = await _context.Bets.SingleOrDefaultAsync(b => b.Id == request.Id && b.UserId == userId, cancellationToken);
+            if (betToDelete == null)
+            {
+                throw new NotFoundException($"Bet '{request.Id}' does not exist or does not belong to user {userId}.");
+            }
+
+            await _gamblePointsManager.UnsealGamblePoints(userId, betToDelete.Points, cancellationToken);
+            _context.Bets.Remove(betToDelete);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+
+        public async Task CheckActiveBetsAsync(CancellationToken cancellationToken)
         {
             var now = _dateTime.Now;
             var activeBets = await _context.Bets.Where(bet => bet.IsActive).ToListAsync();
@@ -88,6 +157,21 @@ namespace BTB.Server.Services
                 }
             }
             _context.Bets.UpdateRange(activeBets);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task ChangeBetValues(UpdateBetCommand request, Bet betToUpdate, SymbolPair symbolPair, CancellationToken cancellationToken)
+        {
+            betToUpdate.SymbolPair = symbolPair;
+            betToUpdate.SymbolPairId = symbolPair.Id;
+            betToUpdate.Points = request.Points;
+
+            var now = _dateTime.Now;
+            betToUpdate.StartedAt = now;
+
+            long lastFiveMinPeriodTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
+            betToUpdate.KlineOpenTimestamp = lastFiveMinPeriodTimestamp + (long)betToUpdate.TimeInterval;
+
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -163,12 +247,12 @@ namespace BTB.Server.Services
 
         private bool DidBetCooldownPeriodExpire(Bet bet, DateTime currentTime)
         {
-            long betCreatedAtAsTimestamp = DateTimestampConv.GetTimestamp(bet.CreatedAt);
+            long betStartedAtAsTimestamp = DateTimestampConv.GetTimestamp(bet.StartedAt);
             long currentTimeAsTimestamp = DateTimestampConv.GetTimestamp(currentTime);
 
             // I added 300 seconds here to give some five-minute klines a chance to load.
             // Essentially, this delays the bet checking - DidBetCooldownPeriodExpire will return `true` the next time cron does his work.
-            if (currentTimeAsTimestamp > betCreatedAtAsTimestamp + (long)bet.TimeInterval + 300)
+            if (currentTimeAsTimestamp > betStartedAtAsTimestamp + (long)bet.TimeInterval + 300)
             {
                 return true;
             }
@@ -194,5 +278,6 @@ namespace BTB.Server.Services
                 kline.OpenTimestamp == openTimestamp &&
                 kline.DurationTimestamp == TimestampInterval.FiveMin);
         }
+
     }
 }

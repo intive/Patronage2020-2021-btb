@@ -1,8 +1,6 @@
 ﻿using BTB.Domain.Common;
 using BTB.Domain.Enums;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Domain.Entities
 {
@@ -16,10 +14,11 @@ namespace BTB.Domain.Entities
         public decimal Points { get; set; }
         public decimal LowerPriceThreshold { get; set; }
         public decimal UpperPriceThreshold { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime StartedAt { get; set; }
         public BetRateType RateType { get; set; }
         public BetTimeInterval TimeInterval { get; set; }
         public long KlineOpenTimestamp { get; set; }
         public bool IsActive { get; set; }
+        public bool IsEditable { get => DateTimestampConv.GetTimestamp(StartedAt) + (long)TimeInterval/2 > DateTimestampConv.GetTimestamp(DateTime.Now); }
     }
 }

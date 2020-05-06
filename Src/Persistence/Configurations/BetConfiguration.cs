@@ -1,9 +1,6 @@
 ﻿using BTB.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Persistence.Configurations
 {
@@ -25,7 +22,7 @@ namespace BTB.Persistence.Configurations
                 .IsRequired()
                 .HasColumnType("decimal(18, 9)");
 
-            builder.Property(b => b.CreatedAt)
+            builder.Property(b => b.StartedAt)
                 .IsRequired();
 
             builder.Property(b => b.RateType)
