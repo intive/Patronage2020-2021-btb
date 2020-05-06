@@ -7,7 +7,8 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Between
 {
-    public class BetweenConditionDetector : ConditionDetectorBase, IConditionDetector<BasicConditionDetectorParameters>
+    public class BetweenConditionDetector : ConditionDetectorBase,
+        IAlertConditionDetector<BasicConditionDetectorParameters>, IBetConditionDetector<BasicConditionDetectorParameters>
     {
         public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {

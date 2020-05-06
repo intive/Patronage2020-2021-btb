@@ -11,6 +11,7 @@ using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Commands.SendEmailCommand;
 using BTB.Application.System.Commands.SendEmailNotificationsCommand;
 using BTB.Application.System.Queries.GetAuditTrail;
+using BTB.Application.System.Queries.GetSymbolPairsQuery;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -112,11 +113,25 @@ namespace BTB.Server.Controllers
         /// <response code="200">When successful.</response>
         [Route("kline")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddKline(AddKlineCommand command, CancellationToken cancellationToken)
         {
             await Mediator.Send(command, cancellationToken);
             await Mediator.Send(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
             return Ok();
+        }
+
+        /// <summary>
+        /// Returns all the available symbol pairs as a string list.
+        /// </summary>
+        /// <response code="200">When successful.</response>
+        /// <returns>A list of symbol pair names.</returns>
+        [Route("symbolpairs")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSymbolPairs(CancellationToken cancellationToken)
+        {
+            return Ok(await Mediator.Send(new GetSymbolPairsQuery(), cancellationToken));
         }
     }
 }

@@ -33,10 +33,10 @@ namespace BTB.Server.Services
         private readonly IGamblePointManager _gamblePointsManager;
         private ILogger<GamblePointManager> _logger;
         private readonly IDateTime _dateTime;
-        private readonly IConditionDetector<BasicConditionDetectorParameters> _betweenConditionDetector = new BetweenConditionDetector();
+        private readonly IBetConditionDetector<BasicConditionDetectorParameters> _betConditionDetector;
 
         public BetsManager(IBTBDbContext context, IMapper mapper, IBTBBinanceClient client, IGamblePointManager gamblePointsManager,
-            ILoggerFactory loggerFactory, IDateTime dateTime)
+            ILoggerFactory loggerFactory, IDateTime dateTime, IBetConditionDetector<BasicConditionDetectorParameters> betConditionDetector)
         {
             _context = context;
             _mapper = mapper;
@@ -44,6 +44,7 @@ namespace BTB.Server.Services
             _gamblePointsManager = gamblePointsManager;
             _logger = loggerFactory.CreateLogger<GamblePointManager>();
             _dateTime = dateTime;
+            _betConditionDetector = betConditionDetector;
         }
 
         public async Task<BetVO> CreateBetAsync(CreateBetCommand request, string userId, CancellationToken cancellationToken)
@@ -186,7 +187,7 @@ namespace BTB.Server.Services
             }
             else
             {
-                bool isBetWon = _betweenConditionDetector.IsConditionMet(bet, new BasicConditionDetectorParameters() { Kline = kline });
+                bool isBetWon = _betConditionDetector.IsConditionMet(bet, new BasicConditionDetectorParameters() { Kline = kline });
                 delta = GetPointsDelta(bet, isBetWon);
             }
 

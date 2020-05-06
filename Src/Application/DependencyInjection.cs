@@ -30,7 +30,12 @@ using System.Reflection;
 using FluentValidation;
 using AutoMapper;
 using MediatR;
+using BTB.Application.Bets.Commands.CreateBetCommand;
+using BTB.Application.Common.Interfaces;
+using BTB.Application.ConditionDetectors;
+using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.Bets.Common;
+
 
 namespace BTB.Application
 {
@@ -71,6 +76,7 @@ namespace BTB.Application
             services.AddTransient<IValidator<ClearLogsFromFileSystemCommand>, LogRequestValidator>();
             services.AddTransient<IValidator<SendResetLinkCommand>, SendResetLinkCommandValidator>();
             services.AddTransient<IValidator<ResetPasswordCommand>, ResetPasswordCommandValidator>();
+            services.AddTransient<IBetConditionDetector<BasicConditionDetectorParameters>, BetweenConditionDetector>();
             services.AddTransient<IValidator<BetRequestBase>, BetRequestValidator>();
             services.AddHttpContextAccessor();
 

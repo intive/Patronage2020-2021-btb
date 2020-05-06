@@ -1,16 +1,14 @@
 ﻿@page "/editprofile"
-@using BTB.Client.Components.UserProfile
 @using Client.Pages.Dto
 @using Client.Models
 @using Newtonsoft.Json
-@using System.Net
 @using System.Net.Http
 @using System.Text
 @using BTB.Client.Models.Validation;
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<SpinLoader IsLoading="@_processingHttpRequest">
+<SpinLoader IsLoading="@_processingHttpRequests">
     <LoadingTemplate>
         <div class="d-flex" style="height: 75vh">
             <TimedLoader ShowDelay="500" />
@@ -48,13 +46,12 @@
                 <div class="form-group row">
                     <label class="col-sm-3 col-form-label" for="favouritePair">Your favourite trading pair</label>
                     <div class="col-sm-9">
-                        <InputText type="text" class="form-control" id="favouritePair" placeholer="Enter your favourite trading pair."
-                                   @bind-Value="@_formModel.FavouriteTradingPair" @oninput="@(() => _tradingPairDoesNotExist = false)"></InputText>
-                        @if (_tradingPairDoesNotExist)
-                        {
-                            <small id="profileBioHelp" class="form-text text-danger">Sorry, this trading pair does not exist.</small>
-                        }
-                        <ValidationMessage For="@(()=>_formModel.FavouriteTradingPair)" />
+                        <InputSelect @bind-Value="@_formModel.FavouriteTradingPair" class="form-control" id="favouritePair">
+                            @foreach (var symbolPair in _symbolPairs)
+                            {
+                                <option value="@symbolPair">@symbolPair</option>
+                            }
+                        </InputSelect>
                     </div>
                 </div>
 
@@ -67,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-</EditForm>
+            </EditForm>
         </div>
         <div class="container" style="margin-top:100px">
             <div class="row">
@@ -75,7 +72,7 @@
                 <div class="col-sm-9">
                     <a class="btn btn-success" href="changepassword">Change password</a>
                 </div>
-            </div>        
+            </div>
         </div>
     </ContentTemplate>
 </SpinLoader>
@@ -83,10 +80,10 @@
 @code {
 
     private UserProfileInfoDto _existingUserProfileInfo = null;
-    private bool _processingHttpRequest = true;
-    private bool _tradingPairDoesNotExist = false;
+    private bool _processingHttpRequests = true;
     private UserProfileInfoFormModel _formModel = null;
     private UserProfileInfoFormModelValidator _validator = new UserProfileInfoFormModelValidator();
+    private IList<string> _symbolPairs = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,17 +94,24 @@
             FavouriteTradingPair = ""
         };
 
-        var response = await Http.GetAsync($"api/userprofile");
-        if (response.IsSuccessStatusCode)
+        var userProfileResponse = await Http.GetAsync($"api/userprofile");
+        if (userProfileResponse.IsSuccessStatusCode)
         {
-            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonString = await userProfileResponse.Content.ReadAsStringAsync();
             _existingUserProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
             _formModel.Username = _existingUserProfileInfo.Username;
             _formModel.ProfileBio = _existingUserProfileInfo.ProfileBio ?? "";
             _formModel.FavouriteTradingPair = _existingUserProfileInfo.FavouriteTradingPair ?? "";
         }
 
-        _processingHttpRequest = false;
+        var symbolPairsResponse = await Http.GetAsync("api/system/symbolpairs");
+        if (symbolPairsResponse.IsSuccessStatusCode)
+        {
+            var jsonString = await symbolPairsResponse.Content.ReadAsStringAsync();
+            _symbolPairs = JsonConvert.DeserializeObject<IList<string>>(jsonString);
+        }
+
+        _processingHttpRequests = false;
     }
 
     private async Task HandleValidSubmitAsync()
@@ -123,13 +127,6 @@
             response = await Http.PutAsync($"api/userprofile", httpRequestContent);
         }
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _tradingPairDoesNotExist = true;
-        }
-        else
-        {
-            NavigationManager.NavigateTo("/userprofile");
-        }
+        NavigationManager.NavigateTo("/userprofile");
     }
 }
