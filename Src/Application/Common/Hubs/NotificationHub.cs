@@ -18,7 +18,7 @@ namespace BTB.Application.Common.Hubs
 
         public override Task OnConnectedAsync()
         {
-            //AddConnectionToUser();
+            AddConnectionToUser();
             return base.OnConnectedAsync();
         }
 
@@ -77,7 +77,12 @@ namespace BTB.Application.Common.Hubs
         public async Task SendToUserAsync(string userId, string message)
         {
             List<string> connections = NotificationHub.UserConnections.GetValueOrDefault(userId);
-            await _hubcontext.Clients.Clients(connections).SendAsync("inbrowser", message);
+            var lastConnection = connections.LastOrDefault();
+
+            if (!string.IsNullOrEmpty(lastConnection))
+            {
+                await _hubcontext.Clients.Clients(connections).SendAsync("inbrowser", message);
+            }
         }
 
         public async Task SendToAllUsersAsync(string message)

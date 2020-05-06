@@ -17,21 +17,16 @@ namespace BTB.Server.Controllers
         private readonly IBrowserNotificationHub _hub;
         private readonly IUserAccessor _userAccessor;
 
-        private readonly IHubContext<NotificationHub> _context;
-
-        public NotificationController(IBrowserNotificationHub hub, IUserAccessor userAccessor, IHubContext<NotificationHub> context)
+        public NotificationController(IBrowserNotificationHub hub, IUserAccessor userAccessor)
         {
             _hub = hub;
             _userAccessor = userAccessor;
-            _context = context;
         }
 
         [HttpPost]
         public async Task PostInBrowser()
         {
-            await _context.Clients.AllExcept(new List<string>() { _userAccessor.GetCurrentUserId() }).SendAsync("inbrowser", "Except Notification"); ;
-            await _context.Clients.User(_userAccessor.GetCurrentUserId()).SendAsync("inbrowser", "User Notification");
-            await _context.Clients.Client(_userAccessor.GetCurrentUserId()).SendAsync("inbrowser", "Client Notification");
+            await _hub.SendToUserAsync(_userAccessor.GetCurrentUserId(), "xDDDDDDDDDDD");
         }
     }
 }

@@ -166,6 +166,18 @@
                                 }
                             </div>
 
+                            @if (alert.SendInBrowser)
+                            {
+                                <div class="row">
+                                    <h5 class="col-12 col-lg-4">In Browser Notifications</h5>
+                                    <p class="col-12 col-lg-8">@alert.SendInBrowser</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <h5>This alert has not been enabled for browser notification.</h5>
+                            }
+
                             @if (alert.SendEmail)
                             {
                                 <div class="row">
@@ -177,6 +189,8 @@
                             {
                                 <h5>This alert has no email notification.</h5>
                             }
+
+
                         </div>
                     </div>
                 </div>

@@ -74,6 +74,11 @@
         </div>
 
         <div class="form-group row mb-0">
+            <label for="sendEmail" class="col-4">Send Notifications In Browser</label>
+            <div class="col-8">
+                <InputCheckbox @bind-Value="_formModel.SendInBrowser" id="sendInBrowser" />
+            </div>
+
             <label for="sendEmail" class="col-4">Send Email</label>
             <div class="col-8">
                 <InputCheckbox @bind-Value="_formModel.SendEmail" id="sendEmail" />
@@ -127,6 +132,7 @@
             ValueType = _alertVO.ValueType,
             Value = _alertVO.Value,
             AdditionalValue = _alertVO.AdditionalValue,
+            SendInBrowser = _alertVO.SendInBrowser,
             SendEmail = _alertVO.SendEmail,
             Email = _alertVO.Email,
             Message = _alertVO.Message,
