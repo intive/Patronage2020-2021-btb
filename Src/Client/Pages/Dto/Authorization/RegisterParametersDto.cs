@@ -5,7 +5,7 @@ namespace BTB.Client.Pages.Dto.Authorization
     public class RegisterParametersDto
     {
         [Required(ErrorMessage = "Username is required")]
-        [MinLength(4, ErrorMessage = "Username has to be at least 4 characters")]
+        [MinLength(4, ErrorMessage = "Username needs to be at least 4 characters")]
         public string UserName { get; set; }
 
         [Required(ErrorMessage = "Email is required")]

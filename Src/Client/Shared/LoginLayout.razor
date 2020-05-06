@@ -1,18 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
-    <div class="main">
-        <div class="login-container">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm">
-                    </div>
-                    <div class="login-body col-sm">
-                        @Body
-                    </div>
-                    <div class="col-sm">
-                    </div>
-                </div>
-            </div>
-
+<div class="main">
+    <nav class="navbar navbar-dark fixed-top">
+        <NavMenu FullView="false" />
+    </nav>
+    <div class="container vertical-center justify-content-center">
+        <div class="row">
+            @Body
         </div>
     </div>
+</div>

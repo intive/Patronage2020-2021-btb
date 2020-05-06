@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BTB.Application.ConditionDetectors.Crossing
 {
-    public class CrossingUpConditionDetector : ConditionDetectorBase, IConditionDetector<BasicConditionDetectorParameters>
+    public class CrossingUpConditionDetector : ConditionDetectorBase, IAlertConditionDetector<BasicConditionDetectorParameters>
     {
         public bool IsConditionMet(Alert alert, BasicConditionDetectorParameters parameters)
         {
@@ -18,18 +18,17 @@ namespace BTB.Application.ConditionDetectors.Crossing
 
             (decimal oldValue, decimal newValue) = GetKlineValuesByAlertValueType(alert.ValueType, parameters.Kline);
             decimal threshold = alert.Value;
+            return ConditionCheck(oldValue, newValue, threshold);
+        }
 
+        private bool ConditionCheck(decimal oldValue, decimal newValue, decimal threshold)
+        {
             if (newValue >= threshold && threshold >= oldValue)
             {
                 return true;
             }
 
             return false;
-        }
-
-        public bool IsConditionMet(Bet bet, BasicConditionDetectorParameters parameters)
-        {
-            throw new NotImplementedException();
         }
     }
 }

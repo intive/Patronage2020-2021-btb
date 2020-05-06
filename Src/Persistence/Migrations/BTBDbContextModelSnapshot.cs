@@ -128,9 +128,6 @@ namespace BTB.Persistence.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -154,6 +151,9 @@ namespace BTB.Persistence.Migrations
 
                     b.Property<int>("RateType")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SymbolPairId")
                         .HasColumnType("int");

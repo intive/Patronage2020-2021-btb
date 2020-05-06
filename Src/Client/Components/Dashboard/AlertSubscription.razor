@@ -10,6 +10,11 @@
             min-width: 460px
         }
     }
+
+    .validation-message {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
 </style>
 
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
@@ -28,7 +33,7 @@
                     <option value="CrossingDown">Crossing Down</option>
                     <option value="Between">Between</option>
                 </InputSelect>
-                <ValidationMessage For="@(()=>_formModel.Condition)" style="font-size: 14px; margin-bottom: 10px" />
+                <ValidationMessage For="@(()=>_formModel.Condition)" />
             </div>
         </div>
 
@@ -41,7 +46,7 @@
                     <option value="Volume">Volume</option>
                     <option value="TradeCount" disabled>Trade Count</option>
                 </InputSelect>
-                <ValidationMessage For="@(()=>_formModel.ValueType)" style="font-size:14px; margin-bottom:10px" />
+                <ValidationMessage For="@(()=>_formModel.ValueType)" />
             </div>
         </div>
 
@@ -49,7 +54,7 @@
             <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value": "Value")</label>
             <div class="col-sm-8">
                 <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
-                <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+                <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" />
             </div>
         </div>
 
@@ -59,7 +64,7 @@
                 <label for="additionalValue" class="col-sm-4 col-form-label">Upper Value</label>
                 <div class="col-sm-8">
                     <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm" id="additionalValue" />
-                    <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" style="font-size:14px; margin-bottom:10px" />
+                    <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" />
                 </div>
             </div>
         }
@@ -89,7 +94,7 @@
             <label for="email" class="col-sm-4 col-form-label">Email</label>
             <div class="col-sm-8">
                 <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
-                <ValidationMessage For="@(()=>_formModel.Email)" style="font-size:14px; margin-bottom:10px" />
+                <ValidationMessage For="@(()=>_formModel.Email)" />
             </div>
         </div>
 
@@ -97,7 +102,7 @@
             <label for="message" class="col-sm-4 col-form-label">Message</label>
             <div class="col-sm-8">
                 <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm" id="message" disabled="@(!_formModel.SendEmail)" />
-                <ValidationMessage For="@(()=>_formModel.Message)" style="font-size:14px; margin-bottom:10px" />
+                <ValidationMessage For="@(()=>_formModel.Message)" />
             </div>
         </div>
 

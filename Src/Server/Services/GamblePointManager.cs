@@ -64,6 +64,7 @@ namespace BTB.Server.Services
                 p.FreePoints += amount;
             };
 
+            _context.GamblePoints.UpdateRange(gamblePoints);
             await _context.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;

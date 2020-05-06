@@ -1,8 +1,5 @@
-﻿using AutoMapper;
-using BTB.Application.Common.Exceptions;
-using BTB.Application.Common.Interfaces;
-using BTB.Application.GamblePoints.Commands.AddValueToAllGamblePoints;
-using BTB.Application.System.Commands.UpdateBetsCommand;
+﻿using BTB.Application.Common.Interfaces;
+using BTB.Application.System.Commands.UpdateBetsCommand.CheckActiveBetsCommand;
 using BTB.Server.Common.CronGeneric;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace BTB.Server.Services
 {
-    public class CheckBetsJob : CronBaseJob
+    public class CheckActiveBetsJob : CronBaseJob
     {
         private IServiceProvider _serviceProvider;
-        private ILogger<CheckBetsJob> _logger;
+        private ILogger<CheckActiveBetsJob> _logger;
 
         private const decimal NumberOfPointsToAddDaily = 20;
 
-        public CheckBetsJob(IScheduleConfig<CheckBetsJob> config, IServiceProvider services, ILoggerFactory loggerFactory)
+        public CheckActiveBetsJob(IScheduleConfig<CheckActiveBetsJob> config, IServiceProvider services, ILoggerFactory loggerFactory)
             : base(config.CronExpression, config.TimeZoneInfo)
         {
             _serviceProvider = services;
-            _logger = loggerFactory.CreateLogger<CheckBetsJob>();
+            _logger = loggerFactory.CreateLogger<CheckActiveBetsJob>();
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -40,12 +37,12 @@ namespace BTB.Server.Services
 
                 try
                 {
-                    var checkBetsHandler = new CheckBetsCommandHandler(betsManager);
-                    await checkBetsHandler.Handle(new CheckBetsCommand(), cancellationToken);
+                    var checkBetsHandler = new CheckActiveBetsCommandHandler(betsManager);
+                    await checkBetsHandler.Handle(new CheckActiveBetsCommand(), cancellationToken);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"{nameof(CheckBetsJob)} An error occurred while updating bets.");
+                    _logger.LogError(e, $"{nameof(CheckActiveBetsJob)} An error occurred while updating bets.");
                     throw e;
                 }
             }

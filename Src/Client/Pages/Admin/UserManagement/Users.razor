@@ -1,4 +1,4 @@
-﻿@page "/usermanagement"
+﻿@page "/users"
 @attribute [Authorize(Policy = Policies.IsAdmin)]
 
 @using System.Text.Json
@@ -6,7 +6,7 @@
 @using BTB.Client.Components.UserManagement
 @inject HttpClient Http
 
-<h1>User Management</h1>
+<h1>Users</h1>
 
 <br />
 
@@ -21,8 +21,10 @@
     <ContentTemplate>
         <br />
 
-        <CascadingValue Value="_users.Take((int)_currentQuantity)">
-            <UserManagementTable />
+        <CascadingValue Value="_users.Take((int)_currentQuantity).ToList()" Name="Users">
+            <CascadingValue Value="_roles" Name="Roles">
+                <UserTable />
+            </CascadingValue>
         </CascadingValue>
     </ContentTemplate>
 </SpinLoader>
@@ -30,6 +32,8 @@
 @code {
 
     private IEnumerable<ApplicationUserVO> _users { get; set; }
+
+    private List<string> _roles { get; set; }
 
     private PaginationQuantity _currentQuantity = PaginationQuantity.Ten;
     private int _totalPageQuantity;
@@ -49,13 +53,24 @@
             _users = null;
             _isRequestRunning = true;
 
-            var response = await Http.GetAsync($"api/UserManagement?page={_currentPage}&quantity={_currentQuantity}");
+            HttpResponseMessage response = await Http.GetAsync($"api/UserManagement/GetUsers?page={_currentPage}&quantity={_currentQuantity}");
 
             if (response.IsSuccessStatusCode)
             {
                 _totalPageQuantity = int.Parse(response.Headers.GetValues("quantity").First());
-                var jsonString = await response.Content.ReadAsStringAsync();
+                string jsonString = await response.Content.ReadAsStringAsync();
                 _users = JsonSerializer.Deserialize<IEnumerable<ApplicationUserVO>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                response = await Http.GetAsync($"api/UserManagement/GetRoles");
+                if (response.IsSuccessStatusCode)
+                {
+                    jsonString = await response.Content.ReadAsStringAsync();
+                    _roles = JsonSerializer.Deserialize<List<string>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                else
+                {
+                    _roles = new List<string>();
+                }
             }
             else
             {

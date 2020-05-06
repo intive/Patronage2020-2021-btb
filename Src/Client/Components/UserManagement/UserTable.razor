@@ -1,0 +1,107 @@
+﻿@using BTB.Client.Models
+@using System.Text.Json;
+@using System.Text;
+@inject HttpClient Http
+
+<style type="text/css">
+    #table-users th {
+        padding: 0.2em;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    #table-users td {
+        padding: 0.2em;
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+
+<table id="table-users" class="table">
+    <thead>
+        <tr>
+            <th rowspan="2">User ID</th>
+            <th rowspan="2">Username</th>
+            <th rowspan="2" style="border-right: ridge thin;">Email</th>
+            <th colspan="2" style="border-bottom: none;">Roles</th>
+        </tr>
+        <tr>
+            <th style="border-top: none;">Admin</th>
+            <th style="border-top: none;">User</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ApplicationUserVO user in _users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.UserName</td>
+                <td style="border-right: ridge thin;">@user.Email</td>
+                @foreach (string role in _roles)
+                {
+                    @if (user.Roles.Contains(role))
+                    {
+                        <td>
+                            <button class="btn btn-link" @onclick="() => TakeRole(user, role)">
+                                <span class="oi oi-check" style="color:limegreen"></span>
+                            </button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <button class="btn btn-link" @onclick="() => AddRole(user, role)">
+                                <span class="oi oi-x" style="color:red"></span>
+                            </button>
+                        </td>
+                    }
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@code {
+
+    [CascadingParameter(Name = "Users")]
+    private List<ApplicationUserVO> _users { get; set; }
+
+    [CascadingParameter(Name = "Roles")]
+    private List<string> _roles { get; set; }
+
+    private async Task TakeRole(ApplicationUserVO user, string role)
+    {
+        var takeRoleModel = new TakeRoleFromUserModel { UserName = user.UserName, Role = role };
+        StringContent httpRequestContent = new StringContent(JsonSerializer.Serialize(takeRoleModel), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await Http.PutAsync($"api/UserManagement/TakeRole", httpRequestContent);
+        await ProcessResponse(response, user);
+    }
+
+    private async Task AddRole(ApplicationUserVO user, string role)
+    {
+        var giveRoleModel = new GiveRoleToUserModel { UserName = user.UserName, Role = role };
+        StringContent httpRequestContent = new StringContent(JsonSerializer.Serialize(giveRoleModel), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await Http.PutAsync($"api/UserManagement/GiveRole", httpRequestContent);
+        await ProcessResponse(response, user);
+    }
+
+    private async Task ProcessResponse(HttpResponseMessage response, ApplicationUserVO user)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            string jsonString = await response.Content.ReadAsStringAsync();
+            var newRoles = JsonSerializer.Deserialize<IList<string>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            int index = _users.FindIndex(u => u.Id == user.Id);
+            if (index != -1)
+            {
+                _users[index].Roles = newRoles;
+            }
+        }
+    }
+
+}

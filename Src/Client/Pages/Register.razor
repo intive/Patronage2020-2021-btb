@@ -1,69 +1,151 @@
 ﻿@page "/register"
+
 @layout LoginLayout
+
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
+
+@implements IDisposable
+
 @using Newtonsoft.Json
 
-<h1 class="h2 font-weight-normal login-title text-center">
-    Intive Patronage 2020
-</h1>
+<div class="card shadow-lg" style="height: @(_height)px">
+    <div class="card-body">
+        <h5 class="font-weight-normal text-center">Sign Up</h5>
 
-<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerParameters">
-    <DataAnnotationsValidator />
-    <h5 class="font-weight-normal text-center">Create Account</h5>
-    <br />
+        <label class="validation-message">@_errorMessage</label>
 
-    <div class="form-group">
-        <label for="inputUsername">Username</label>
-        <InputText id="inputUsername" class="form-control" autofocus placeholder="Enter username" @bind-Value="@registerParameters.UserName" />
-        <ValidationMessage For="@(() => registerParameters.UserName)" />
+        <EditForm class="form-signin" OnValidSubmit="OnValidSubmit"
+                  EditContext="_editContext">
+            <DataAnnotationsValidator />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-person"></i></span>
+                </div>
+                <InputText type="text" id="inputUsername" class="form-control" placeholder="Username" autofocus
+                           @bind-Value="@_registerParameters.UserName" />
+            </div>
+            <ValidationMessage For="@(() => _registerParameters.UserName)" />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-envelope-closed"></i></span>
+                </div>
+                <InputText type="email" id="inputEmail" class="form-control" placeholder="Email"
+                           @bind-Value="_registerParameters.Email" />
+            </div>
+            <ValidationMessage For="@(() => _registerParameters.Email)" />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-key"></i></span>
+                </div>
+                <InputText type="password" id="inputPassword" class="form-control" placeholder="Password"
+                           @bind-Value="@_registerParameters.Password" />
+            </div>
+            <ValidationMessage For="@(() => _registerParameters.Password)" />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-key"></i></span>
+                </div>
+                <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Confirm password"
+                           @bind-Value="@_registerParameters.PasswordConfirm" />
+            </div>
+            <ValidationMessage For="@(() => _registerParameters.PasswordConfirm)" />
+
+            <div class="form-group">
+                <input type="submit" value="Create account" class="btn btn-lg btn-block login_btn">
+            </div>
+
+            <hr class="my-3">
+
+            <div class="d-flex justify-content-center links">
+                Already have an account?
+                <NavLink href="login">
+                    Click here to login
+                </NavLink>
+            </div>
+
+        </EditForm>
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="inputEmail">Email</label>
-        <InputText id="inputEmail" class="form-control" placeholder="Enter email" @bind-Value="registerParameters.Email" />
-        <ValidationMessage For="@(() => registerParameters.Email)" />
-    </div>
+@code
+{
+    private const int MessageHeight = 24;
 
-    <div class="form-group">
-        <label for="inputPassword">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Enter password" @bind-Value="@registerParameters.Password" />
-        <ValidationMessage For="@(() => registerParameters.Password)" />
-    </div>
+    private int _baseHeight = 400;
+    private int _height { get; set; }
 
-    <div class="form-group">
-        <label for="inputPasswordConfirm">Confirm password</label>
-        <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat password" @bind-Value="@registerParameters.PasswordConfirm" />
-        <ValidationMessage For="@(() => registerParameters.PasswordConfirm)" />
-    </div>
+    private dynamic _dyn { get; set; }
+    private string _errorMessage { get; set; }
 
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
+    private RegisterParametersDto _registerParameters { get; set; }
 
-    <label class="text-danger">@error</label>
+    private EditContext _editContext { get; set; }
 
-    <NavLink href="login">
-        <h6 class="font-weight-normal text-center">Already have an account? Click here to login</h6>
-    </NavLink>
-</EditForm>
-
-@functions{
-
-    RegisterParametersDto registerParameters { get; set; } = new RegisterParametersDto();
-    dynamic dyn;
-    string error { get; set; }
-
-    async Task OnSubmit()
+    public Register()
     {
-        error = null;
+        _height = _baseHeight;
+
+        _dyn = string.Empty;
+        _errorMessage = string.Empty;
+
+        _registerParameters = new RegisterParametersDto();
+
+        _editContext = new EditContext(_registerParameters);
+
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        _editContext.OnValidationStateChanged += HandleValidationStateChanged;
+    }
+
+    async Task OnValidSubmit()
+    {
         try
         {
-            await authorizeService.Register(registerParameters);
+            await authorizeService.Register(_registerParameters);
             navigationManager.NavigateTo("");
         }
         catch (Exception e)
         {
-            dyn = JsonConvert.DeserializeObject(e.Message);
-            error = dyn.errorMessage;
+            _dyn = JsonConvert.DeserializeObject(e.Message);
+
+            if (_errorMessage == string.Empty)
+            {
+                _baseHeight += MessageHeight;
+                _height += MessageHeight;
+            }
+
+            _errorMessage = _dyn.errorMessage;
         }
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        HandleChanged();
+
+        StateHasChanged();
+    }
+
+    private void HandleValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        HandleChanged();
+
+        StateHasChanged();
+    }
+
+    private void HandleChanged()
+    {
+        var errorsCount = _editContext.GetValidationMessages().Count();
+
+        _height = _baseHeight + MessageHeight * errorsCount;
+    }
+
+    public void Dispose()
+    {
+        _editContext.OnFieldChanged -= HandleFieldChanged;
+        _editContext.OnValidationStateChanged -= HandleValidationStateChanged;
     }
 }

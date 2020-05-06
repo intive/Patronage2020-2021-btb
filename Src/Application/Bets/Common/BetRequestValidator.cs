@@ -1,14 +1,11 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace BTB.Application.Bets.Commands.CreateBetCommand
+namespace BTB.Application.Bets.Common
 {
-    public class CreateBetCommandValidator : AbstractValidator<CreateBetCommand>
+    public class BetRequestValidator : AbstractValidator<BetRequestBase>
     {
-        public CreateBetCommandValidator()
+        public BetRequestValidator()
         {
             RuleFor(b => b.SymbolPair)
                 .MaximumLength(20)

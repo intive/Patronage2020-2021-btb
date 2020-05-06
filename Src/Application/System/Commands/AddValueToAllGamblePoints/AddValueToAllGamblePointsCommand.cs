@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace BTB.Application.GamblePoints.Commands.AddValueToAllGamblePoints
+namespace BTB.Application.System.Commands.AddValueToAllGamblePoints
 {
     public class AddValueToAllGamblePointsCommand : IRequest
     {

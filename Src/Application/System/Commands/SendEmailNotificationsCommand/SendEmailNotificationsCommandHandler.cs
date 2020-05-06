@@ -24,10 +24,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         private readonly IBrowserNotificationHub _browserAlert;
         private TimestampInterval _klineInterval;
 
-        private readonly IConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
-        private readonly IConditionDetector<BasicConditionDetectorParameters> _crossingUpConditionDetector;
-        private readonly IConditionDetector<BasicConditionDetectorParameters> _crossingDownConditionDetector;
-        private readonly IConditionDetector<BasicConditionDetectorParameters> _betweenConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingUpConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingDownConditionDetector;
+        private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _betweenConditionDetector;
 
         private static readonly IDictionary<int, int> _notificationTriggeredByKlineFlags;
 

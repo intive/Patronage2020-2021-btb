@@ -3,7 +3,7 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BTB.Application.GamblePoints.Commands.AddValueToAllGamblePoints
+namespace BTB.Application.System.Commands.AddValueToAllGamblePoints
 {
     public class AddValueToAllGamblePointsCommandHandler : IRequestHandler<AddValueToAllGamblePointsCommand>
     {

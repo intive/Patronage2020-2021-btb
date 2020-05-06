@@ -68,6 +68,13 @@ namespace Application.UnitTests.Common
 
             context.EmailTemplates.Add(new EmailTemplate() { Id = 1, Content = "<MESSAGE><br><DOMAIN_URL>"});
 
+            context.Bets.AddRange
+            (
+                new Bet() { Id = 1, UserId = "1", SymbolPairId = 1, Points = 100, LowerPriceThreshold = 7000, UpperPriceThreshold = 8000, StartedAt = new DateTime(2020, 1, 1, 0, 0, 0), RateType = BetRateType.Standard, TimeInterval = BetTimeInterval.TwoDays, KlineOpenTimestamp = 100, IsActive = true },
+                new Bet() { Id = 2, UserId = "2", SymbolPairId = 1, Points = 200, LowerPriceThreshold = 7000, UpperPriceThreshold = 8000, StartedAt = new DateTime(2020, 1, 1, 0, 0, 0), RateType = BetRateType.Standard, TimeInterval = BetTimeInterval.TwoDays, KlineOpenTimestamp = 200, IsActive = true },
+                new Bet() { Id = 3, UserId = "3", SymbolPairId = 1, Points = 300, LowerPriceThreshold = 7000, UpperPriceThreshold = 8000, StartedAt = new DateTime(2020, 1, 1, 0, 0, 0), RateType = BetRateType.Standard, TimeInterval = BetTimeInterval.TwoDays, KlineOpenTimestamp = 300, IsActive = false }
+            );
+
             context.SaveChanges();
 
             return context;
