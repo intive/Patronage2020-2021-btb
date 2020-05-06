@@ -18,18 +18,23 @@ namespace BTB.Application.Common.Hubs
 
         public override Task OnConnectedAsync()
         {
-            AddConnectionToUser();
+            //AddConnectionToUser();
             return base.OnConnectedAsync();
         }
 
         private void AddConnectionToUser()
         {
-            string userId = Context.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            
+          string userId = Context.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;            
 
           if (!string.IsNullOrEmpty(userId))
             {
                 var connections = UserConnections.GetValueOrDefault(userId);
+
+                if (connections == null)
+                {
+                    connections = new List<string>();
+                }
+
                 connections.Add(Context.ConnectionId);
                 UserConnections[userId] = connections;
             }
@@ -48,6 +53,12 @@ namespace BTB.Application.Common.Hubs
             if (!string.IsNullOrEmpty(userId))
             {
                 var connections = UserConnections.GetValueOrDefault(userId);
+
+                if (connections == null)
+                {
+                    return;
+                }
+
                 connections.Remove(Context.ConnectionId);
                 UserConnections[userId] = connections;
             }

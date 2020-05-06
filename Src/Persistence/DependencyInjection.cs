@@ -24,8 +24,7 @@ namespace BTB.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("Default"));
             });
 
-            services.AddDefaultIdentity<ApplicationUser>()
-            //services.AddIdentityCore<ApplicationUser>()
+            services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<BTBDbContext>()
