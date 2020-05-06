@@ -3,13 +3,16 @@
 @inject HttpClient Http
 @if (!_loading)
 {
-    <span class="font-weight-bold" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">&#9830;</span>
-    <span>@_points</span>
+    <span class="font-weight-bold" style="color:#FF5722; margin-right:5px">&#9830;</span>
+    <span style="color:rgba(255,255,255,.5); margin-right:10px">@_points</span>
+    <span class="font-weight-bold" style="color:#FF5722; margin-right:5px">&#9826;</span>
+    <span style="color:rgba(255,255,255,.5); margin-right:10px">@_sealedPoints</span>
 }
 @code {
 
     private bool _loading = true;
     private decimal _points;
+    private decimal _sealedPoints;
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
     protected override async Task OnInitializedAsync()
@@ -27,6 +30,7 @@
             GamblePointsVO pointsVO = JsonSerializer.Deserialize<GamblePointsVO>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             _points = Decimal.Round(pointsVO.FreePoints, 2);
+            _sealedPoints = Decimal.Round(pointsVO.SealedPoints, 2);
             _loading = false;
         }
 

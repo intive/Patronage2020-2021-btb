@@ -1,4 +1,5 @@
-﻿@inject IAuthorizeService authorizeService
+﻿@using BTB.Client.Components.UserProfile
+@inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 
 <a class="navbar-brand" href="">
@@ -34,6 +35,7 @@
         </AuthorizeView>
 
         <li class="nav-item top-row px-4">
+            <DisplayPoints />
             <NavLink class="nav-link" href="userprofile">
                 My Profile
             </NavLink>
