@@ -47,14 +47,6 @@
     </div>
 </EditForm>
 
-@{
-    string conn = _connection?.State.ToString() ?? "null";
-    string id = _connection?.ConnectionId.ToString() ?? "no connection id";
-}
-
-@conn
-@id
-
 <table class="table">
     <thead>
         <tr>
