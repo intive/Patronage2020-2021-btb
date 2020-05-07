@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200504143350_BrowserNotif")]
-    partial class BrowserNotif
+    [Migration("20200507182149_BrowserNotifications")]
+    partial class BrowserNotifications
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -130,9 +130,6 @@ namespace BTB.Persistence.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -156,6 +153,9 @@ namespace BTB.Persistence.Migrations
 
                     b.Property<int>("RateType")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SymbolPairId")
                         .HasColumnType("int");
