@@ -102,7 +102,6 @@ namespace BTB.Server
 
                 services.AddSignalR(options =>
                 {
-                    //options.MaximumReceiveMessageSize = 150;
                     options.EnableDetailedErrors = true;
                 });
 
