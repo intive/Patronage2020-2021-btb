@@ -26,7 +26,7 @@ namespace BTB.Server.Controllers
         [HttpPost]
         public async Task PostInBrowser()
         {
-            await _hub.SendToUserAsync(_userAccessor.GetCurrentUserId(), "xDDDDDDDDDDD");
+            await _hub.SendToUserAsync(_userAccessor.GetCurrentUserId(), "Test notification");
         }
     }
 }
