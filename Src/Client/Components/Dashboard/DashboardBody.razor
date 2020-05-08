@@ -236,9 +236,7 @@
         try
         {
             _connection = new HubConnectionBuilder()
-                .WithUrl(navigationManager.ToAbsoluteUri($"/hub/notifications?access_token={await localStorage.GetItemAsync<string>("authToken")}"), options =>
-                {
-                })
+                .WithUrl(navigationManager.ToAbsoluteUri($"/hub/notifications?access_token={await localStorage.GetItemAsync<string>("authToken")}"))
                 .Build();
             await _connection.StartAsync();
 

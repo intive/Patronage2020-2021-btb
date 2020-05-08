@@ -77,6 +77,12 @@ namespace BTB.Application.Common.Hubs
         public async Task SendToUserAsync(string userId, string message)
         {
             List<string> connections = NotificationHub.UserConnections.GetValueOrDefault(userId);
+
+            if (connections == null)
+            {
+                return;
+            }
+
             var lastConnection = connections.LastOrDefault();
 
             if (!string.IsNullOrEmpty(lastConnection))

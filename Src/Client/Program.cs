@@ -28,7 +28,6 @@ namespace BTB.Client
             builder.RootComponents.Add<App>("app");
             builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
             builder.Services.AddSingleton<IToastService, ToastService>();
-            //builder.Services.AddSingleton<IHubProxy, HubProxy>();
             builder.Services.AddBlazoredToast();
             await builder.Build().RunAsync();
         }

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    [Migration("20200507182149_BrowserNotifications")]
-    partial class BrowserNotifications
+    [Migration("20200508113510_BrowserNotification")]
+    partial class BrowserNotification
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
