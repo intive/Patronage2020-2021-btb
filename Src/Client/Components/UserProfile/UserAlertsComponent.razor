@@ -4,15 +4,15 @@
 @using System.ComponentModel
 @using System.Threading
 @using BTB.Client.Components.Dashboard
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
 @inject IJSRuntime jsRuntime
 @implements IDisposable
 
 <style type="text/css">
     .default-card {
-
     }
+
     .triggered-card {
         background-color: #e4e4e4;
     }

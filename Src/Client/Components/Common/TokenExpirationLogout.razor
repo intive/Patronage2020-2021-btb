@@ -1,10 +1,8 @@
-﻿@inject ICustomHttpClient Http
-@inject IAuthorizeService authorizeService
+﻿@inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
-@inject Blazored.Modal.Services.IModalService Modal
 
 <div id="innerContainer">
-    <p class="text-center">Password has been changed.</p>
+    <p class="text-center">You will be logged out and redirected to the login page</p>
     <div class="col text-center">
         <button class="btn btn-success" @onclick="@LogoutAndRedirectToLoginPage">Go to login page</button>
     </div>

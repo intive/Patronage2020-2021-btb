@@ -1,31 +1,37 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using BTB.Client.Services.Contracts;
+using BTB.Domain.Extensions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Blazored.LocalStorage;
-using BTB.Domain.Extensions;
 
 namespace BTB.Client.Services.Implementations
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
+        private readonly ICustomHttpClient _httpClient;
+        private readonly ITokenValidator _tokenValidator;
 
-        public IdentityAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+        public IdentityAuthenticationStateProvider(ICustomHttpClient httpClient, ITokenValidator tokenValidator)
         {
             _httpClient = httpClient;
-            _localStorage = localStorage;
+            _tokenValidator = tokenValidator;
         }
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+            var savedToken = await _tokenValidator.GetTokenAsync();
+            var anonymousState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-            if (string.IsNullOrWhiteSpace(savedToken))
+            if (await _tokenValidator.DoesUserHaveATokenAsync() == false)
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                return anonymousState;
+            }
+
+            if (await _tokenValidator.IsTokenExpiredAsync())
+            {
+                return anonymousState;
             }
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);

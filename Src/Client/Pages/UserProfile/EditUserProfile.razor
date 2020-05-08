@@ -6,7 +6,7 @@
 @using System.Text
 @using BTB.Client.Models.Validation;
 @inject NavigationManager NavigationManager
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 
 <div class="rounded shadow-lg white-padding">
 <SpinLoader IsLoading="@_processingHttpRequests">

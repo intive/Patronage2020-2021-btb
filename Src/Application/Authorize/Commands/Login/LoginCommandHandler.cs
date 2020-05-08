@@ -36,7 +36,7 @@ namespace BTB.Application.Authorize.Commands.Login
 
             if (signInResult.Succeeded)
             {
-                return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName, roles);
+                return _jwtGenerator.GenerateToken(user.Id, user.Email, request.UserName, roles, request.RememberMe);
             }
 
             throw new BadRequestException("Incorrect username or password.");

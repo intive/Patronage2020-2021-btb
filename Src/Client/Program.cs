@@ -21,7 +21,9 @@ namespace BTB.Client
                 config.AddPolicy(Policies.IsAdmin, Policies.IsAdminPolicy());
                 config.AddPolicy(Policies.IsUser, Policies.IsUserPolicy());
             });
+            builder.Services.AddScoped<ITokenValidator, TokenValidator>();
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
+            builder.Services.AddScoped<ICustomHttpClient, CustomHttpClient>();
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.RootComponents.Add<App>("app");
             builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
