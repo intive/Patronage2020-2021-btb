@@ -3,7 +3,7 @@
 @inject NavigationManager navigationManager
 
 <a class="navbar-brand" href="">
-    <img src="/img/btblogo.png" alt="">
+    <img class="ml-1" src="/img/btblogo.png" alt="">
 </a>
 
 @if (FullView)
@@ -45,7 +45,7 @@
     </li>
 
     <li class="nav-item px-4 float-right">
-        <button type="button" class="btn btn-md" style="background-color:#F58F7C" @onclick="@LogoutClick">
+        <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
             <p class="font-weight-bold px-4 mb-0">
                 Logout
             </p>
