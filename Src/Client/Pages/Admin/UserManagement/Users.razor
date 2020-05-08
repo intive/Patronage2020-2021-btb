@@ -7,28 +7,26 @@
 @inject HttpClient Http
 
 <h1>Users</h1>
+<div class="rounded shadow-lg white-padding">
+    <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
 
-<br />
+    <SpinLoader IsLoading="@(_users == null)">
+        <LoadingTemplate>
+            <div class="d-flex" style="height: 70vh">
+                <TimedLoader ShowDelay="500" />
+            </div>
+        </LoadingTemplate>
+        <ContentTemplate>
+            <br />
 
-<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-
-<SpinLoader IsLoading="@(_users == null)">
-    <LoadingTemplate>
-        <div class="d-flex" style="height: 70vh">
-            <TimedLoader ShowDelay="500" />
-        </div>
-    </LoadingTemplate>
-    <ContentTemplate>
-        <br />
-
-        <CascadingValue Value="_users.Take((int)_currentQuantity).ToList()" Name="Users">
-            <CascadingValue Value="_roles" Name="Roles">
-                <UserTable />
+            <CascadingValue Value="_users.Take((int)_currentQuantity).ToList()" Name="Users">
+                <CascadingValue Value="_roles" Name="Roles">
+                    <UserTable />
+                </CascadingValue>
             </CascadingValue>
-        </CascadingValue>
-    </ContentTemplate>
-</SpinLoader>
-
+        </ContentTemplate>
+    </SpinLoader>
+</div>
 @code {
 
     private IEnumerable<ApplicationUserVO> _users { get; set; }

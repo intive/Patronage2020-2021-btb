@@ -11,82 +11,80 @@
 @inject HttpClient Http
 
 <h1>Details of @Symbol</h1>
-
-<br />
-
-<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group mr-2" role="group" aria-label="Time group">
-        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
-        @foreach (KeyValuePair<KlineInterval, string> entry in KlineDictionary)
-        {
-            <button @onclick=@(() => SelectKlineInterval(entry.Key)) type="button" class="btn btn-primary">@entry.Value</button>
-        }
-    </div>
-    <div class="btn-group mr-2" role="group" aria-label="Table Charts Indicators">
-        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Current view</a>
-        @foreach (var value in Enum<CurrentDetailsView>.GetValues())
-        {
-            <button @onclick="@(() => SelectCurrentView(value))" type="button" class="btn btn-primary">@value</button>
-        }
-    </div>
-    <div class="btn-group mr-2" role="group" aria-label="Data Source">
-        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Data source</a>
-        @foreach (var value in Enum<DetailsDataSource>.GetValues())
-        {
-            <button @onclick=@(() => SelectDataSource(value)) type="button" class="btn btn-primary">@value</button>
-        }
-    </div>
-</div>
-
-<br />
-
-
-<div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
-        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Number of displayed elements</a>
-        @foreach (var value in Enum<PaginationQuantity>.GetValues())
-        {
-            <button class="btn btn-primary" type="button" @onclick="@(() => SelectQuantity(value))">@((int)value)</button>
-        }
-    </div>
-</div>
-
-<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-
-<SpinLoader IsLoading="@(_priceHistory == null)">
-    <LoadingTemplate>
-        <div class="d-flex" style="height: 70vh">
-            <TimedLoader ShowDelay="500" />
+<div class="rounded shadow-lg white-padding" style="padding:5px;">
+    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="Time group">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
+            @foreach (KeyValuePair<KlineInterval, string> entry in KlineDictionary)
+            {
+                <button @onclick=@(() => SelectKlineInterval(entry.Key)) type="button" class="btn btn-primary">@entry.Value</button>
+            }
         </div>
-    </LoadingTemplate>
-    <ContentTemplate>
-        <br />
-
-        <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
-            @if (CurrentDetailsView.Table == _currentView)
+        <div class="btn-group mr-2" role="group" aria-label="Table Charts Indicators">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Current view</a>
+            @foreach (var value in Enum<CurrentDetailsView>.GetValues())
             {
-                <DetailsTable />
+                <button @onclick="@(() => SelectCurrentView(value))" type="button" class="btn btn-primary">@value</button>
             }
-        </CascadingValue>
-
-        <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
-            @if (CurrentDetailsView.Chart == _currentView)
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="Data Source">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Data source</a>
+            @foreach (var value in Enum<DetailsDataSource>.GetValues())
             {
-                <DetailsChart />
+                <button @onclick=@(() => SelectDataSource(value)) type="button" class="btn btn-primary">@value</button>
             }
-        </CascadingValue>
+        </div>
+    </div>
 
-        <CascadingValue Value="_priceHistory" Name="PriceHistory">
-            <CascadingValue Value="_currentQuantity" Name="PaginationQuantity">
-                @if (CurrentDetailsView.Indicators == _currentView)
+    <br />
+
+
+    <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="Quantity group">
+            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Number of displayed elements</a>
+            @foreach (var value in Enum<PaginationQuantity>.GetValues())
+            {
+                <button class="btn btn-primary" type="button" @onclick="@(() => SelectQuantity(value))">@((int)value)</button>
+            }
+        </div>
+    </div>
+
+    <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+
+    <SpinLoader IsLoading="@(_priceHistory == null)">
+        <LoadingTemplate>
+            <div class="d-flex" style="height: 70vh">
+                <TimedLoader ShowDelay="500" />
+            </div>
+        </LoadingTemplate>
+        <ContentTemplate>
+            <br />
+
+            <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
+                @if (CurrentDetailsView.Table == _currentView)
                 {
-                    <DetailsIndicators />
+                    <DetailsTable />
                 }
             </CascadingValue>
-        </CascadingValue>
-    </ContentTemplate>
-</SpinLoader>
 
+            <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
+                @if (CurrentDetailsView.Chart == _currentView)
+                {
+                    <DetailsChart />
+                }
+            </CascadingValue>
+
+            <CascadingValue Value="_priceHistory" Name="PriceHistory">
+                <CascadingValue Value="_currentQuantity" Name="PaginationQuantity">
+                    @if (CurrentDetailsView.Indicators == _currentView)
+                    {
+                        <DetailsIndicators />
+                    }
+                </CascadingValue>
+            </CascadingValue>
+        </ContentTemplate>
+    </SpinLoader>
+</div>
 
 @code {
 

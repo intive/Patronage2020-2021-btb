@@ -1,8 +1,5 @@
 ﻿@using System.Text.Json
-@using System.Text.RegularExpressions
 @using System.Threading
-@using BTB.Client.Models
-@using BTB.Domain.Common
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
 @inject HttpClient Http
@@ -20,25 +17,10 @@
 
 <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
 
-<EditForm class="form-group" Model="_filter" OnValidSubmit="@Filter">
-    <DataAnnotationsValidator />
-    <ValidationMessage For="@(() => _filter.SymbolName)" />
-    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
-    <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
-    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-    
-    <div class="btn-group mr-2" role="group" aria-label="Time group">
-        @foreach (var value in Enum<CurrencyFilter>.GetValues())
-        {
-            <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
-        }
-    </div>
-</EditForm>
-
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 10%;" class="text-center" >Favorite</th>
+            <th style="width: 10%;" class="text-center">Favorite</th>
             <th style="width: 20%;" class="text-right">Symbol</th>
             <th style="width: 25%;" class="text-right">Price</th>
             <th style="width: 25%;" class="text-right">Volume</th>
@@ -58,16 +40,16 @@
                 @if (_dashboardElements.Any())
                 {
                     @foreach (var item in _dashboardElements)
-                    {
-                        <SymbolPair DashboardPairVO="item" OnChangeFavorite="@SwitchElement"/>
+                    {      
+                        <SymbolPairFavorite DashboardPairVO="item" OnDeleteFavorite="@DeleteElement"/>
                     }
                 }
                 else
                 {
                     <tr>
-                            <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
-                                <p class="align-middle d-inline-block"> No results </p>
-                            </td>
+                        <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
+                            <p class="align-middle d-inline-block"> No results </p>
+                        </td>
                     </tr>
                 }
             </ContentTemplate>
@@ -80,8 +62,6 @@
     private IEnumerable<DashboardPairVO> _dashboardElements { get; set; }
     private List<DashboardPairVO> _pageItems;
 
-    private FilterModel _filter = new FilterModel();
-
     private int _totalPageQuantity;
     private int _currentPage = 1;
     private int _currentQuantity = 10;
@@ -89,34 +69,6 @@
     private bool _isRequestRunning = false;
 
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-
-    private async Task Filter()
-    {
-        _currentPage = 1;
-        _currentQuantity = 10;
-
-        if (string.IsNullOrWhiteSpace(_filter.SymbolName) ||
-        !Regex.IsMatch(_filter.SymbolName, @"^[a-zA-Z]+$"))
-        {
-            return;
-        }
-
-        if (string.Equals(_filter.SymbolName, CurrencyFilter.ALL.ToString()))
-        {
-            _filter.SymbolName = string.Empty;
-        }
-
-        await LoadDashboardTableAsync();
-    }
-
-    private async Task Clear()
-    {
-        _currentPage = 1;
-        _currentQuantity = 10;
-        _filter.SymbolName = string.Empty;
-
-        await LoadDashboardTableAsync();
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,7 +88,7 @@
 
             _isRequestRunning = true;
 
-            var httpResponse = await Http.GetAsync($"/api/dashboard?page={_currentPage}&quantity={_currentQuantity}&name={_filter.SymbolName}", _tokenSource.Token);
+            var httpResponse = await Http.GetAsync($"/api/favoritesymbolpairs?page={_currentPage}&quantity={_currentQuantity}", _tokenSource.Token);
 
             if (_tokenSource.Token.IsCancellationRequested)
             {
@@ -186,10 +138,20 @@
         _tokenSource.Cancel();
     }
 
-    public void SwitchElement(int itemId)
+    public async Task DeleteElement(int itemId)
     {
         var elementToDelete = _pageItems.Find(e => e.Id == itemId);
         elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
+
+        _pageItems.Remove(elementToDelete);
+
+        if (_pageItems.Count() == 0)
+        {
+            _currentPage = 1;
+        }
+
+        await LoadDashboardTableAsync();
+        
     }
 
 }
