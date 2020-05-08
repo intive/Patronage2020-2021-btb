@@ -87,7 +87,7 @@ namespace BTB.Application.Common.Hubs
 
             if (!string.IsNullOrEmpty(lastConnection))
             {
-                await _hubcontext.Clients.Clients(connections).SendAsync("inbrowser", message);
+                await _hubcontext.Clients.Clients(lastConnection).SendAsync("inbrowser", message);
             }
         }
 
