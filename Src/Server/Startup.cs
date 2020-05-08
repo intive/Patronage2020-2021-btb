@@ -28,7 +28,6 @@ using System.Collections.Generic;
 
 namespace BTB.Server
 {
-
     public class Startup
     {
         public static Dictionary<string, Exception> ConfigureServicesExceptions = new Dictionary<string, Exception>();
@@ -49,7 +48,6 @@ namespace BTB.Server
         {
             try
             {
-
                 services.Configure<FileLoggerConfig>(Configuration.GetSection("FileLoggerConfig"));
                 services.Configure<DatabaseLoggerConfig>(Configuration.GetSection("DatabaseLoggerConfig"));
                 services.Configure<FileLoggerConfig>(Configuration.GetSection("SharedLoggerConfig"));
@@ -89,7 +87,7 @@ namespace BTB.Server
                         new[] { "application/octet-stream" });
                 });
 
-            services.AddSwaggerDocumentation();
+                services.AddSwaggerDocumentation();
 
                 services.AddMvc(options =>
                 {
@@ -110,7 +108,6 @@ namespace BTB.Server
                 services.AddScoped<ILogFileService, LogFileSystemService>();
                 services.AddScoped<IGamblePointManager, GamblePointManager>();
                 services.AddScoped<IBetsManager, BetsManager>();
-
 
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
@@ -158,7 +155,7 @@ namespace BTB.Server
                     app.UseBlazorDebugging();
                 }
 
-            app.UseSwaggerDocumentation();
+                app.UseSwaggerDocumentation();
 
                 app.UseStaticFiles();
                 app.UseClientSideBlazorFiles<Client.Program>();
@@ -177,7 +174,6 @@ namespace BTB.Server
             {
                 ConfigureExceptions[e.ToString()] = e;
             }
-            
         }
     }
 }
