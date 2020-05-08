@@ -1,9 +1,15 @@
-﻿using BTB.Application.System.Commands.LoadData;
+﻿using Binance.Net.Objects;
+using BTB.Application.Common.Interfaces;
+using BTB.Application.Common.Models;
+using BTB.Application.System.Commands.LoadData;
 using BTB.Application.System.Commands.SeedSampleData;
 using BTB.Domain.Common;
+using BTB.Domain.ValueObjects;
 using BTB.Persistence;
+using BTB.Server.Common;
 using BTB.Server.Common.Logger;
 using BTB.Server.Common.Logger.Database;
+using BTB.Server.Services;
 using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -101,8 +108,15 @@ namespace BTB.Server
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var env = hostingContext.HostingEnvironment;
-                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
                     config.AddEnvironmentVariables();
+
+                    if (args != null)
+                    {
+                        config.AddCommandLine(args);
+                    }
                 })
                 .ConfigureLogging((context, logging) =>
                 {
