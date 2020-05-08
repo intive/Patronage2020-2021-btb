@@ -61,7 +61,7 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GiveRoleToUser([FromBody] GiveRoleToUserCommand command, CancellationToken cancellationToken)
         {
-            IList<string> usersRoles = await Mediator.Send(command ?? new GiveRoleToUserCommand(), cancellationToken);
+            UserRolesVO usersRoles = await Mediator.Send(command ?? new GiveRoleToUserCommand(), cancellationToken);
             return Ok(usersRoles);
         }
 
@@ -77,7 +77,7 @@ namespace BTB.Server.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> TakeRoleFromUser([FromBody] TakeRoleFromUserCommand command, CancellationToken cancellationToken)
         {
-            IList<string> usersRoles = await Mediator.Send(command ?? new TakeRoleFromUserCommand(), cancellationToken);
+            UserRolesVO usersRoles = await Mediator.Send(command ?? new TakeRoleFromUserCommand(), cancellationToken);
             return Ok(usersRoles);
         }
 

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using BTB.Domain.ValueObjects;
 using MediatR;
 
 namespace BTB.Application.UserManagement.Commands.GiveRoleToUser
 {
-    public class GiveRoleToUserCommand : IRequest<IList<string>>
+    public class GiveRoleToUserCommand : IRequest<UserRolesVO>
     {
         public string Role { get; set; }
         public string UserName { get; set; }

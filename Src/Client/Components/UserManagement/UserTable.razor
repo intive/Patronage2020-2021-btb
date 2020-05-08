@@ -1,7 +1,10 @@
-﻿@using BTB.Client.Models
-@using System.Text.Json;
+﻿@using BTB.Domain.ValueObjects;
+@using BTB.Client.Models;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
 @using System.Text;
 @inject HttpClient Http
+@inject Blazored.Modal.Services.IModalService Modal
 
 <style type="text/css">
     #table-users th {
@@ -16,6 +19,12 @@
         text-align: center;
     }
 </style>
+
+
+@if (_errorOccured)
+{
+    <div class="validation-message text-center" style="font-size:14px; margin-bottom:10px">@_errorMessage</div>
+}
 
 <table id="table-users" class="table">
     <thead>
@@ -71,10 +80,14 @@
     [CascadingParameter(Name = "Roles")]
     private List<string> _roles { get; set; }
 
+    private string _errorMessage { get; set; }
+    private bool _errorOccured { get; set; } = false;
+
+
     private async Task TakeRole(ApplicationUserVO user, string role)
     {
         var takeRoleModel = new TakeRoleFromUserModel { UserName = user.UserName, Role = role };
-        StringContent httpRequestContent = new StringContent(JsonSerializer.Serialize(takeRoleModel), Encoding.UTF8, "application/json");
+        var httpRequestContent = new StringContent(JsonConvert.SerializeObject(takeRoleModel), Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await Http.PutAsync($"api/UserManagement/TakeRole", httpRequestContent);
         await ProcessResponse(response, user);
@@ -83,7 +96,7 @@
     private async Task AddRole(ApplicationUserVO user, string role)
     {
         var giveRoleModel = new GiveRoleToUserModel { UserName = user.UserName, Role = role };
-        StringContent httpRequestContent = new StringContent(JsonSerializer.Serialize(giveRoleModel), Encoding.UTF8, "application/json");
+        var httpRequestContent = new StringContent(JsonConvert.SerializeObject(giveRoleModel), Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await Http.PutAsync($"api/UserManagement/GiveRole", httpRequestContent);
         await ProcessResponse(response, user);
@@ -91,17 +104,42 @@
 
     private async Task ProcessResponse(HttpResponseMessage response, ApplicationUserVO user)
     {
+        var jsonString = await response.Content.ReadAsStringAsync();
+
         if (response.IsSuccessStatusCode)
         {
-            string jsonString = await response.Content.ReadAsStringAsync();
-            var newRoles = JsonSerializer.Deserialize<IList<string>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            _errorOccured = false;
+
+            var result = JsonConvert.DeserializeObject<UserRolesVO>(jsonString);
 
             int index = _users.FindIndex(u => u.Id == user.Id);
             if (index != -1)
             {
-                _users[index].Roles = newRoles;
+                _users[index].Roles = result.Roles;
+            }
+
+            if (result.LogoutRequired == true)
+            {
+                var parameters = new ModalParameters();
+                var options = new ModalOptions()
+                {
+                    DisableBackgroundCancel = true,
+                    HideHeader = false,
+                    HideCloseButton = true
+                };
+
+                Modal.Show<ChangedYourOwnRoleInfo>("Your role has been changed successfully", parameters, options);
             }
         }
+        else
+        {
+            _errorOccured = true;
+
+            var myJObject = JObject.Parse(jsonString);
+            _errorMessage = myJObject.SelectToken("errorMessage").Value<string>();
+        }
     }
+
+
 
 }

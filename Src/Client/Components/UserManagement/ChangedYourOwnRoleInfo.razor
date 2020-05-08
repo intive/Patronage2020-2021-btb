@@ -1,0 +1,19 @@
+﻿@inject IAuthorizeService authorizeService
+@inject NavigationManager navigationManager
+
+<div id="innerContainer">
+    <p class="text-center">You will be logged out and redirected to the login page</p>
+    <div class="col text-center">
+        <button class="btn btn-success" @onclick="@LogoutAndRedirectToLoginPage">Go to login page</button>
+    </div>
+</div>
+
+@code {
+
+    private async Task LogoutAndRedirectToLoginPage()
+    {
+        await authorizeService.Logout();
+        navigationManager.NavigateTo("/login");
+    }
+
+}
