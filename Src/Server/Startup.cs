@@ -25,6 +25,8 @@ using BTB.Server.Common.Logger.Database;
 using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Behaviours;
 using System.Collections.Generic;
+using BTB.Application.Common.Hubs;
+using Microsoft.AspNet.SignalR;
 
 namespace BTB.Server
 {
@@ -49,6 +51,16 @@ namespace BTB.Server
         {
             try
             {
+                services.AddCors(options =>
+                {
+                    options.AddPolicy("CorsPolicy", policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .SetIsOriginAllowed((host) => true);
+                    });
+                });
 
                 services.Configure<FileLoggerConfig>(Configuration.GetSection("FileLoggerConfig"));
                 services.Configure<DatabaseLoggerConfig>(Configuration.GetSection("DatabaseLoggerConfig"));
@@ -76,21 +88,6 @@ namespace BTB.Server
                 services.AddInfrastructure(Configuration, Environment);
                 services.AddPersistence(Configuration);
 
-                services.Configure<ApiBehaviorOptions>(options =>
-                {
-                    options.SuppressModelStateInvalidFilter = true;
-                });
-
-                services.AddControllers().AddNewtonsoftJson();
-
-                services.AddResponseCompression(opts =>
-                {
-                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                        new[] { "application/octet-stream" });
-                });
-
-            services.AddSwaggerDocumentation();
-
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
@@ -102,6 +99,19 @@ namespace BTB.Server
                     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                         new[] { "application/octet-stream" });
                 });
+
+                services.AddSignalR(options =>
+                {
+                    options.EnableDetailedErrors = true;
+                });
+
+                services.Configure<ApiBehaviorOptions>(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                });
+
+                services.AddControllers().AddNewtonsoftJson();
+                services.AddSwaggerDocumentation();
 
                 services.AddScoped<IEmailService, EmailService>();
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -150,6 +160,7 @@ namespace BTB.Server
         {
             try
             {
+                app.UseCors("CorsPolicy");
                 app.UseResponseCompression();
 
                 if (env.IsDevelopment())
@@ -158,7 +169,7 @@ namespace BTB.Server
                     app.UseBlazorDebugging();
                 }
 
-            app.UseSwaggerDocumentation();
+                app.UseSwaggerDocumentation();
 
                 app.UseStaticFiles();
                 app.UseClientSideBlazorFiles<Client.Program>();
@@ -167,9 +178,12 @@ namespace BTB.Server
                 app.UseAuthentication();
                 app.UseAuthorization();
 
+                GlobalHost.HubPipeline.RequireAuthentication();
+
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapDefaultControllerRoute();
+                    endpoints.MapHub<NotificationHub>("/hub/notifications");
                     endpoints.MapFallbackToClientSideBlazor<Client.Program>("index.html");
                 });
             }
@@ -177,7 +191,7 @@ namespace BTB.Server
             {
                 ConfigureExceptions[e.ToString()] = e;
             }
-            
+
         }
     }
 }

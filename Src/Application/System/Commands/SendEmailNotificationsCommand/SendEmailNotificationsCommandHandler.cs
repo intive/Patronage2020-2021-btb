@@ -1,4 +1,5 @@
-﻿using BTB.Application.Common.Interfaces;
+﻿using BTB.Application.Common.Hubs;
+using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors;
 using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.ConditionDetectors.Crossing;
@@ -20,6 +21,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
     {
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IBrowserNotificationHub _browserAlert;
         private TimestampInterval _klineInterval;
 
         private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
@@ -34,10 +36,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _notificationTriggeredByKlineFlags = new Dictionary<int, int>();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
+        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService, IBrowserNotificationHub browserAlert)
         {
             _context = context;
             _emailService = emailService;
+            _browserAlert = browserAlert;
 
             _crossingConditionDetector = new CrossingConditionDetector();
             _crossingUpConditionDetector = new CrossingUpConditionDetector();
@@ -49,16 +52,32 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             _klineInterval = request.KlineInterval;
 
-            foreach (var alert in _context.Alerts)
+            var alerts = _context.Alerts;
+
+            foreach (var alert in alerts)
             {
-                if (!alert.SendEmail || alert.IsDisabled)
+                if (alert.IsDisabled)
+                {
+                    continue;
+                }
+
+                if (!alert.SendEmail && !alert.SendInBrowser)
                 {
                     continue;
                 }
 
                 if (await AreConditionsMet(alert, cancellationToken))
                 {
-                    await SendEmailMessageAsync(alert);
+                    if (alert.SendEmail)
+                    {
+                        await SendEmailMessageAsync(alert);
+                    }
+
+                    if (alert.SendInBrowser)
+                    {
+                        await SendInBrowserNotificationAsync(alert);
+                    }
+
                     alert.WasTriggered = true;
                     _context.Alerts.Update(alert);
                 }
@@ -139,6 +158,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         {
             EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
             _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+        }
+
+        private async Task SendInBrowserNotificationAsync(Alert alert)
+        {
+            await _browserAlert.SendToUserAsync(alert.UserId, $"{alert.SymbolPair.PairName} is {alert.Condition} {alert.ValueType} {alert.Value}");
         }
 
         public static void ResetTriggerFlags()

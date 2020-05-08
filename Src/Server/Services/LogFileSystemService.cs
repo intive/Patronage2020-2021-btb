@@ -65,7 +65,14 @@ namespace BTB.Server.Services
 
             if (!File.Exists(path))
             {
-                File.Create(path).Dispose();
+                try
+                {
+                    File.Create(path).Dispose();
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
             }
 
             string message = log.GetString();

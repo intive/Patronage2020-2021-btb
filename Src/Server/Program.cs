@@ -70,7 +70,6 @@ namespace BTB.Server
             }
 
             var app = AppDomain.CurrentDomain;
-            //app.UnhandledException += InspectException;
             app.FirstChanceException += InspectException;
 
             host.Run();

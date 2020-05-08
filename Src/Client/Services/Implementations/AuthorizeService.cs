@@ -34,7 +34,7 @@ namespace BTB.Client.Services.Implementations
                 throw new Exception(await response.Content.ReadAsStringAsync());
             }
             response.EnsureSuccessStatusCode();
-
+            
             var token = await response.Content.ReadAsStringAsync();
             await _localStorage.SetItemAsync("authToken", token);
             ((IdentityAuthenticationStateProvider)_identityAuthenticationStateProvider).MarkUserAsAuthenticated(token);

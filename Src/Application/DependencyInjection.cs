@@ -30,12 +30,11 @@ using System.Reflection;
 using FluentValidation;
 using AutoMapper;
 using MediatR;
-using BTB.Application.Bets.Commands.CreateBetCommand;
 using BTB.Application.Common.Interfaces;
+using BTB.Application.Common.Hubs;
 using BTB.Application.ConditionDetectors;
 using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.Bets.Common;
-
 
 namespace BTB.Application
 {
@@ -47,6 +46,7 @@ namespace BTB.Application
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
             services.AddTransient<IBinanceClient, BinanceClient>();
+            services.AddTransient<IBrowserNotificationHub, BrowserNotificationHub>();
 
             var sp = services.BuildServiceProvider();
             var settings = sp.GetService<IOptions<BinanceSettings>>();
