@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.2" />
     <Compile Remove="Migrations\20200503111517_RenameColumnAndAddColumnToBet.cs" />
     <Compile Remove="Migrations\20200503111517_RenameColumnAndAddColumnToBet.Designer.cs" />
     <Compile Remove="Migrations\20200505203332_RenameColumnInBet.cs" />

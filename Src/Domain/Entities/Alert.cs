@@ -14,7 +14,6 @@ namespace BTB.Domain.Entities
         public AlertValueType ValueType { get; set; }
         public decimal Value { get; set; }
         public decimal AdditionalValue { get; set; }
-        public bool SendInBrowser { get; set; }
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }

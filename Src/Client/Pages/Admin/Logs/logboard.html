@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="logboard.css">
+    </head>
+
+    <body>
+
+            <div id=optionscontainer class="container">
+                <div id="configcontainer">
+                    <div>
+                        <input placeholder="dd" @bind-value="@QueryModel.Day" style="width: 2.5em; text-align: center;" maxlength="2" />
+                        <input placeholder="MM" style="width: 2.5em; text-align: center;"
+                            maxlength="2" />
+                        <input placeholder="yyyy" style="width: 3em; text-align: center;"
+                            maxlength="4" />
+                    </div>
+                    <div id="logbuttons">
+                        <div  class="btn btn-primary btn-sm">Information</div>
+                        <div class="btn btn-primary btn-sm">Warning</div>
+                        <div class="btn btn-primary btn-sm">Error</div>
+                        <div class="btn btn-primary btn-sm">Critical</div>
+                    </div>  
+            
+                    <input placeholder="Name of class or namespace"
+                        style="width: 80%; text-align: center; margin-top: 10px;" />
+                </div>
+            
+                <div id="executecontainer">
+                    <div>
+                        <div class="btn btn-primary btn-sm">Show
+                            logs</div>
+                    </div>
+                    <div>
+                        <div class="btn btn-primary btn-sm">Download
+                            logs</div>
+                    </div>
+                </div>
+                
+                <div id="stacktrace" class="container">
+                    @SelectedStackTrace
+                </div>
+            </div>
+
+
+                            
+    </body>
+</html>

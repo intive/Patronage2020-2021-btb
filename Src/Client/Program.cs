@@ -6,8 +6,6 @@ using BTB.Client.Services.Contracts;
 using BTB.Domain.Policies;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
-using Blazored.Toast.Services;
-using Blazored.Toast;
 
 namespace BTB.Client
 {
@@ -27,8 +25,6 @@ namespace BTB.Client
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.RootComponents.Add<App>("app");
             builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
-            builder.Services.AddSingleton<IToastService, ToastService>();
-            builder.Services.AddBlazoredToast();
             await builder.Build().RunAsync();
         }
     }

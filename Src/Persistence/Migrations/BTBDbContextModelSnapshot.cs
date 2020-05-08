@@ -54,9 +54,6 @@ namespace BTB.Persistence.Migrations
                     b.Property<bool>("SendEmail")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("SendInBrowser")
-                        .HasColumnType("bit");
-
                     b.Property<int>("SymbolPairId")
                         .HasColumnType("int");
 

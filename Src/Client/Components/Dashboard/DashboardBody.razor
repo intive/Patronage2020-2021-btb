@@ -6,19 +6,8 @@
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
 @using BTB.Client.Pages.Dashboard.Common
-@using Blazored
-@using Blazored.Modal
-@using Blazored.Modal.Services
-@using Blazored.Toast
-@using Blazored.Toast.Services
-@using Blazored.LocalStorage;
-
 @inject HttpClient Http
 @implements IDisposable
-
-@inject IToastService Toast
-@inject NavigationManager navigationManager
-@inject ILocalStorageService localStorage
 
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
@@ -38,7 +27,7 @@
     <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
     <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
     <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-
+    
     <div class="btn-group mr-2" role="group" aria-label="Time group">
         @foreach (var value in Enum<CurrencyFilter>.GetValues())
         {
@@ -50,7 +39,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 10%;" class="text-center">Favorite</th>
+            <th style="width: 10%;" class="text-center" >Favorite</th>
             <th style="width: 20%;" class="text-right">Symbol</th>
             <th style="width: 25%;" class="text-right">Price</th>
             <th style="width: 25%;" class="text-right">Volume</th>
@@ -84,9 +73,9 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
-                            <p class="align-middle d-inline-block"> No results </p>
-                        </td>
+                            <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
+                                <p class="align-middle d-inline-block"> No results </p>
+                            </td>
                     </tr>
                 }
             </ContentTemplate>
@@ -95,9 +84,6 @@
 </table>
 
 @code {
-
-    private HubConnection _connection;
-    private string lastNotification = "";
 
     [Parameter]
     public DashboardType Type { get; set; } = DashboardType.SymbolPair;
@@ -146,7 +132,6 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDashboardTableAsync();
-        await ConnectToSignalRAsync();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -223,7 +208,7 @@
 
             if (_pageItems.Count() == 0)
             {
-                _currentPage = 1;
+                _currentPage = 1;    
             }
 
             await LoadDashboardTableAsync();
@@ -231,33 +216,4 @@
         }
     }
 
-    private async Task ConnectToSignalRAsync()
-    {
-        try
-        {
-            _connection = new HubConnectionBuilder()
-                .WithUrl(navigationManager.ToAbsoluteUri($"/hub/notifications?access_token={await localStorage.GetItemAsync<string>("authToken")}"))
-                .Build();
-            await _connection.StartAsync();
-
-        }
-        catch (Exception e)
-        {
-            // TODO: Log exception
-        }
-
-        _connection.Closed += async (exception) =>
-        {
-            await _connection.StartAsync();
-        };
-
-        _connection.On<string>("inbrowser", response =>
-        {
-            if (!lastNotification.Equals(response))
-            {
-                Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
-                lastNotification = response;
-            }
-        });
-    }
 }
