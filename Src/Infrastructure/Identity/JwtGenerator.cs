@@ -41,7 +41,7 @@ namespace BTB.Infrastructure.Identity
             DateTime expiration = _dateTime.Now.AddDays(30);
             if (rememberMe == false)
             {
-                expiration = _dateTime.Now.AddSeconds(10);
+                expiration = _dateTime.Now.AddHours(2);
             }
             
             var token = new JwtSecurityToken(
