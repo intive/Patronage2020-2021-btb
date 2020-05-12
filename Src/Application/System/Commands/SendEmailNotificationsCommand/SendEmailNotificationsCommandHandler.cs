@@ -20,6 +20,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
     {
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IEmailKeeper _emailKeeper;
         private TimestampInterval _klineInterval;
 
         private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
@@ -34,10 +35,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _notificationTriggeredByKlineFlags = new Dictionary<int, int>();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService)
+        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService, IEmailKeeper emailKeeper)
         {
             _context = context;
             _emailService = emailService;
+            _emailKeeper = emailKeeper;
 
             _crossingConditionDetector = new CrossingConditionDetector();
             _crossingUpConditionDetector = new CrossingUpConditionDetector();
@@ -137,8 +139,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
         private async Task SendEmailMessageAsync(Alert alert)
         {
-            EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
-            _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+            if (!_emailKeeper.CheckIfLimitHasBeenReached())
+            {
+                EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
+                _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+            }
         }
 
         public static void ResetTriggerFlags()

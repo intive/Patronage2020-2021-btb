@@ -166,6 +166,8 @@ namespace BTB.Server.Services
             betToUpdate.SymbolPair = symbolPair;
             betToUpdate.SymbolPairId = symbolPair.Id;
             betToUpdate.Points = request.Points;
+            betToUpdate.LowerPriceThreshold = request.LowerPriceThreshold;
+            betToUpdate.UpperPriceThreshold = request.UpperPriceThreshold;
 
             var now = _dateTime.Now;
             betToUpdate.StartedAt = now;

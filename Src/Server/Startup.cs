@@ -108,6 +108,7 @@ namespace BTB.Server
                 services.AddScoped<ILogFileService, LogFileSystemService>();
                 services.AddScoped<IGamblePointManager, GamblePointManager>();
                 services.AddScoped<IBetsManager, BetsManager>();
+                services.AddScoped<IEmailKeeper, EmailKeeper>();
 
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
@@ -135,6 +136,7 @@ namespace BTB.Server
                 });
 
                 services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
+                services.Configure<EmailKeeperConfig>(Configuration.GetSection("EmailKeeper"));
             }
             catch (Exception e)
             {

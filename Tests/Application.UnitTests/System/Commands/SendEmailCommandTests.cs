@@ -34,6 +34,7 @@ namespace Application.UnitTests.System.Commands
         public async Task Handle_ShouldSendEmail_WhenRequestIsValid(string expectedTo, string defaultEmailAddress, string expectedTitle, string expectedContent)
         {
             var emailServiceMock = new Mock<IEmailService>();
+            var emailKeeperMock = new Mock<IEmailKeeper>();
             var configMock = new EmailConfigMock() { DefaultEmailAddress = defaultEmailAddress };
 
             var command = new SendEmailCommand()
@@ -44,7 +45,7 @@ namespace Application.UnitTests.System.Commands
             };
 
             ILoggerFactory factory = new LoggerFactory();
-            var sut = new SendEmailCommandHandler(emailServiceMock.Object, configMock, _context, factory.CreateLogger<SendEmailCommandHandler>());
+            var sut = new SendEmailCommandHandler(emailServiceMock.Object, emailKeeperMock.Object, configMock, _context, factory.CreateLogger<SendEmailCommandHandler>());
             await sut.Handle(command, CancellationToken.None);
 
             if (string.IsNullOrWhiteSpace(expectedTo))
