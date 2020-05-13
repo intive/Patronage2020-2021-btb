@@ -104,17 +104,11 @@ namespace Application.UnitTests.System.Commands
             await _context.SaveChangesAsync(CancellationToken.None);
 
             var emailServiceMock = new Mock<IEmailService>();
-<<<<<<< HEAD
+            var emailKeeperMock = new Mock<IEmailKeeper>();
             var browserNotificationMock = new Mock<IBrowserNotificationHub>();
 
             var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, browserNotificationMock.Object);
-=======
-            var emailKeeperMock = new Mock<IEmailKeeper>();
-
-            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, emailKeeperMock.Object);
->>>>>>> 09fd842c6a89a83dbb5068ab4c2a3f36724a75a3
+            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, browserNotificationMock.Object, emailKeeperMock.Object);
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
@@ -157,17 +151,11 @@ namespace Application.UnitTests.System.Commands
             await _context.SaveChangesAsync(CancellationToken.None);
 
             var emailServiceMock = new Mock<IEmailService>();
-<<<<<<< HEAD
+            var emailKeeperMock = new Mock<IEmailKeeper>();
             var browserNotificationMock = new Mock<IBrowserNotificationHub>();
 
             var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, browserNotificationMock.Object);
-=======
-            var emailKeeperMock = new Mock<IEmailKeeper>();
-
-            var command = new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin };
-            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, emailKeeperMock.Object);
->>>>>>> 09fd842c6a89a83dbb5068ab4c2a3f36724a75a3
+            var sut = new SendEmailNotificationsCommandHandler(_context, emailServiceMock.Object, browserNotificationMock.Object, emailKeeperMock.Object);
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);

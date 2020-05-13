@@ -5,7 +5,6 @@
 @using BTB.Domain.Common
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
-@using BTB.Client.Pages.Dashboard.Common
 @using Blazored
 @using Blazored.Modal
 @using Blazored.Modal.Services
@@ -92,9 +91,6 @@
 
     private HubConnection _connection;
     private string lastNotification = "";
-
-    [Parameter]
-    public DashboardType Type { get; set; } = DashboardType.SymbolPair;
 
     private IEnumerable<DashboardPairVO> _dashboardElements { get; set; }
     private List<DashboardPairVO> _pageItems;
@@ -210,19 +206,6 @@
     {
         var elementToDelete = _pageItems.Find(e => e.Id == itemId);
         elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
-
-        if (Type == DashboardType.FavoriteSymbolPair)
-        {
-            _pageItems.Remove(elementToDelete);
-
-            if (_pageItems.Count() == 0)
-            {
-                _currentPage = 1;
-            }
-
-            await LoadDashboardTableAsync();
-
-        }
     }
 
     private async Task ConnectToSignalRAsync()

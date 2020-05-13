@@ -100,8 +100,6 @@ namespace BTB.Server
                         new[] { "application/octet-stream" });
                 });
 
-                services.AddSwaggerDocumentation();
-
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
