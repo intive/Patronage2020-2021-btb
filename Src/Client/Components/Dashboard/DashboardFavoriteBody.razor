@@ -1,25 +1,9 @@
 ﻿@using System.Text.Json
-@using System.Text.RegularExpressions
 @using System.Threading
-@using BTB.Client.Models
-@using BTB.Domain.Common
 @using BTB.Domain.Common.Pagination
 @using BTB.Domain.Extensions
-@using BTB.Client.Pages.Dashboard.Common
-@using Blazored
-@using Blazored.Modal
-@using Blazored.Modal.Services
-@using Blazored.Toast
-@using Blazored.Toast.Services
-@using Blazored.LocalStorage;
-
 @inject HttpClient Http
-@inject ICustomHttpClient Http
 @implements IDisposable
-
-@inject IToastService Toast
-@inject NavigationManager navigationManager
-@inject ILocalStorageService localStorage
 
 
 <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
@@ -32,21 +16,6 @@
 </div>
 
 <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-
-<EditForm class="form-group" Model="_filter" OnValidSubmit="@Filter">
-    <DataAnnotationsValidator />
-    <ValidationMessage For="@(() => _filter.SymbolName)" />
-    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
-    <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
-    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-
-    <div class="btn-group mr-2" role="group" aria-label="Time group">
-        @foreach (var value in Enum<CurrencyFilter>.GetValues())
-        {
-            <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
-        }
-    </div>
-</EditForm>
 
 <table class="table">
     <thead>
@@ -71,8 +40,8 @@
                 @if (_dashboardElements.Any())
                 {
                     @foreach (var item in _dashboardElements)
-                    {
-                        <SymbolPair DashboardPairVO="item" OnChangeFavorite="@SwitchElement"/>
+                    {      
+                        <SymbolPairFavorite DashboardPairVO="item" OnDeleteFavorite="@DeleteElement"/>
                     }
                 }
                 else
@@ -90,16 +59,8 @@
 
 @code {
 
-    private HubConnection _connection;
-    private string lastNotification = "";
-
-    [Parameter]
-    public DashboardType Type { get; set; } = DashboardType.SymbolPair;
-
     private IEnumerable<DashboardPairVO> _dashboardElements { get; set; }
     private List<DashboardPairVO> _pageItems;
-
-    private FilterModel _filter = new FilterModel();
 
     private int _totalPageQuantity;
     private int _currentPage = 1;
@@ -109,38 +70,9 @@
 
     private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-    private async Task Filter()
-    {
-        _currentPage = 1;
-        _currentQuantity = 10;
-
-        if (string.IsNullOrWhiteSpace(_filter.SymbolName) ||
-        !Regex.IsMatch(_filter.SymbolName, @"^[a-zA-Z]+$"))
-        {
-            return;
-        }
-
-        if (string.Equals(_filter.SymbolName, CurrencyFilter.ALL.ToString()))
-        {
-            _filter.SymbolName = string.Empty;
-        }
-
-        await LoadDashboardTableAsync();
-    }
-
-    private async Task Clear()
-    {
-        _currentPage = 1;
-        _currentQuantity = 10;
-        _filter.SymbolName = string.Empty;
-
-        await LoadDashboardTableAsync();
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await LoadDashboardTableAsync();
-        await ConnectToSignalRAsync();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -156,7 +88,7 @@
 
             _isRequestRunning = true;
 
-            var httpResponse = await Http.GetAsync($"/api/dashboard?page={_currentPage}&quantity={_currentQuantity}&name={_filter.SymbolName}", _tokenSource.Token);
+            var httpResponse = await Http.GetAsync($"/api/favoritesymbolpairs?page={_currentPage}&quantity={_currentQuantity}", _tokenSource.Token);
 
             if (_tokenSource.Token.IsCancellationRequested)
             {
@@ -206,52 +138,20 @@
         _tokenSource.Cancel();
     }
 
-    public void SwitchElement(int itemId)
+    public async Task DeleteElement(int itemId)
     {
         var elementToDelete = _pageItems.Find(e => e.Id == itemId);
         elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
 
-        if (Type == DashboardType.FavoriteSymbolPair)
+        _pageItems.Remove(elementToDelete);
+
+        if (_pageItems.Count() == 0)
         {
-            _pageItems.Remove(elementToDelete);
-
-            if (_pageItems.Count() == 0)
-            {
-                _currentPage = 1;
-            }
-
-            await LoadDashboardTableAsync();
-
+            _currentPage = 1;
         }
+
+        await LoadDashboardTableAsync();
+        
     }
 
-    private async Task ConnectToSignalRAsync()
-    {
-        try
-        {
-            _connection = new HubConnectionBuilder()
-                .WithUrl(navigationManager.ToAbsoluteUri($"/hub/notifications?access_token={await localStorage.GetItemAsync<string>("authToken")}"))
-                .Build();
-            await _connection.StartAsync();
-
-        }
-        catch (Exception e)
-        {
-            // TODO: Log exception
-        }
-
-        _connection.Closed += async (exception) =>
-        {
-            await _connection.StartAsync();
-        };
-
-        _connection.On<string>("inbrowser", response =>
-        {
-            if (!lastNotification.Equals(response))
-            {
-                Toast.ShowToast(ToastLevel.Info, $"Alert: {response}!");
-                lastNotification = response;
-            }
-        });
-    }
 }

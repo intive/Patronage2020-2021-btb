@@ -4,14 +4,16 @@ using BTB.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BTB.Persistence.Migrations
 {
     [DbContext(typeof(BTBDbContext))]
-    partial class BTBDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200511065525_AddedEmailCountEntity")]
+    partial class AddedEmailCountEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,9 +54,6 @@ namespace BTB.Persistence.Migrations
                         .HasMaxLength(500);
 
                     b.Property<bool>("SendEmail")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("SendInBrowser")
                         .HasColumnType("bit");
 
                     b.Property<int>("SymbolPairId")

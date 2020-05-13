@@ -1,12 +1,13 @@
 ﻿@using System.Text.Json
 @using System.Threading
-@inject HttpClient Http
+@inject ICustomHttpClient Http
+
 @if (!_loading)
 {
-    <span class="font-weight-bold" style="color:#FF5722; margin-right:5px">&#9830;</span>
-    <span style="color:rgba(255,255,255,.5); margin-right:10px">@_points</span>
-    <span class="font-weight-bold" style="color:#FF5722; margin-right:5px">&#9826;</span>
-    <span style="color:rgba(255,255,255,.5); margin-right:10px">@_sealedPoints</span>
+    <span class="font-weight-bold point-icon">&#9830;</span>
+    <span class="point-value">@_points</span>
+    <span class="font-weight-bold point-icon">&#9826;</span>
+    <span class="point-value">@_sealedPoints</span>
 }
 @code {
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Mail;
+using System.Threading;
 
 namespace BTB.Server.Services
 {
@@ -16,6 +17,7 @@ namespace BTB.Server.Services
 
         private readonly SmtpClient _client;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailKeeper _emailKeeper;
         private readonly string _domainUrl;
         private ILogger _logger;
 
@@ -24,10 +26,11 @@ namespace BTB.Server.Services
             _configurator = new EmailConfigurator();
         }
 
-        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor, ILogger<EmailService> logger)
+        public EmailService(IOptions<EmailConfig> config, IHttpContextAccessor httpContextAccessor, IEmailKeeper emailKeeper, ILogger<EmailService> logger)
         {
             _client = _configurator.Configure(config.Value);
             _httpContextAccessor = httpContextAccessor;
+            _emailKeeper = emailKeeper;
             _logger = logger;
 
             if (httpContextAccessor.HttpContext == null)
@@ -52,6 +55,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
+                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
@@ -80,6 +84,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
+                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)

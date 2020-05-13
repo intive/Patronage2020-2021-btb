@@ -1,7 +1,7 @@
 ﻿@using BTB.Client.Models;
 @using BTB.Client.Models.Validation;
 @using FluentValidation;
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
 
 <style>
@@ -51,7 +51,7 @@
         </div>
 
         <div class="form-group row mb-0">
-            <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value": "Value")</label>
+            <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value" : "Value")</label>
             <div class="col-sm-8">
                 <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
                 <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" />
@@ -72,8 +72,8 @@
         <h3>Alert Actions:</h3>
 
         <div class="form-group row mb-0">
-            <label for="triggerOnce" class="col-sm-4">Only once</label>
-            <div class="col-8">
+            <label for="triggerOnce" class="col-4">Only once</label>
+            <div class="col-sm-8">
                 <InputCheckbox @bind-Value="_formModel.TriggerOnce" id="triggerOnce" />
             </div>
         </div>
@@ -85,7 +85,7 @@
             </div>
 
             <label for="sendEmail" class="col-4">Send Email</label>
-            <div class="col-8">
+            <div class="col-sm-8">
                 <InputCheckbox @bind-Value="_formModel.SendEmail" id="sendEmail" />
             </div>
         </div>
@@ -111,7 +111,6 @@
             <button class="btn btn-success btn-sm" type="submit">Confirm</button>
         </div>
     </div>
-
 </EditForm>
 
 @code {

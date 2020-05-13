@@ -30,7 +30,6 @@ using Microsoft.AspNet.SignalR;
 
 namespace BTB.Server
 {
-
     public class Startup
     {
         public static Dictionary<string, Exception> ConfigureServicesExceptions = new Dictionary<string, Exception>();
@@ -88,6 +87,21 @@ namespace BTB.Server
                 services.AddInfrastructure(Configuration, Environment);
                 services.AddPersistence(Configuration);
 
+                services.Configure<ApiBehaviorOptions>(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                });
+
+                services.AddControllers().AddNewtonsoftJson();
+
+                services.AddResponseCompression(opts =>
+                {
+                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                        new[] { "application/octet-stream" });
+                });
+
+                services.AddSwaggerDocumentation();
+
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
@@ -120,7 +134,7 @@ namespace BTB.Server
                 services.AddScoped<ILogFileService, LogFileSystemService>();
                 services.AddScoped<IGamblePointManager, GamblePointManager>();
                 services.AddScoped<IBetsManager, BetsManager>();
-
+                services.AddScoped<IEmailKeeper, EmailKeeper>();
 
                 services.AddCronJob<UpdateExchangeJob>(c =>
                 {
@@ -148,6 +162,7 @@ namespace BTB.Server
                 });
 
                 services.Configure<EmailConfig>(Configuration.GetSection("EmailConfig"));
+                services.Configure<EmailKeeperConfig>(Configuration.GetSection("EmailKeeper"));
             }
             catch (Exception e)
             {
@@ -191,7 +206,6 @@ namespace BTB.Server
             {
                 ConfigureExceptions[e.ToString()] = e;
             }
-
         }
     }
 }

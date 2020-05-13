@@ -21,7 +21,7 @@ namespace BTB.Infrastructure.Identity
             _dateTime = dateTime;
         }
 
-        public string GenerateToken(string identifier, string email, string name, IList<string> roles)
+        public string GenerateToken(string identifier, string email, string name, IList<string> roles, bool rememberMe)
         {
             var claims = new List<Claim>()
                 {
@@ -39,7 +39,11 @@ namespace BTB.Infrastructure.Identity
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             DateTime expiration = _dateTime.Now.AddDays(30);
-
+            if (rememberMe == false)
+            {
+                expiration = _dateTime.Now.AddHours(2);
+            }
+            
             var token = new JwtSecurityToken(
                 issuer: null,
                 audience: null,

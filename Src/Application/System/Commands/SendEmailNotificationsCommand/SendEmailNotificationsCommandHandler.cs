@@ -22,6 +22,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         private readonly IBTBDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IBrowserNotificationHub _browserAlert;
+        private readonly IEmailKeeper _emailKeeper;
         private TimestampInterval _klineInterval;
 
         private readonly IAlertConditionDetector<BasicConditionDetectorParameters> _crossingConditionDetector;
@@ -36,10 +37,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _notificationTriggeredByKlineFlags = new Dictionary<int, int>();
         }
 
-        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService, IBrowserNotificationHub browserAlert)
+        public SendEmailNotificationsCommandHandler(IBTBDbContext context, IEmailService emailService, IBrowserNotificationHub browserAlert, IEmailKeeper emailKeeper)
         {
             _context = context;
             _emailService = emailService;
+            _emailKeeper = emailKeeper;
             _browserAlert = browserAlert;
 
             _crossingConditionDetector = new CrossingConditionDetector();
@@ -156,8 +158,11 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
 
         private async Task SendEmailMessageAsync(Alert alert)
         {
-            EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
-            _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+            if (!_emailKeeper.CheckIfLimitHasBeenReached())
+            {
+                EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
+                _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+            }
         }
 
         private async Task SendInBrowserNotificationAsync(Alert alert)

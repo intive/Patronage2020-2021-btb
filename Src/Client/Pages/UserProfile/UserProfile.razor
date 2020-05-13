@@ -4,8 +4,7 @@
 @using BTB.Client.Components.UserProfile
 @using Newtonsoft.Json;
 @using BTB.Client.Pages.UserProfile.Enums
-@using BTB.Client.Pages.Dashboard.Common
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 
 
 <SpinLoader IsLoading="@_processingHttpRequest">
@@ -59,25 +58,32 @@
                 }
             </div>
         </div>
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group" role="group" aria-label="Table">
-                <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Current view</a>
-                <button type="button" class="btn btn-primary" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Alerts)">Alerts</button>
-                <button type="button" class="btn btn-primary" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Favorites)">Favorites</button>
+
+        <div id="exTab3" class="container p-0">
+            <ul class="nav">
+                <li class="active rounded-left" style="@SetFavoriteTabStyle()">
+                    <a class="nav-link" href="#1b" data-toggle="tab" style="color:#2c2b30" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Favorites)">Favorites</a>
+                </li>
+                <li class="rounded-right" style="@SetAlertTabStyle()">
+                    <a class="nav-link" href="#2b" data-toggle="tab" style="color:#2c2b30" @onclick="@(() => _currentUserProfileView = CurrentUserProfileView.Alerts)">Alerts</a>
+                </li>
+            </ul>
+
+            <div class="tab-content clearfix rounded shadow-lg">
+                <div class="tab-pane rounded active" id="1b">
+                    @if (_currentUserProfileView == CurrentUserProfileView.Favorites)
+                    {
+                        <DashboardFavoriteBody />
+                    }
+                </div>
+                <div class="tab-pane rounded" id="2b">
+                    @if (_currentUserProfileView == CurrentUserProfileView.Alerts)
+                    {
+                        <UserAlertsComponent />
+                    }
+                </div>
             </div>
         </div>
-
-        @if (_currentUserProfileView == CurrentUserProfileView.Favorites)
-        {
-            <div class="text-center">
-                <h1>My Favorites</h1>
-            </div>
-            <DashboardBody Type="DashboardType.FavoriteSymbolPair" />
-        }
-        else if (_currentUserProfileView == CurrentUserProfileView.Alerts)
-        {
-            <UserAlertsComponent />
-        }
     </ContentTemplate>
 </SpinLoader>
 
@@ -107,5 +113,15 @@
         }
 
         return content;
+    }
+
+    private string SetFavoriteTabStyle()
+    {
+        return _currentUserProfileView == CurrentUserProfileView.Favorites ? "background-color: #F58F7C;" : "background-color: #f8ada0";
+    }
+
+    private string SetAlertTabStyle()
+    {
+        return _currentUserProfileView == CurrentUserProfileView.Alerts ? "background-color: #F58F7C;" : "background-color: #f8ada0";
     }
 }

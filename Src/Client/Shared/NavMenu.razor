@@ -3,52 +3,55 @@
 @inject NavigationManager navigationManager
 
 <a class="navbar-brand" href="">
-    <img src="/img/btblogo.png" alt="">
+    <img class="ml-1" src="/img/btblogo.png" alt="">
 </a>
 
 @if (FullView)
 {
-    <ul class="navbar-nav flex-row">
-        <li class="nav-item top-row px-4">
-            <NavLink class="nav-link" href="">
-                Dashboard
+<ul class="navbar-nav flex-row">
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="">
+            Dashboard
+        </NavLink>
+    </li>
+
+    <AuthorizeView Policy="@Policies.IsAdmin">
+        <div class="vertical-line-separator"></div>
+
+        <li class="nav-item px-4">
+            <NavLink class="nav-link" href="users">
+                Users
             </NavLink>
         </li>
 
-        <AuthorizeView Policy="@Policies.IsAdmin">
-            <div class="vertical-line-separator"></div>
+        <li class="nav-item px-4">
+            <NavLink class="nav-link" href="logboard">
+                Logs
+            </NavLink>
+        </li>
 
-            <li class="nav-item top-row px-4">
-                <NavLink class="nav-link" href="users">
-                    Users
-                </NavLink>
-            </li>
+        <div class="vertical-line-separator"></div>
 
-            <li class="nav-item top-row px-4">
-                <NavLink class="nav-link" href="logboard">
-                    Logs
-                </NavLink>
-            </li>
-
-            <div class="vertical-line-separator"></div>
-
-        </AuthorizeView>
-
-        <li class="nav-item top-row px-4">
+    </AuthorizeView>
+    <li class="nav-item px-4">
+        <div class="nav-link">
             <DisplayPoints />
-            <NavLink class="nav-link" href="userprofile">
-                My Profile
-            </NavLink>
-        </li>
+        </div>
+    </li>
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="userprofile">
+            My Profile
+        </NavLink>
+    </li>
 
-        <li class="nav-item top-row px-4 float-right">
-            <button type="button" class="btn btn-md" style="background-color: #FF5722;" @onclick="@LogoutClick">
-                <p class="font-weight-bold px-4 mb-0">
-                    Logout
-                </p>
-            </button>
-        </li>
-    </ul>
+    <li class="nav-item px-4 float-right">
+        <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
+            <p class="font-weight-bold px-4 mb-0">
+                Logout
+            </p>
+        </button>
+    </li>
+</ul>
 }
 
 @code {

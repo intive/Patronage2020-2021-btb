@@ -70,7 +70,7 @@ namespace BTB.Server.Services
             bet.StartedAt = now;
             long lastFiveMinPeriodTimestamp = DateTimestampConv.GetTimestamp(RoundDown(now, TimeSpan.FromMinutes(5)));
             bet.KlineOpenTimestamp = lastFiveMinPeriodTimestamp + (long)bet.TimeInterval;
-            
+
             await _context.Bets.AddAsync(bet, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             return _mapper.Map<BetVO>(bet);
@@ -83,7 +83,7 @@ namespace BTB.Server.Services
             {
                 throw new NotFoundException($"Bet '{request.Id}' does not exist or does not belong to user {userId}.");
             }
-            if(!betToUpdate.IsEditable)
+            if (!betToUpdate.IsEditable)
             {
                 throw new BadRequestException($"Bet '{request.Id}' cannot be changed.");
             }
@@ -166,6 +166,8 @@ namespace BTB.Server.Services
             betToUpdate.SymbolPair = symbolPair;
             betToUpdate.SymbolPairId = symbolPair.Id;
             betToUpdate.Points = request.Points;
+            betToUpdate.LowerPriceThreshold = request.LowerPriceThreshold;
+            betToUpdate.UpperPriceThreshold = request.UpperPriceThreshold;
 
             var now = _dateTime.Now;
             betToUpdate.StartedAt = now;
@@ -229,7 +231,7 @@ namespace BTB.Server.Services
         {
             decimal delta = upperThreshold - lowerThreshold;
             decimal rangeLimit = klineClosePrice * 0.1m;
-            
+
             if (delta > rangeLimit)
             {
                 return true;
@@ -279,6 +281,5 @@ namespace BTB.Server.Services
                 kline.OpenTimestamp == openTimestamp &&
                 kline.DurationTimestamp == TimestampInterval.FiveMin);
         }
-
     }
 }

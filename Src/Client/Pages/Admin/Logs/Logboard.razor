@@ -15,152 +15,153 @@
 @using System.Text.Json
 @using System.Text.RegularExpressions
 @inject IJSRuntime JSRuntime
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 
 <link rel="stylesheet" href="logboard.css" />
 <h1>Logboard</h1>
-
-@if (LogList == null && _requestFailed == false)
-{
-    <p><em>Loading...</em></p>
-}
-else if (_requestFailed == true)
-{
-    <br />
-    <h3><em style="color: red;">@_errorMessage</em></h3>
-    <a href="/">Return to Dashboard</a>
-}
-else
-{
-    <br />
-    <div id=options-container class="container">
-        <div id="config-container">
-            <div>
-                @{
-                    for (int i = 0; i < DateOrder.Count; i++)
-                    {
-                        switch (DateOrder[i])
+<div class="rounded shadow-lg white-padding">
+    @if (LogList == null && _requestFailed == false)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (_requestFailed == true)
+    {
+        <br />
+        <h3><em style="color: red;">@_errorMessage</em></h3>
+        <a href="/">Return to Dashboard</a>
+    }
+    else
+    {
+        <br />
+        <div id=options-container class="container">
+            <div id="config-container">
+                <div>
+                    @{
+                        for (int i = 0; i < DateOrder.Count; i++)
                         {
-                            case DatePart.Day:
-                                {
-                                    <input placeholder="dd" @bind-value="@QueryModel.Day" style="width: 2.5em; text-align: center;" maxlength="2" />
-                                }
-                                break;
+                            switch (DateOrder[i])
+                            {
+                                case DatePart.Day:
+                                    {
+                                        <input placeholder="dd" @bind-value="@QueryModel.Day" style="width: 2.5em; text-align: center;" maxlength="2" />
+                                    }
+                                    break;
 
-                            case DatePart.Month:
-                                {
-                                    <input placeholder="MM" @bind-value="@QueryModel.Month" style="width: 2.5em; text-align: center;" maxlength="2" />
-                                }
-                                break;
+                                case DatePart.Month:
+                                    {
+                                        <input placeholder="MM" @bind-value="@QueryModel.Month" style="width: 2.5em; text-align: center;" maxlength="2" />
+                                    }
+                                    break;
 
-                            case DatePart.Year:
-                                {
-                                    <input placeholder="yyyy" @bind-value="@QueryModel.Year" style="width: 3em; text-align: center;" maxlength="4" />
-                                }
-                                break;
+                                case DatePart.Year:
+                                    {
+                                        <input placeholder="yyyy" @bind-value="@QueryModel.Year" style="width: 3em; text-align: center;" maxlength="4" />
+                                    }
+                                    break;
+                            }
                         }
                     }
-                }
+                </div>
+                <div id="log-buttons">
+                    <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Information; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Information</button>
+                    <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Warning; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Warning</button>
+                    <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Error; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Error</button>
+                    <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Critical; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Critical</button>
+                </div>
+
+                <input @bind-value="@QueryModel.Contains" placeholder="Name of class or namespace" style="width: 80%; text-align: center; margin-top: 10px;" />
             </div>
-            <div id="log-buttons">
-                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Information; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Information</button>
-                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Warning; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Warning</button>
-                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Error; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Error</button>
-                <button @onclick="@( async () => { QueryModel.LogLevel = LogLevel.Critical; _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Critical</button>
-            </div>
 
-            <input @bind-value="@QueryModel.Contains" placeholder="Name of class or namespace" style="width: 80%; text-align: center; margin-top: 10px;" />
-        </div>
-
-        <div id="execute-container">
-            <div>
-                <button @onclick="@(async () => { _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Show logs</button>
-            </div>
-            <div>
-                @if (CanDownloadFile())
-                {
-                    <a class="btn btn-primary btn-sm" href="api/filelog/download?logDate=@QueryModel.LogDate&logLevel=@QueryModel.LogLevel&contains=@QueryModel.Contains" download="logs.zip" target="_blank" >Download logs</a>
-                }
-                else
-                {
-                    <div class="btn btn-secondary btn-sm">Download logs</div>
-                }
-            </div>
-        </div>
-
-        <div id="stack-trace">
-            @SelectedStackTrace
-        </div>
-    </div>
-
-    <div id="pagination-container" class="container">
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group" role="group" aria-label="Quantity group">
-                @foreach (var value in Enum<PaginationQuantity>.GetValues())
-                {
-                    <button class="btn btn-primary" type="button" @onclick="@( async () => { _currentQuantity = value; _currentPage = 1; await LoadLogsFromDb(); })">@((int)value)</button>
-                }
-            </div>
-        </div>
-
-        <div>
-            <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-        </div>
-    </div>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="text-center">Date</th>
-                <th class="text-center">Level</th>
-                <th class="text-center">Category</th>
-                <th class="text-center">Text</th>
-                <th class="text-center">Stacktrace</th>
-            </tr>
-        </thead>
-        <tbody>
-            <SpinLoader IsLoading="@_processingHttpRequest">
-                <LoadingTemplate>
-                    <div class="d-flex" style="height: 75vh">
-                        <TimedLoader ShowDelay="500" />
-                    </div>
-                </LoadingTemplate>
-                <ContentTemplate>
-                    @if (LogList.Count == 0)
+            <div id="execute-container">
+                <div>
+                    <button @onclick="@(async () => { _currentPage = 1; await LoadLogsFromDb(); })" class="btn btn-primary btn-sm">Show logs</button>
+                </div>
+                <div>
+                    @if (CanDownloadFile())
                     {
-                        <tr>
-                            <td>No logs found...</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        <a class="btn btn-primary btn-sm" href="api/filelog/download?logDate=@QueryModel.LogDate&logLevel=@QueryModel.LogLevel&contains=@QueryModel.Contains" download="logs.zip" target="_blank">Download logs</a>
                     }
                     else
                     {
-                        @foreach (LogEntryDto log in LogList)
+                        <div class="btn btn-secondary btn-sm">Download logs</div>
+                    }
+                </div>
+            </div>
+
+            <div id="stack-trace">
+                @SelectedStackTrace
+            </div>
+        </div>
+
+        <div id="pagination-container" class="container">
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group" role="group" aria-label="Quantity group">
+                    @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                    {
+                        <button class="btn btn-primary" type="button" @onclick="@( async () => { _currentQuantity = value; _currentPage = 1; await LoadLogsFromDb(); })">@((int)value)</button>
+                    }
+                </div>
+            </div>
+
+            <div>
+                <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center">Date</th>
+                    <th class="text-center">Level</th>
+                    <th class="text-center">Category</th>
+                    <th class="text-center">Text</th>
+                    <th class="text-center">Stacktrace</th>
+                </tr>
+            </thead>
+            <tbody>
+                <SpinLoader IsLoading="@_processingHttpRequest">
+                    <LoadingTemplate>
+                        <div class="d-flex" style="height: 75vh">
+                            <TimedLoader ShowDelay="500" />
+                        </div>
+                    </LoadingTemplate>
+                    <ContentTemplate>
+                        @if (LogList.Count == 0)
                         {
                             <tr>
-                                <td class="text-center">@log.TimeStampUtc</td>
-                                <td class="text-center">@log.Level</td>
-                                <td class="text-center">@log.Category</td>
-                                <td class="text-center">@log.Text</td>
-                                @if (string.IsNullOrEmpty(log.StackTrace))
-                                {
-                                    <td class="text-center">Empty</td>
-                                }
-                                else
-                                {
-                                    <td class="text-center btn-link" @onclick="@(() => SetStackTrace(log.StackTrace))">Show stacktrace</td>
-                                }
+                                <td>No logs found...</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
                         }
-                    }
-                </ContentTemplate>
-            </SpinLoader>
-        </tbody>
-    </table>
-}
+                        else
+                        {
+                            @foreach (LogEntryDto log in LogList)
+                            {
+                                <tr>
+                                    <td class="text-center">@log.TimeStampUtc</td>
+                                    <td class="text-center">@log.Level</td>
+                                    <td class="text-center">@log.Category</td>
+                                    <td class="text-center">@log.Text</td>
+                                    @if (string.IsNullOrEmpty(log.StackTrace))
+                                    {
+                                        <td class="text-center">Empty</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center btn-link" @onclick="@(() => SetStackTrace(log.StackTrace))">Show stacktrace</td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    </ContentTemplate>
+                </SpinLoader>
+            </tbody>
+        </table>
+    }
+</div>
 
 @code {
 
@@ -271,7 +272,7 @@ else
             date = "";
         }
 
-        var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage-1)*(int)_currentQuantity+1}");
+        var response = await Http.GetAsync($"api/dblog?logDate={QueryModel.LogDate}&logLevel={QueryModel.LogLevel}&contains={QueryModel.Contains}&amount={(int)_currentQuantity}&start={(_currentPage - 1) * (int)_currentQuantity + 1}");
         _totalAmount = int.Parse(response.Headers.GetValues("quantity").First());
         var jsonString = await response.Content.ReadAsStringAsync();
 

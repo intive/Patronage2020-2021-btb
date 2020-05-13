@@ -8,7 +8,7 @@
 @using System.Text
 @using System.Linq
 @inject IJSRuntime jsRuntime
-@inject HttpClient Http
+@inject ICustomHttpClient Http
 
 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
@@ -204,8 +204,14 @@ else
 
     private async Task DrawChart()
     {
-        var candlestick = _priceHistory.Take((int)_paginationQuantity).Select(p => new {time = ((DateTimeOffset)p.CloseTime).ToUnixTimeSeconds(),
-            open = p.OpenPrice, high = p.HighestPrice, low = p.LowestPrice, close = p.ClosePrice });
+        var candlestick = _priceHistory.Take((int)_paginationQuantity).Select(p => new
+        {
+            time = ((DateTimeOffset)p.CloseTime).ToUnixTimeSeconds(),
+            open = p.OpenPrice,
+            high = p.HighestPrice,
+            low = p.LowestPrice,
+            close = p.ClosePrice
+        });
 
         var candlestickJson = JsonConvert.SerializeObject(candlestick);
 
@@ -216,7 +222,7 @@ else
         });
         var indicatorJson = JsonConvert.SerializeObject(indicator);
 
-        switch(_indicatorType)
+        switch (_indicatorType)
         {
             case IndicatorType.RSI:
                 await jsRuntime.InvokeVoidAsync("drawRSI", "candlestick_chart_div", candlestickJson, "rsi_chart_div", indicatorJson);

@@ -15,12 +15,6 @@ a, .btn-link {
     color: #0366d6;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
 app {
     position: relative;
     display: flex;
@@ -34,7 +28,7 @@ app {
 }
 
 .golden-star {
-    color: darkgoldenrod;
+    color: var(--main-accent-color);
     cursor: pointer;
     font-size: x-large;
 }
@@ -45,9 +39,24 @@ app {
 }
 
 .delete-x {
-    color: red;
+    color: var(--main-accent-color);
     cursor: pointer;
     font-size: larger;
+}
+
+.white-padding{
+    background-color: white;
+    padding: 15px;
+}
+
+.point-icon{
+    color:var(--main-accent-color);
+    margin-right: 5px;
+}
+
+.point-value {
+    color: rgba(255,255,255,.5);
+    margin-right: 10px;
 }
 
 .table td{
@@ -409,8 +418,23 @@ input[type="button"] {
 /* Navbar */
 .navbar-dark {
     background-color: var(--main-dark-color);
+    height:50px;
 }
 
 .vertical-line-separator {
     border-right: 1px solid rgba(255, 255, 255, 0.5);
 }
+
+/*Tab*/
+
+#exTab3 .nav-pills > li > a {
+    color:white;
+    border-radius: 4px 4px 0 0;
+}
+
+#exTab3 .tab-content {
+
+    background-color: white;
+    padding: 15px;
+}
+

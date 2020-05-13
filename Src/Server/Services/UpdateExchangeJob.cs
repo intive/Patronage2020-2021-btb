@@ -63,6 +63,7 @@ namespace BTB.Server.Services
                 var context = scope.ServiceProvider.GetRequiredService<IBTBDbContext>();
                 var binanceClient = scope.ServiceProvider.GetRequiredService<IBinanceClient>();
                 var hub = scope.ServiceProvider.GetRequiredService<IBrowserNotificationHub>();
+                var emailKeeper = scope.ServiceProvider.GetRequiredService<IEmailKeeper>();
 
                 foreach (var interval in _klinesToUpdate)
                 {
@@ -78,7 +79,7 @@ namespace BTB.Server.Services
                 }
 
                 var email = scope.ServiceProvider.GetRequiredService<IEmailService>();
-                var sendEmailHandler = new SendEmailNotificationsCommandHandler(context, email, hub);
+                var sendEmailHandler = new SendEmailNotificationsCommandHandler(context, email, hub, emailKeeper);
                 await sendEmailHandler.Handle(new SendEmailNotificationsCommand() { KlineInterval = TimestampInterval.FiveMin }, cancellationToken);
             }
 

@@ -20,6 +20,7 @@ namespace BTB.Application.Common.Interfaces
         DbSet<LogEntry> Logs { get; set; }
         DbSet<GamblePoint> GamblePoints { get; set; }
         DbSet<Bet> Bets { get; set; }
+        DbSet<EmailCount> EmailCounts { get; set; }
 
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);

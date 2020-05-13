@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using BTB.Application.GamblePoints.Queries.GetGamblePoints;
 using BTB.Domain.ValueObjects;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BTB.Server.Controllers
 {
+    [Authorize]
     public class GamblePointController : BaseController
     {
         /// <summary>

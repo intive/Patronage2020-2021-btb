@@ -13,11 +13,11 @@ namespace BTB.Client.Services.Implementations
 {
     public class AuthorizeService : IAuthorizeService
     {
-        private readonly HttpClient _httpClient;
+        private readonly ICustomHttpClient _httpClient;
         private readonly AuthenticationStateProvider _identityAuthenticationStateProvider;
         private readonly ILocalStorageService _localStorage;
 
-        public AuthorizeService(HttpClient httpClient, AuthenticationStateProvider identityAuthenticationStateProvider, ILocalStorageService localStorage)
+        public AuthorizeService(ICustomHttpClient httpClient, AuthenticationStateProvider identityAuthenticationStateProvider, ILocalStorageService localStorage)
         {
             _httpClient = httpClient;
             _identityAuthenticationStateProvider = identityAuthenticationStateProvider;
