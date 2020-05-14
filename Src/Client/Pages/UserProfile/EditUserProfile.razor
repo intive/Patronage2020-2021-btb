@@ -4,7 +4,7 @@
 @using Newtonsoft.Json
 @using System.Net.Http
 @using System.Text
-@using BTB.Client.Models.Validation;
+@using BTB.Client.Models.Validation
 @inject NavigationManager NavigationManager
 @inject ICustomHttpClient Http
 
@@ -120,11 +120,7 @@
     {
         var httpRequestContent = new StringContent(JsonConvert.SerializeObject(_formModel), Encoding.UTF8, "application/json");
         HttpResponseMessage response;
-        if (_existingUserProfileInfo == null)
-        {
-            response = await Http.PostAsync("api/userprofile", httpRequestContent);
-        }
-        else
+        if (_existingUserProfileInfo != null)
         {
             response = await Http.PutAsync($"api/userprofile", httpRequestContent);
         }

@@ -1,5 +1,4 @@
 ﻿using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
-using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserManagement.Commands.TakeRoleFromUser;
 using BTB.Application.UserManagement.Commands.GiveRoleToUser;
 using BTB.Application.Alerts.Commands.CreateAlertCommand;
@@ -61,7 +60,6 @@ namespace BTB.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
             services.AddTransient<IValidator<CreateAlertCommand>, AlertRequestValidator>();
             services.AddTransient<IValidator<UpdateAlertCommand>, AlertRequestValidator>();
-            services.AddTransient<IValidator<CreateUserProfileCommand>, UserProfileInfoRequestValidator>();
             services.AddTransient<IValidator<UpdateUserProfileCommand>, UserProfileInfoRequestValidator>();
             services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
             services.AddTransient<IValidator<SendEmailCommand>, SendEmailCommandValidator>();

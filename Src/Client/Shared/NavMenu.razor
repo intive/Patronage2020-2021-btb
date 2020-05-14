@@ -1,6 +1,9 @@
 ﻿@using BTB.Client.Components.UserProfile
+@using Newtonsoft.Json
+@using Client.Pages.Dto
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
+@inject ICustomHttpClient Http
 
 <a class="navbar-brand" href="">
     <img class="ml-1" src="/img/btblogo.png" alt="">
@@ -8,50 +11,52 @@
 
 @if (FullView)
 {
-<ul class="navbar-nav flex-row">
-    <li class="nav-item px-4">
-        <NavLink class="nav-link" href="">
-            Dashboard
-        </NavLink>
-    </li>
-
-    <AuthorizeView Policy="@Policies.IsAdmin">
-        <div class="vertical-line-separator"></div>
-
+    <ul class="navbar-nav flex-row">
         <li class="nav-item px-4">
-            <NavLink class="nav-link" href="users">
-                Users
+            <NavLink class="nav-link" href="">
+                Dashboard
             </NavLink>
         </li>
 
+        <AuthorizeView Policy="@Policies.IsAdmin">
+            <div class="vertical-line-separator"></div>
+
+            <li class="nav-item px-4">
+                <NavLink class="nav-link" href="users">
+                    Users
+                </NavLink>
+            </li>
+
+            <li class="nav-item px-4">
+                <NavLink class="nav-link" href="logboard">
+                    Logs
+                </NavLink>
+            </li>
+
+            <div class="vertical-line-separator"></div>
+
+        </AuthorizeView>
+
         <li class="nav-item px-4">
-            <NavLink class="nav-link" href="logboard">
-                Logs
+            <div class="nav-link">
+                <DisplayPoints />
+            </div>
+        </li>
+
+        <li class="nav-item px-4">
+            <NavLink class="nav-link" href="userprofile">
+                @_userName
             </NavLink>
         </li>
 
-        <div class="vertical-line-separator"></div>
-
-    </AuthorizeView>
-    <li class="nav-item px-4">
-        <div class="nav-link">
-            <DisplayPoints />
-        </div>
-    </li>
-    <li class="nav-item px-4">
-        <NavLink class="nav-link" href="userprofile">
-            My Profile
-        </NavLink>
-    </li>
-
-    <li class="nav-item px-4 float-right">
-        <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
-            <p class="font-weight-bold px-4 mb-0">
-                Logout
-            </p>
-        </button>
-    </li>
-</ul>
+        <li class="nav-item px-4 float-right">
+            <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
+                <p class="font-weight-bold px-4 mb-0">
+                    Logout
+                </p>
+            </button>
+        </li>
+    </ul>
 }
 
 @code {
@@ -59,8 +64,27 @@
     public bool FullView { get; set; } = true;
 
     private bool _collapseNavMenu = true;
-
+    private UserProfileInfoDto _userProfileInfo = null;
+    private string _userName = "My Profile";
     private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+
+        // TODO: set a callback for refreshService
+    }
+
+    private async Task LoadData()
+    {
+        var response = await Http.GetAsync($"api/userprofile");
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonString = await response.Content.ReadAsStringAsync();
+            _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
+            _userName = _userProfileInfo.Username;
+        }
+    }
 
     private void ToggleNavMenu()
     {
