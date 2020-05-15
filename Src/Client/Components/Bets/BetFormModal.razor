@@ -1,0 +1,191 @@
+﻿@using BTB.Client.Models
+@using BTB.Client.Models.Validation
+@using Newtonsoft.Json
+@using System.Text
+@using Blazored.Modal.Services
+@inject ICustomHttpClient Http
+@inject IModalService Modal
+@inject IJSRuntime jsRuntime
+@inject IRefreshRequestsService refreshService
+
+<style>
+    .validation-message {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    /* Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+</style>
+
+<div class="modal-container">
+    <h3>@(_shouldUpdateBet ? "Update" : "Place") a bet on @_formModel.SymbolPair</h3>
+
+    @if (!_requestSuccessful)
+    {
+        <small class="text-center text-danger mb-0"> Something went wrong. Please try again later. </small>
+    }
+
+    @if (_currentPoints != null && _currentKline != null)
+    {
+        <h6>Points left: @((_currentPoints.FreePoints - _formModel.Points).ToString("##.####"))</h6>
+        <h6>Current price of @_betVO.SymbolPair: @_currentKline.ClosePrice</h6>
+        <h6>Available price range: @_avaliablePriceRange</h6>
+    }
+
+    <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
+        <FluentValidator Validator="_validator" />
+
+        <div class="form-group row mb-0">
+            <label for="points" class="col-sm-4 col-form-label">Points</label>
+            <div class="col-sm-8">
+                <input type="number" max="@((int)_currentPoints.FreePoints)" min="1" class="form-control form-control-sm mb-1" id="points"
+                       @bind="_formModel.Points" @bind:event="oninput" />
+                <ValidationMessage For="() => _formModel.Points" class="mb-1" />
+            </div>
+        </div>
+
+        <div class="form-group row mb-0">
+            <label for="lowerValue" class="col-sm-4 col-form-label">Lower Value</label>
+            <div class="col-sm-8">
+                <input type="number" @bind="_formModel.LowerPriceThreshold" @bind:event="oninput" class="form-control form-control-sm mb-1" id="lowerValue" step="0.000000001" />
+                <ValidationMessage For="() => _formModel.LowerPriceThreshold" class="text-center mb-1" />
+            </div>
+        </div>
+
+        <div class="form-group row mb-0">
+            <label for="upperValue" class="col-sm-4 col-form-label">Upper Value</label>
+            <div class="col-sm-8">
+                <p class="form-control form-control-sm mb-1" id="upperValue">@(_formModel.LowerPriceThreshold + _avaliablePriceRange)</p>
+            </div>
+        </div>
+
+        <div class="form-group row mb-0">
+            <label for="rateType" class="col-sm-4 col-form-label">Bet type</label>
+            <div class="col-sm-8">
+                <InputSelect @bind-Value="_formModel.RateType" class="form-control form-control-sm mb-1" id="rateType">
+                    <option value="Standard" selected>Standard</option>
+                </InputSelect>
+                <ValidationMessage For="() => _formModel.RateType" class="text-center mb-1" />
+            </div>
+        </div>
+
+        <div class="form-group row mb-0">
+            <label for="timeInterval" class="col-sm-4 col-form-label">Duration</label>
+            <div class="col-sm-8">
+                <InputSelect @bind-Value="_formModel.TimeInterval" class="form-control form-control-sm mb-1" id="timeInterval">
+                    <option value="TwoDays" selected>Two Days</option>
+                </InputSelect>
+                <ValidationMessage For="() => _formModel.TimeInterval" class="text-center mb-1" />
+            </div>
+        </div>
+
+        <div class="text-right">
+            <button class="btn btn-danger btn-sm" type="reset" @onclick="CancelModal">Cancel</button>
+            <button class="btn btn-success btn-sm" type="submit">Confirm</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+    private bool _shouldUpdateBet = false;
+    private BetVO _betVO = null;
+    private BetFormModel _formModel = null;
+    private Func<Task> _onModalClosedAsync = null;
+    private BetFormModelValidator _validator = new BetFormModelValidator();
+    private bool _requestSuccessful = true;
+    private GamblePointsVO _currentPoints = new GamblePointsVO() { FreePoints = 0, SealedPoints = 0 };
+    private KlineVO _currentKline = null;
+    private decimal _avaliablePriceRange = 0.0m;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _shouldUpdateBet = Parameters.Get<bool>("ShouldUpdateBet");
+        _betVO = Parameters.Get<BetVO>("Bet");
+        _onModalClosedAsync = Parameters.Get<Func<Task>>("OnModalClosedAsync");
+        _formModel = new BetFormModel(_betVO);
+
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        var pointsResponse = await Http.GetAsync("/api/GamblePoint");
+        var klineResponse = await Http.GetAsync($"/api/system/kline/{_betVO.SymbolPair}");
+        if (!pointsResponse.IsSuccessStatusCode || !klineResponse.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException("Could not retrieve the data needed to create a bet.");
+        }
+
+        _currentPoints = JsonConvert.DeserializeObject<GamblePointsVO>(await pointsResponse.Content.ReadAsStringAsync());
+        _currentKline = JsonConvert.DeserializeObject<KlineVO>(await klineResponse.Content.ReadAsStringAsync());
+
+        _avaliablePriceRange = _currentKline.ClosePrice * 0.1m;
+    }
+
+    private async Task HandleSubmitAsync(EditContext editContext)
+    {
+        _formModel.UpperPriceThreshold = _formModel.LowerPriceThreshold + _avaliablePriceRange;
+
+        if (editContext.Validate())
+        {
+            if (_shouldUpdateBet)
+            {
+                _requestSuccessful = await SendUpdateBetRequestAsync();
+            }
+            else
+            {
+                _requestSuccessful = await SendCreateBetRequestAsync();
+            }
+
+            if (_requestSuccessful)
+            {
+                if (_onModalClosedAsync != null)
+                {
+                    await _onModalClosedAsync();
+                }
+
+                await refreshService.RequestRefreshAsync();
+                Modal.Close();
+            }
+        }
+    }
+
+    private async Task<bool> SendCreateBetRequestAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/bets")
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(_formModel), Encoding.UTF8, "application/json")
+        };
+
+        HttpResponseMessage response = await Http.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
+
+    private async Task<bool> SendUpdateBetRequestAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/bets/{_betVO.Id}")
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(_formModel), Encoding.UTF8, "application/json")
+        };
+
+        HttpResponseMessage response = await Http.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
+
+    private void CancelModal()
+    {
+        Modal.Cancel();
+    }
+}

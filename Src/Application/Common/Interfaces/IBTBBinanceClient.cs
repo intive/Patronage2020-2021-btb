@@ -21,5 +21,6 @@ namespace BTB.Application.Common.Interfaces
         Task<IEnumerable<SimplePriceVO>> ToSimplePrices(List<KlineVO> klines);
         SymbolPairVO GetSymbolNames(string pairName, string wantedBuySymbol = "");
         Task<SymbolPair> GetSymbolPairByName(string pairName);
+        Task<Kline> GetLastKlineBySymboPair(SymbolPair symbolPair, TimestampInterval timestampInterval);
     }
 }

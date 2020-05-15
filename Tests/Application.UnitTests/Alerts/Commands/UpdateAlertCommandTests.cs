@@ -20,8 +20,8 @@ namespace Application.UnitTests.Alerts.Commands
             var alertId = 1;
             var expectedUserId = "1";
             var expectedTradingPair = "BTCUSDT";
-            var expectedCondition = "Crossing";
-            var expectedValueType = "Price";
+            var expectedCondition = AlertCondition.Crossing;
+            var expectedValueType = AlertValueType.Price;
             var expectedValue = 1234.56m;
             var expectedSendEmail = true;
             var expectedEmail = "newexample@newmail.com";
@@ -34,8 +34,8 @@ namespace Application.UnitTests.Alerts.Commands
             {
                 Id = alertId,
                 SymbolPair = expectedTradingPair,
-                Condition = expectedCondition,
-                ValueType = expectedValueType,
+                Condition = expectedCondition.ToString(),
+                ValueType = expectedValueType.ToString(),
                 Value = expectedValue,
                 SendEmail = expectedSendEmail,
                 Email = expectedEmail,

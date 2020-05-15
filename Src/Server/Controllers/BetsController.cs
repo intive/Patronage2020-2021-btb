@@ -24,14 +24,14 @@ namespace BTB.Server.Controllers
         /// <response code="200">When successful.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllActivbeBets([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllActivbeBets([FromQuery] PaginationDto pagination, [FromQuery] bool onlyUserBets, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { Message = "Invalid pagination data." });
             }
 
-            var paginatedResult = await Mediator.Send(new GetAllActiveBetsQuery() { Pagination = pagination }, cancellationToken);
+            var paginatedResult = await Mediator.Send(new GetAllActiveBetsQuery() { Pagination = pagination, OnlyUserBets = onlyUserBets }, cancellationToken);
             HttpContext.InsertPaginationParameterInResponseHeader(paginatedResult.AllRecordsCount, paginatedResult.RecordsPerPage);
             return Ok(paginatedResult.Result);
         }
@@ -59,7 +59,7 @@ namespace BTB.Server.Controllers
         /// <response code="200">When successful.</response>
         /// <response code="400">When a validation error occurs.</response>
         /// <response code="404">When bet with given id does not exist.</response>
-        [Route("id")]
+        [Route("{id}")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
