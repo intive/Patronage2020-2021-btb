@@ -12,51 +12,57 @@
 
 @if (FullView)
 {
-    <ul class="navbar-nav flex-row">
+<ul class="navbar-nav flex-row">
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="">
+            Dashboard
+        </NavLink>
+    </li>
+
+    <AuthorizeView Policy="@Policies.IsAdmin">
+        <div class="vertical-line-separator"></div>
+
         <li class="nav-item px-4">
-            <NavLink class="nav-link" href="">
-                Dashboard
+            <NavLink class="nav-link" href="users">
+                Users
             </NavLink>
         </li>
 
-        <AuthorizeView Policy="@Policies.IsAdmin">
-            <div class="vertical-line-separator"></div>
-
-            <li class="nav-item px-4">
-                <NavLink class="nav-link" href="users">
-                    Users
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-4">
-                <NavLink class="nav-link" href="logboard">
-                    Logs
-                </NavLink>
-            </li>
-
-            <div class="vertical-line-separator"></div>
-        </AuthorizeView>
-
         <li class="nav-item px-4">
-            <div class="nav-link">
-                <DisplayPoints />
-            </div>
-        </li>
-
-        <li class="nav-item px-4">
-            <NavLink class="nav-link" href="userprofile">
-                @_userName
+            <NavLink class="nav-link" href="logboard">
+                Logs
             </NavLink>
         </li>
 
-        <li class="nav-item px-4 float-right">
-            <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
-                <p class="font-weight-bold px-4 mb-0">
-                    Logout
-                </p>
-            </button>
-        </li>
-    </ul>
+        <div class="vertical-line-separator"></div>
+    </AuthorizeView>
+
+    <li class="nav-item px-4">
+        <div class="nav-link">
+            <DisplayPoints />
+        </div>
+    </li>
+
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="userprofile">
+            @_userName
+        </NavLink>
+    </li>
+
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="bets">
+            Bets
+        </NavLink>
+    </li>
+
+    <li class="nav-item px-4 float-right">
+        <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
+            <p class="font-weight-bold px-4 mb-0">
+                Logout
+            </p>
+        </button>
+    </li>
+</ul>
 }
 
 @code {
