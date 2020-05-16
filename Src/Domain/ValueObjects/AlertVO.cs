@@ -1,11 +1,13 @@
-﻿namespace BTB.Domain.ValueObjects
+﻿using BTB.Domain.Enums;
+
+namespace BTB.Domain.ValueObjects
 {
     public class AlertVO
     {
         public int Id { get; set; }
         public string SymbolPair { get; set; }
-        public string Condition { get; set; }
-        public string ValueType { get; set; }
+        public AlertCondition Condition { get; set; }
+        public AlertValueType ValueType { get; set; }
         public decimal Value { get; set; }
         public decimal AdditionalValue { get; set; }
         public bool SendEmail { get; set; }

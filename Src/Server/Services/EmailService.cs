@@ -55,7 +55,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
-                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
+                _emailKeeper.IncrementEmailSent();
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
@@ -84,7 +84,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
-                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
+                _emailKeeper.IncrementEmailSent();
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)

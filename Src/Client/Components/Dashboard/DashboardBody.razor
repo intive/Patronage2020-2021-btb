@@ -26,7 +26,7 @@
     <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
     <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
     <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-    
+
     <div class="btn-group mr-2" role="group" aria-label="Time group">
         @foreach (var value in Enum<CurrencyFilter>.GetValues())
         {
@@ -38,11 +38,12 @@
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 10%;" class="text-center" >Favorite</th>
+            <th style="width: 10%;" class="text-center">Favorite</th>
             <th style="width: 20%;" class="text-right">Symbol</th>
             <th style="width: 25%;" class="text-right">Price</th>
             <th style="width: 25%;" class="text-right">Volume</th>
             <th style="width: 20%;" class="text-center">Subscribe</th>
+            <th style="width: 20%;" class="text-center">Bet</th>
         </tr>
     </thead>
     <tbody>
@@ -65,9 +66,9 @@
                 else
                 {
                     <tr>
-                            <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
-                                <p class="align-middle d-inline-block"> No results </p>
-                            </td>
+                        <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
+                            <p class="align-middle d-inline-block"> No results </p>
+                        </td>
                     </tr>
                 }
             </ContentTemplate>
@@ -191,5 +192,4 @@
         var elementToDelete = _pageItems.Find(e => e.Id == itemId);
         elementToDelete.IsFavorite = !elementToDelete.IsFavorite;
     }
-
 }

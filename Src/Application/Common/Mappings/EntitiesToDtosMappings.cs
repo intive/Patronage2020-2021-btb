@@ -16,9 +16,7 @@ namespace BTB.Application.Common.Mappings
             CreateMap<UserProfileInfo, UserProfileInfoVm>();
 
             CreateMap<Alert, AlertVO>()
-                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(alert => alert.SymbolPair.PairName))
-                .ForMember(vo => vo.Condition, opt => opt.MapFrom(alert => alert.Condition.ToString()))
-                .ForMember(vo => vo.ValueType, opt => opt.MapFrom(alert => alert.ValueType.ToString()));
+                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(alert => alert.SymbolPair.PairName));
 
             CreateMap<AuditTrail, AuditTrailVm>();
 
@@ -31,7 +29,9 @@ namespace BTB.Application.Common.Mappings
 
             CreateMap<Kline, KlineVO>()
                 .ForMember(k => k.OpenTime, opts => opts.MapFrom(src => DateTimestampConv.GetDateTime(src.OpenTimestamp)))
-                .ForMember(k => k.CloseTime, opts => opts.MapFrom(src => DateTimestampConv.GetDateTime(src.OpenTimestamp + (long)src.DurationTimestamp)));
+                .ForMember(k => k.CloseTime, opts => opts.MapFrom(src => DateTimestampConv.GetDateTime(src.OpenTimestamp + (long)src.DurationTimestamp)))
+                .ForMember(k => k.BuySymbolName, opts => opts.MapFrom(src => src.SymbolPair != null ? src.SymbolPair.BuySymbol.SymbolName : null))
+                .ForMember(k => k.SellSymbolName, opts => opts.MapFrom(src => src.SymbolPair != null ? src.SymbolPair.SellSymbol.SymbolName : null));
 
             CreateMap<BinanceKline, KlineVO>()
                 .ForMember(k => k.ClosePrice, opts => opts.MapFrom(src => src.Close))
@@ -42,11 +42,7 @@ namespace BTB.Application.Common.Mappings
             CreateMap<ApplicationUser, ApplicationUserVO>();
 
             CreateMap<Bet, BetVO>()
-                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(bet => bet.SymbolPair.PairName))
-                .ForMember(vo => vo.StartedAt, opt => opt.MapFrom(bet => bet.StartedAt.ToString("dddd, dd MMMM yyyy HH:mm:ss")))
-                .ForMember(vo => vo.RateType, opt => opt.MapFrom(bet => bet.RateType.ToString()))
-                .ForMember(vo => vo.TimeInterval, opt => opt.MapFrom(bet => bet.TimeInterval.ToString()))
-                .ForMember(vo => vo.IsEditable, opt => opt.MapFrom(bet => bet.IsEditable));
+                .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(bet => bet.SymbolPair.PairName));
         }
     }
 }

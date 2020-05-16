@@ -1,16 +1,9 @@
 ﻿@using BTB.Client.Models;
 @using BTB.Client.Models.Validation;
-@using FluentValidation;
 @inject ICustomHttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
 
 <style>
-    @@media screen and (min-width: 480px) {
-        #innerContainer {
-            min-width: 460px
-        }
-    }
-
     .validation-message {
         font-size: 14px;
         margin-bottom: 10px;
@@ -20,41 +13,41 @@
 <EditForm Model="@_formModel" OnSubmit="HandleSubmitAsync">
     <FluentValidator Validator="_validator" />
 
-    <div id="innerContainer">
+    <div class="modal-container">
         <h3>@(_shouldUpdateAlert ? "Update" : "Create") an alert on @_alertVO.SymbolPair</h3>
 
         <div class="form-group row mb-0">
-            <label for="condition" class="col-sm-4 col-form-label">Select condition</label>
+            <label for="condition" class="col-sm-4 col-form-label">Condition</label>
             <div class="col-sm-8">
-                <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm" id="condition">
+                <InputSelect @bind-Value="_formModel.Condition" class="form-control form-control-sm mb-1" id="condition">
                     <option disabled selected>select</option>
                     <option value="Crossing">Crossing</option>
                     <option value="CrossingUp">Crossing Up</option>
                     <option value="CrossingDown">Crossing Down</option>
                     <option value="Between">Between</option>
                 </InputSelect>
-                <ValidationMessage For="@(()=>_formModel.Condition)" />
+                <ValidationMessage For="()=>_formModel.Condition" class="mb-1" />
             </div>
         </div>
 
         <div class="form-group row mb-0">
-            <label for="valueType" class="col-sm-4 col-form-label">Select value type</label>
+            <label for="valueType" class="col-sm-4 col-form-label">Value type</label>
             <div class="col-sm-8">
-                <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm" id="valueType" placeholder="">
+                <InputSelect @bind-Value="_formModel.ValueType" class="form-control form-control-sm mb-1" id="valueType">
                     <option disabled selected>select</option>
                     <option value="Price">Price</option>
                     <option value="Volume">Volume</option>
                     <option value="TradeCount" disabled>Trade Count</option>
                 </InputSelect>
-                <ValidationMessage For="@(()=>_formModel.ValueType)" />
+                <ValidationMessage For="()=>_formModel.ValueType" class="mb-1" />
             </div>
         </div>
 
         <div class="form-group row mb-0">
             <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value" : "Value")</label>
             <div class="col-sm-8">
-                <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm" id="value" />
-                <ValidationMessage For="@(() => _formModel.Value)" class="text-center mb-1" />
+                <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm mb-1" id="value" step="0.000000001"/>
+                <ValidationMessage For="() => _formModel.Value" class="text-center mb-1" />
             </div>
         </div>
 
@@ -63,8 +56,8 @@
             <div class="form-group row mb-4">
                 <label for="additionalValue" class="col-sm-4 col-form-label">Upper Value</label>
                 <div class="col-sm-8">
-                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm" id="additionalValue" />
-                    <ValidationMessage For="@(() => _formModel.AdditionalValue)" class="text-center mb-1" />
+                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm mb-1" id="additionalValue" step="0.000000001"/>
+                    <ValidationMessage For="() => _formModel.AdditionalValue" class="text-center mb-1" />
                 </div>
             </div>
         }
@@ -88,16 +81,16 @@
         <div class="form-group row mb-0">
             <label for="email" class="col-sm-4 col-form-label">Email</label>
             <div class="col-sm-8">
-                <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
-                <ValidationMessage For="@(()=>_formModel.Email)" />
+                <InputText @bind-Value="_formModel.Email" type="email" class="form-control form-control-sm mb-1" id="email" placeholder="Email" disabled="@(!_formModel.SendEmail)" />
+                <ValidationMessage For="()=>_formModel.Email" class="mb-1" />
             </div>
         </div>
 
         <div class="form-group row mb-2">
             <label for="message" class="col-sm-4 col-form-label">Message</label>
             <div class="col-sm-8">
-                <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm" id="message" disabled="@(!_formModel.SendEmail)" />
-                <ValidationMessage For="@(()=>_formModel.Message)" />
+                <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm mb-1" id="message" disabled="@(!_formModel.SendEmail)" />
+                <ValidationMessage For="@(()=>_formModel.Message)" class="mb-1" />
             </div>
         </div>
 
@@ -123,20 +116,7 @@
         _shouldUpdateAlert = Parameters.Get<bool>("ShouldUpdateAlert");
         _alertVO = Parameters.Get<AlertVO>("Alert");
         _onModalClosedAsync = Parameters.Get<Func<Task>>("OnModalClosedAsync");
-
-        _formModel = new AlertFormModel()
-        {
-            SymbolPair = _alertVO.SymbolPair,
-            Condition = _alertVO.Condition,
-            ValueType = _alertVO.ValueType,
-            Value = _alertVO.Value,
-            AdditionalValue = _alertVO.AdditionalValue,
-            SendEmail = _alertVO.SendEmail,
-            Email = _alertVO.Email,
-            Message = _alertVO.Message,
-            TriggerOnce = _alertVO.TriggerOnce
-        };
-
+        _formModel = new AlertFormModel(_alertVO);
     }
 
     private async Task HandleSubmitAsync(EditContext editContext)
@@ -156,7 +136,7 @@
         {
             if (_shouldUpdateAlert)
             {
-                await SendUpdateAlertRequestAsync(_alertVO.Id);
+                await SendUpdateAlertRequestAsync();
             }
             else
             {
@@ -177,9 +157,9 @@
         await Http.SendJsonAsync(HttpMethod.Post, "/api/alerts", _formModel);
     }
 
-    private async Task SendUpdateAlertRequestAsync(int alertId)
+    private async Task SendUpdateAlertRequestAsync()
     {
-        await Http.SendJsonAsync(HttpMethod.Put, $"/api/alerts/{alertId}", _formModel);
+        await Http.SendJsonAsync(HttpMethod.Put, $"/api/alerts/{_alertVO.Id}", _formModel);
     }
 
     private void CancelModal()

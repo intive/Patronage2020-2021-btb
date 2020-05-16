@@ -4,6 +4,7 @@
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 @inject ICustomHttpClient Http
+@inject IRefreshRequestsService refreshService
 
 <a class="navbar-brand" href="">
     <img class="ml-1" src="/img/btblogo.png" alt="">
@@ -34,7 +35,6 @@
             </li>
 
             <div class="vertical-line-separator"></div>
-
         </AuthorizeView>
 
         <li class="nav-item px-4">
@@ -71,8 +71,13 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+        refreshService.OnRefreshRequested += OnRefreshRequested;
+    }
 
-        // TODO: set a callback for refreshService
+    private async Task OnRefreshRequested()
+    {
+        await LoadData();
+        StateHasChanged();
     }
 
     private async Task LoadData()

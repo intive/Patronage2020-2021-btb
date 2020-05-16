@@ -293,6 +293,15 @@ namespace BTB.Server.Services
             ).SingleOrDefaultAsync();
         }
 
+        public Task<Kline> GetLastKlineBySymboPair(SymbolPair symbolPair, TimestampInterval timestampInterval)
+        {
+            return _context.Klines
+                .Include(kline => kline.SymbolPair).ThenInclude(sp => sp.BuySymbol)
+                .Include(kline => kline.SymbolPair).ThenInclude(sp => sp.SellSymbol)
+                .OrderByDescending(kline => kline.OpenTimestamp)
+                .FirstOrDefaultAsync(kline => kline.SymbolPairId == symbolPair.Id && kline.DurationTimestamp == timestampInterval);
+        }
+
         /* Please do not delete - maybe we can use it to calculate 15m-4h klines
          * 
         public async Task<IEnumerable<SimplePriceVO>> Calculate24hPricesAsync(string buySymbolName)

@@ -27,6 +27,7 @@ namespace BTB.Client
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.RootComponents.Add<App>("app");
             builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
+            builder.Services.AddSingleton<IRefreshRequestsService, RefreshRequestsService>();
             await builder.Build().RunAsync();
         }
     }

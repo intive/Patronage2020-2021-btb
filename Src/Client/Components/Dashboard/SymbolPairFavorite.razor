@@ -1,4 +1,5 @@
 ﻿@inject HttpClient Http
+@using BTB.Client.Components.Bets
 @inject Blazored.Modal.Services.IModalService Modal
 
 <tr>
@@ -11,6 +12,7 @@
     <td class="text-right">@DashboardPairVO.ClosePrice</td>
     <td class="text-right">@DashboardPairVO.Volume</td>
     <td class="text-center"><button type="button" class="btn btn-primary" @onclick="@(() => HandleOnSelected(@DashboardPairVO.PairName))">Subscribe</button></td>
+    <td class="text-center"><button type="button" class="btn btn-danger" style="width: 80px" @onclick="@(() => HandleOnBet(@DashboardPairVO.PairName))">Bet</button></td>
 </tr>
 
 @code {
@@ -33,6 +35,21 @@
         parameters.Add("Alert", new AlertVO() { SymbolPair = symbol });
         parameters.Add("OnModalClosedAsync", null);
         Modal.Show<AlertSubscription>("Subscription", parameters, options);
+    }
+
+    private void HandleOnBet(string symbol)
+    {
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+        };
+
+        var parameters = new ModalParameters();
+        parameters.Add("ShouldUpdateBet", false);
+        parameters.Add("Bet", new BetVO() { SymbolPair = symbol });
+        parameters.Add("OnModalClosedAsync", null);
+        Modal.Show<BetFormModal>("Place a bet", parameters, options);
     }
 
     public async Task RemoveFromFavorite(int itemId)

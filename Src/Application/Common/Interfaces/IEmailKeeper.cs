@@ -1,11 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace BTB.Application.Common.Interfaces
+﻿namespace BTB.Application.Common.Interfaces
 {
     public interface IEmailKeeper
     {
-        Task IncrementEmailSentAsync(CancellationToken cancellationtoken);
+        void IncrementEmailSent();
         bool CheckIfLimitHasBeenReached();
     }
 }

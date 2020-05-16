@@ -1,6 +1,7 @@
 ﻿@using System.Text.Json
 @using System.Threading
 @inject ICustomHttpClient Http
+@inject IRefreshRequestsService refreshService
 
 @if (!_loading)
 {
@@ -18,6 +19,19 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+        refreshService.OnRefreshRequested += OnRefreshRequested;
+    }
+
+    private async Task OnRefreshRequested()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
         var httpResponse = await Http.GetAsync("/api/GamblePoint");
 
         if (_tokenSource.Token.IsCancellationRequested)
@@ -34,7 +48,5 @@
             _sealedPoints = Decimal.Round(pointsVO.SealedPoints, 2);
             _loading = false;
         }
-
     }
-
 }

@@ -22,6 +22,7 @@ using BTB.Application.Bets.Commands.UpdateBetCommand;
 using BTB.Application.Common.Exceptions;
 using MediatR;
 using BTB.Application.Bets.Commands.DeleteBetCommand;
+using System.Collections.Generic;
 
 namespace BTB.Server.Services
 {
@@ -73,7 +74,7 @@ namespace BTB.Server.Services
 
             await _context.Bets.AddAsync(bet, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-            return _mapper.Map<BetVO>(bet);
+            return await SetUsernameForBetValueObject(_mapper.Map<BetVO>(bet));
         }
 
         public async Task<BetVO> UpdateBetAsync(UpdateBetCommand request, string userId, CancellationToken cancellationToken)
@@ -123,7 +124,7 @@ namespace BTB.Server.Services
                 await ChangeBetValues(request, betToUpdate, symbolPair, cancellationToken);
             }
 
-            return _mapper.Map<BetVO>(betToUpdate);
+            return await SetUsernameForBetValueObject(_mapper.Map<BetVO>(betToUpdate));
         }
 
         public async Task<Unit> DeleteBetAsync(DeleteBetCommand request, string userId, CancellationToken cancellationToken)
@@ -208,20 +209,23 @@ namespace BTB.Server.Services
             return bet.Points * betRate * (isBetWon ? 1.0m : -1.0m);
         }
 
-        public async Task<PaginatedResult<BetVO>> GetAllActiveBetsAsync(PaginationDto pagination, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<BetVO>> GetAllActiveBetsAsync(PaginationDto pagination, string userId, CancellationToken cancellationToken)
         {
-            IQueryable<BetVO> bets =
+            var bets =
                 from bet in _context.Bets
                 .Include(bet => bet.SymbolPair).ThenInclude(sp => sp.BuySymbol)
                 .Include(bet => bet.SymbolPair).ThenInclude(sp => sp.SellSymbol)
-                select _mapper.Map<BetVO>(bet);
+                .Include(bet => bet.User).ThenInclude(user => user.ProfileInfo)
+                where bet.IsActive == true
+                where userId != null ? bet.UserId == userId : true
+                select new BetVO(bet, bet.User.ProfileInfo.Username);
 
             int betsCount = await bets.CountAsync(cancellationToken);
-            var list = bets.ToList();
+            var betsList = bets.ToList();
 
             return new PaginatedResult<BetVO>()
             {
-                Result = list.Paginate(pagination),
+                Result = betsList.Paginate(pagination),
                 AllRecordsCount = betsCount,
                 RecordsPerPage = (int)pagination.Quantity
             };
@@ -240,6 +244,13 @@ namespace BTB.Server.Services
             {
                 return false;
             }
+        }
+
+        private async Task<BetVO> SetUsernameForBetValueObject(BetVO vo)
+        {
+            UserProfileInfo info = await _context.UserProfileInfo.SingleOrDefaultAsync(info => info.UserId == vo.UserId);
+            vo.Username = info?.Username;
+            return vo;
         }
 
         private DateTime RoundDown(DateTime dateTime, TimeSpan span)
