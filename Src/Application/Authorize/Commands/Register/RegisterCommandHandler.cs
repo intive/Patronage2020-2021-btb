@@ -14,13 +14,15 @@ namespace BTB.Application.Authorize.Commands.Register
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IGamblePointManager _gamblePointManager;
+        private readonly IBTBDbContext _context;
 
         private const decimal NumberOfPointsToAddToNewUser = 1000;
 
-        public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IGamblePointManager gamblePointManager)
+        public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IGamblePointManager gamblePointManager, IBTBDbContext context)
         {
             _userManager = userManager;
             _gamblePointManager = gamblePointManager;
+            _context = context;
         }
 
         public async Task<Unit> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -43,6 +45,14 @@ namespace BTB.Application.Authorize.Commands.Register
 
             await _gamblePointManager.InitGamblePoints(user.UserName, NumberOfPointsToAddToNewUser, cancellationToken);
 
+            var profileInfo = new UserProfileInfo()
+            {
+                UserId = (await _userManager.FindByNameAsync(user.UserName)).Id,
+                Username = request.DisplayName
+            };
+
+            await _context.UserProfileInfo.AddAsync(profileInfo, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }

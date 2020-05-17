@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BTB.Application.UserProfile.Commands.CreateUserProfileCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
 using BTB.Application.UserProfile.Common;
 using BTB.Application.UserProfile.Queries.GetUserProfileQuery;
@@ -26,20 +25,6 @@ namespace BTB.Server.Controllers
         {
             var result = await Mediator.Send(new GetUserProfileQuery(), cancellationToken);
             return Ok(result);
-        }
-
-        /// <summary>
-        /// Creates a user profile information record.
-        /// </summary>
-        /// <param name="command">Form data to create the profile.</param>
-        /// <response code="201">If user profile is created successfully.</response>
-        /// <response code="400">If a validation error occurs or the user has already created a profile.</response>
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] CreateUserProfileCommand command, CancellationToken cancellationToken)
-        {
-            return CreatedAtAction(nameof(Create), await Mediator.Send(command, cancellationToken));
         }
 
         /// <summary>
