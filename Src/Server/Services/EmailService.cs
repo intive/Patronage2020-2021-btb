@@ -47,7 +47,7 @@ namespace BTB.Server.Services
         {
             try
             {
-                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                var mail = new MailMessage(_configurator.CurrentConfig.From, to)
                 {
                     Subject = title,
                     Body = message,
@@ -76,7 +76,7 @@ namespace BTB.Server.Services
             {
                 string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", _domainUrl).Replace("[MESSAGE]", message);
 
-                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                var mail = new MailMessage(_configurator.CurrentConfig.From, to)
                 {
                     Subject = title,
                     Body = mailMessage,
