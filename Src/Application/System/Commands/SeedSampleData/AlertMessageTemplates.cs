@@ -18,16 +18,16 @@ namespace BTB.Application.System.Commands.SeedSampleData
             return new List<AlertMessageTemplate>()
             {
                 new AlertMessageTemplate() { Type = AlertCondition.Crossing,
-                    Message = SymbolPairPlaceholder + " is crossing " + ValuePlaceholder + " (" + ValueTypePlaceholder + ")!" },
+                    Message = $"The {ValueTypePlaceholder} of {SymbolPairPlaceholder} is crossing {ValuePlaceholder}!" },
 
                 new AlertMessageTemplate() { Type = AlertCondition.CrossingUp,
-                    Message = SymbolPairPlaceholder + " is crossing " + ValuePlaceholder + " up (" + ValueTypePlaceholder + ")!" },
+                    Message = $"The {ValueTypePlaceholder} of {SymbolPairPlaceholder} is crossing {ValuePlaceholder} up!" },
 
                 new AlertMessageTemplate() { Type = AlertCondition.CrossingDown,
-                    Message = SymbolPairPlaceholder + " is crossing " + ValuePlaceholder + " down (" + ValueTypePlaceholder + ")!" },
+                    Message = $"The {ValueTypePlaceholder} of {SymbolPairPlaceholder} is crossing {ValuePlaceholder} down!" },
 
                 new AlertMessageTemplate() { Type = AlertCondition.Between,
-                    Message = SymbolPairPlaceholder + " is between " + ValuePlaceholder + " and " + AdditionalValuePlaceholder + " (" + ValueTypePlaceholder + ")!" }
+                    Message = $"The {ValueTypePlaceholder} of {SymbolPairPlaceholder} is between {ValuePlaceholder} and {AdditionalValuePlaceholder}!" }
             };
         }
 
