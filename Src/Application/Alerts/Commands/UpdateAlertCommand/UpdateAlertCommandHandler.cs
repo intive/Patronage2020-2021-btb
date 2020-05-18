@@ -45,6 +45,7 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
             AlertMessageTemplate template = await _context.AlertMessageTemplates.SingleOrDefaultAsync(t => t.Type == dbAlert.Condition);
             dbAlert.MessageTemplateId = template.Id;
 
+            _context.Alerts.Update(dbAlert);
             await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }

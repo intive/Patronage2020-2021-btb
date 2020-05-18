@@ -15,28 +15,36 @@ namespace BTB.Server.Services
         private readonly IDateTime _dateTime;
         private readonly IOptions<EmailKeeperConfig> _configuration;
 
+
         public EmailKeeper(IBTBDbContext context, IDateTime dateTime, IOptions<EmailKeeperConfig> configuration)
         {
             _context = context;
             _dateTime = dateTime;
             _configuration = configuration;
+            InitEmailCounts();
         }
 
-        public async Task IncrementEmailSentAsync(CancellationToken cancellationtoken)
+        private void InitEmailCounts()
         {
             var today = _dateTime.Today.ToString("d");
+            EmailCount emailCount = _context.EmailCounts.SingleOrDefault(e => e.Id == today);
+            if (emailCount == null)
+            {
+                _context.EmailCounts.Add(new EmailCount() { Id = today, DailyCount = 0 });
+                _context.SaveChanges();
+            }
+            
+        }
 
+        public void IncrementEmailSent()
+        {
+            var today = _dateTime.Today.ToString("d");
             EmailCount emailCount = _context.EmailCounts.SingleOrDefault(e => e.Id == today);
 
-            if(emailCount == null)
-            {
-                await _context.EmailCounts.AddAsync(new EmailCount() { Id = today, DailyCount = 1 });
-                await _context.SaveChangesAsync(cancellationtoken);
-            }
-            else
+            if (emailCount != null)
             {
                 emailCount.DailyCount += 1;
-                await _context.SaveChangesAsync(cancellationtoken);
+                _context.SaveChanges();
             }
         }
 
@@ -52,14 +60,7 @@ namespace BTB.Server.Services
             }
             else
             {
-                if(emailCount.DailyCount >= _configuration.Value.EmailLimit)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return emailCount.DailyCount >= _configuration.Value.EmailLimit;
             }
         }
     }

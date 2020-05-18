@@ -25,6 +25,8 @@ using BTB.Server.Common.Logger.Database;
 using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Behaviours;
 using System.Collections.Generic;
+using BTB.Client.Services.Contracts;
+using BTB.Client.Services.Implementations;
 
 namespace BTB.Server
 {

@@ -15,7 +15,7 @@ namespace BTB.Application.Common.Interfaces
         Task<BetVO> CreateBetAsync(CreateBetCommand request, string userId, CancellationToken cancellationToken);
         Task<BetVO> UpdateBetAsync(UpdateBetCommand request, string userId, CancellationToken cancellationToken);
         Task<Unit> DeleteBetAsync(DeleteBetCommand request, string userId, CancellationToken cancellationToken);
-        Task<PaginatedResult<BetVO>> GetAllActiveBetsAsync(PaginationDto pagination, CancellationToken cancellationToken);
+        Task<PaginatedResult<BetVO>> GetAllActiveBetsAsync(PaginationDto pagination, string userId, CancellationToken cancellationToken);
         Task CheckActiveBetsAsync(CancellationToken cancellationToken);
     }
 }

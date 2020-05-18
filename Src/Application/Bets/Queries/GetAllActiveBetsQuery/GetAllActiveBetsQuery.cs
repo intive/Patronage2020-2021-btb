@@ -11,5 +11,6 @@ namespace BTB.Application.Bets.Queries.GetAllActiveBetsQuery
     public class GetAllActiveBetsQuery : IRequest<PaginatedResult<BetVO>>
     {
         public PaginationDto Pagination { get; set; }
+        public bool OnlyUserBets { get; set; }
     }
 }

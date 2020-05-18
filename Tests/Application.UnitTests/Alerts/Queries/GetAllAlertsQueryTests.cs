@@ -18,8 +18,8 @@ namespace Application.UnitTests.Alerts.Queries
             var userId = "2";
             var expectedUserAlerts = new List<AlertVO>()
             {
-                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Volume", Value = 3000.0m, SendEmail = true, Email = "alert3@alert3.com" },
-                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = "Crossing", ValueType = "Price", Value = 4000.0m, SendEmail = false, Email = null },
+                new AlertVO() { Id = 3, SymbolPair = "BTCUSDT", Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 3000.0m, SendEmail = true, Email = "alert3@alert3.com" },
+                new AlertVO() { Id = 4, SymbolPair = "BTCUSDT", Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 4000.0m, SendEmail = false, Email = null },
             };
             var expectedAllRecordsCount = 2;
             var userAccessorMock = GetUserAccessorMock(userId);

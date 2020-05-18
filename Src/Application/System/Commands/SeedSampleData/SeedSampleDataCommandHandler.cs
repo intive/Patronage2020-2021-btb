@@ -115,6 +115,14 @@ namespace BTB.Application.System.Commands.SeedSampleData
             await _userManager.CreateAsync(user, _configuration["MainAdmin:password"]);
             await _userManager.AddToRoleAsync(user, "Admin");
             await _gamblePointManager.InitGamblePoints(user.UserName, NumberOfPointsToAddToNewUser, cancellationToken);
+            
+            var profileInfo = new UserProfileInfo()
+            {
+                UserId = (await _userManager.FindByNameAsync(user.UserName)).Id,
+                Username = "admin"
+            };
+            await _context.UserProfileInfo.AddAsync(profileInfo, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task SeedTemplateAsync(CancellationToken cancellationToken)

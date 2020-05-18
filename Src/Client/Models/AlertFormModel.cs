@@ -1,4 +1,6 @@
-﻿namespace BTB.Client.Models
+﻿using BTB.Domain.ValueObjects;
+
+namespace BTB.Client.Models
 {
     public class AlertFormModel
     {
@@ -10,5 +12,21 @@
         public bool SendEmail { get; set; }
         public string Email { get; set; }
         public bool TriggerOnce { get; set; }
+
+        public AlertFormModel()
+        {
+        }
+
+        public AlertFormModel(AlertVO vo)
+        {
+            SymbolPair = vo.SymbolPair;
+            Condition = vo.Condition.ToString();
+            ValueType = vo.ValueType.ToString();
+            Value = vo.Value;
+            AdditionalValue = vo.AdditionalValue;
+            SendEmail = vo.SendEmail;
+            Email = vo.Email;
+            TriggerOnce = vo.TriggerOnce;
+        }
     } 
 }
