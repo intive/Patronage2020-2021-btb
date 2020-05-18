@@ -1,0 +1,209 @@
+﻿@page "/bets"
+@using Newtonsoft.Json
+@using Domain.Enums
+@using BTB.Domain.Extensions
+@using BTB.Domain.Common.Pagination
+@using System.Security.Claims
+@using Blazored.Modal.Services
+@inject ICustomHttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime jsRuntime
+@inject IModalService Modal
+@inject IRefreshRequestsService refreshService
+
+<style>
+    #bets-table td {
+        text-align: center;
+    }
+
+    #bets-table th {
+        text-align: center;
+        background-color: var(--main-accent-color);
+        color: white;
+    }
+</style>
+
+<div class="rounded shadow-lg white-padding">
+    <div class="d-flex justify-content-between mb-2">
+
+        <div class="d-inline-block">
+            <div class="btn-group" role="group">
+                @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                {
+                    <button style="@PointerEventsStyle()" class="btn btn-primary" type="button"
+                            @onclick="@(async () => await SelectedQuantityAsync(value))">
+                        @((int)value)
+                    </button>
+                }
+            </div>
+        </div>
+
+        <button type="button" class="btn @(_onylUserBets ? "btn-primary" : "btn-outline-primary")"
+                @onclick="() => _onylUserBets = ! _onylUserBets">
+            Only my bets
+        </button>
+
+        <Pagination TotalPagesQuantity="@_totalPageQuantity"
+                    CurrentPage="@_currentPage"
+                    Radius="2"
+                    SelectedPage="SelectedPageAsync"
+                    PointerEventsStyle="@PointerEventsStyle()">
+        </Pagination>
+    </div>
+
+    <table id="bets-table" class="table">
+        <thead>
+            <tr>
+                <th>Trading Pair</th>
+                <th>User</th>
+                <th>Points</th>
+                <th>Min price</th>
+                <th>Max price</th>
+                <th>Started at</th>
+                <th>Length</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <SpinLoader IsLoading="@_processingHttpRequest">
+                <LoadingTemplate>
+                    <tr>
+                        <td colspan="8" style="vertical-align: middle; background-color: white; height: 200px;">
+                            <TimedLoader ShowDelay="500" />
+                        </td>
+                    </tr>
+                </LoadingTemplate>
+                <ContentTemplate>
+                    @foreach (var bet in _bets.Where(bet => _onylUserBets ? bet.UserId == _loggedInUserId : true))
+                    {
+                        BetVO betObjectLoopIterRef = bet;
+                        bool isUsersBet = bet.UserId == _loggedInUserId;
+                        <tr>
+                            <td>@bet.SymbolPair</td>
+                            <td>@(bet.Username ?? "-")</td>
+                            <td>
+                                <span class="font-weight-bold" style="color: #FF5722; margin-right: 5px">&#9826;</span> @bet.Points.ToString("#.##")
+                            </td>
+                            <td>@bet.LowerPriceThreshold</td>
+                            <td>@bet.UpperPriceThreshold</td>
+                            <td>@bet.StartedAt.ToString("MM/dd/yyyy hh:mm tt")</td>
+                            <td>@GetBetTimeIntervalDescription(bet.TimeInterval)</td>
+                            <td>@GetBetRateTypeDescription(bet.RateType)</td>
+
+                            <td>
+                                <button class="btn btn-link @(!isUsersBet ? "text-muted": "")"
+                                        @onclick="() => { if (isUsersBet) { ShowUpdateBetModal(betObjectLoopIterRef); }}"
+                                        @onclick:stopPropagation="true">
+                                    <span class="oi oi-pencil" aria-hidden="true" />
+                                </button>
+
+                                <button class="btn btn-link @(!isUsersBet ? "text-muted": "")"
+                                        @onclick="async () => { if (isUsersBet) { await DeleteBetAsync(betObjectLoopIterRef); }}"
+                                        @onclick:stopPropagation="true">
+                                    <span class="oi oi-x" aria-hidden="true" />
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </ContentTemplate>
+            </SpinLoader>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private IList<BetVO> _bets;
+    private bool _processingHttpRequest = true;
+    private int _totalPageQuantity;
+    private int _currentPage = 1;
+    private int _currentQuantity = 10;
+    private bool _onylUserBets = false;
+    private string _loggedInUserId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _loggedInUserId = state.User.Claims.SingleOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _processingHttpRequest = true;
+
+        var response = await Http.GetAsync($"api/bets?page={_currentPage}&quantity=100&onlyUserBets=false");
+        if (response.IsSuccessStatusCode)
+        {
+            _totalPageQuantity = int.Parse(response.Headers.GetValues("quantity").First());
+            string jsonString = await response.Content.ReadAsStringAsync();
+            _bets = JsonConvert.DeserializeObject<IList<BetVO>>(jsonString);
+        }
+
+        _processingHttpRequest = false;
+    }
+
+    private void ShowUpdateBetModal(BetVO bet)
+    {
+        var options = new ModalOptions()
+        {
+            HideCloseButton = true,
+            HideHeader = true
+        };
+
+        var parameters = new ModalParameters();
+        parameters.Add("ShouldUpdateBet", true);
+        parameters.Add("Bet", bet);
+        parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); StateHasChanged(); }));
+        Modal.Show<BetFormModal>("Place a bet", parameters, options);
+    }
+
+    private async Task DeleteBetAsync(BetVO bet)
+    {
+        var confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "Are you sure want to delete this bet?");
+        if (confirmed)
+        {
+            await Http.DeleteAsync($"api/bets/{bet.Id}");
+            await LoadDataAsync();
+            await refreshService.RequestRefreshAsync();
+        }
+    }
+
+
+    private async Task SelectedPageAsync(int page)
+    {
+        _currentPage = page;
+        await LoadDataAsync();
+    }
+
+    private async Task SelectedQuantityAsync(PaginationQuantity quantity)
+    {
+        _currentPage = 1;
+        _currentQuantity = (int)quantity;
+        await LoadDataAsync();
+    }
+
+    private string PointerEventsStyle()
+    {
+        return _processingHttpRequest ? "pointer-events: none;" : null;
+    }
+
+    private string GetBetTimeIntervalDescription(BetTimeInterval interval)
+    {
+        return interval switch
+        {
+            BetTimeInterval.TwoDays => "Two days",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetBetRateTypeDescription(BetRateType rateType)
+    {
+        return rateType switch
+        {
+            BetRateType.Standard => "Standard 10%",
+            _ => "Unknown"
+        };
+    }
+}

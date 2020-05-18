@@ -1,6 +1,10 @@
 ﻿@using BTB.Client.Components.UserProfile
+@using Newtonsoft.Json
+@using Client.Pages.Dto
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
+@inject ICustomHttpClient Http
+@inject IRefreshRequestsService refreshService
 
 <a class="navbar-brand" href="">
     <img class="ml-1" src="/img/btblogo.png" alt="">
@@ -31,16 +35,23 @@
         </li>
 
         <div class="vertical-line-separator"></div>
-
     </AuthorizeView>
+
     <li class="nav-item px-4">
         <div class="nav-link">
             <DisplayPoints />
         </div>
     </li>
+
     <li class="nav-item px-4">
         <NavLink class="nav-link" href="userprofile">
-            My Profile
+            @_userName
+        </NavLink>
+    </li>
+
+    <li class="nav-item px-4">
+        <NavLink class="nav-link" href="bets">
+            Bets
         </NavLink>
     </li>
 
@@ -59,8 +70,32 @@
     public bool FullView { get; set; } = true;
 
     private bool _collapseNavMenu = true;
-
+    private UserProfileInfoDto _userProfileInfo = null;
+    private string _userName = "My Profile";
     private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        refreshService.OnRefreshRequested += OnRefreshRequested;
+    }
+
+    private async Task OnRefreshRequested()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        var response = await Http.GetAsync($"api/userprofile");
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonString = await response.Content.ReadAsStringAsync();
+            _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
+            _userName = _userProfileInfo.Username;
+        }
+    }
 
     private void ToggleNavMenu()
     {

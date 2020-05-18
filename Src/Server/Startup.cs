@@ -26,6 +26,8 @@ using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Behaviours;
 using System.Collections.Generic;
 using BTB.Application.Common.Hubs;
+using BTB.Client.Services.Contracts;
+using BTB.Client.Services.Implementations;
 using Microsoft.AspNet.SignalR;
 
 namespace BTB.Server

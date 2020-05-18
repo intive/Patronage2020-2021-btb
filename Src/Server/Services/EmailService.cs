@@ -47,7 +47,7 @@ namespace BTB.Server.Services
         {
             try
             {
-                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                var mail = new MailMessage(_configurator.CurrentConfig.From, to)
                 {
                     Subject = title,
                     Body = message,
@@ -55,7 +55,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
-                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
+                _emailKeeper.IncrementEmailSent();
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)
@@ -76,7 +76,7 @@ namespace BTB.Server.Services
             {
                 string mailMessage = emailTemplate.Content.Replace("[DOMAIN_URL]", _domainUrl).Replace("[MESSAGE]", message);
 
-                var mail = new MailMessage(_configurator.CurrentConfig.Login, to)
+                var mail = new MailMessage(_configurator.CurrentConfig.From, to)
                 {
                     Subject = title,
                     Body = mailMessage,
@@ -84,7 +84,7 @@ namespace BTB.Server.Services
                 };
 
                 _client.Send(mail);
-                _emailKeeper.IncrementEmailSentAsync(new CancellationToken());
+                _emailKeeper.IncrementEmailSent();
                 _logger.LogInformation($"Email was send to {to} was send to adress {title}");
             }
             catch (Exception e)

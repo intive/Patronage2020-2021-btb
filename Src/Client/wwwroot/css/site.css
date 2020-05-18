@@ -3,6 +3,7 @@
 :root {
     --main-dark-color: #2c2b30;
     --main-grey-color: #D6D6D6;
+    --main-grey-light-color: #f2f2f2;
     --main-accent-color: #F58F7C;
 }
 
@@ -425,6 +426,19 @@ input[type="button"] {
     border-right: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+/* Modals */
+
+@media screen and (min-width: 480px) {
+    .modal-container {
+        min-width: 460px
+    }
+}
+
+/* Tables */
+.table tr:nth-child(even) {
+    background-color: var(--main-grey-light-color);
+}
+
 /*Tab*/
 
 #exTab3 .nav-pills > li > a {
@@ -437,4 +451,3 @@ input[type="button"] {
     background-color: white;
     padding: 15px;
 }
-

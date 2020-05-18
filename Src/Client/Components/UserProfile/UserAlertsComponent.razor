@@ -3,6 +3,7 @@
 @using Newtonsoft.Json
 @using System.ComponentModel
 @using System.Threading
+@using BTB.Domain.Enums
 @using BTB.Client.Components.Dashboard
 @inject ICustomHttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
@@ -94,7 +95,7 @@
                 int alertIndex = i;
                 AlertVO alert = _alertCards[alertIndex].AlertVO;
                 string cardStyle = alert.IsDisabled ? "triggered-card" : "default-card";
-                bool displayUpperValue = alert.Condition.ToLower() == "between";
+                bool displayUpperValue = alert.Condition.ToString().ToLower() == "between";
 
                 <div class="card mb-2 @cardStyle" style="width:100%">
                     <div class="card-header d-flex flex-row justify-content-between" @onclick="() => ToggleCardCollapse(alertIndex)">
@@ -102,7 +103,7 @@
                             <NavLink class="btn btn-link" href="@($"/details/{alert.SymbolPair}")" @onclick:stopPropagation="true">
                                 @alert.SymbolPair
                             </NavLink>
-                            @alert.Condition @alert.Value.ToString("#.##") @(displayUpperValue ? " - " + alert.AdditionalValue.ToString("#.##") : "")
+                            @GetAlertConditionDescription(alert.Condition) @alert.Value.ToString("#.##") @(displayUpperValue ? " and " + alert.AdditionalValue.ToString("#.##") : "")
                             @if (alert.IsDisabled)
                             {
                                 <i style="font-size: 14px;">(disabled)</i>
@@ -126,12 +127,12 @@
 
                             <div class="row">
                                 <h5 class="col-12 col-lg-4">Condition</h5>
-                                <p class="col-12 col-lg-8">@alert.Condition</p>
+                                <p class="col-12 col-lg-8">@GetAlertConditionDescription(alert.Condition)</p>
                             </div>
 
                             <div class="row">
                                 <h5 class="col-12 col-lg-4">Value Type</h5>
-                                <p class="col-12 col-lg-8">@alert.ValueType</p>
+                                <p class="col-12 col-lg-8">@GetAlertValueTypeDescription(alert.ValueType)</p>
                             </div>
 
                             <div class="row">
@@ -289,7 +290,7 @@
 
         parameters.Add("ShouldUpdateAlert", true);
         parameters.Add("Alert", alert);
-        parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); this.StateHasChanged(); }));
+        parameters.Add("OnModalClosedAsync", new Func<Task>(async () => { await LoadDataAsync(); StateHasChanged(); }));
         Modal.Show<AlertSubscription>("Subscription", parameters, options);
     }
 
@@ -327,6 +328,28 @@
         {
             card.IsCardCollapsed = collapse;
         }
+    }
+
+    private string GetAlertConditionDescription(AlertCondition condition)
+    {
+        return condition switch
+        {
+            AlertCondition.Crossing => "Crossing",
+            AlertCondition.CrossingUp => "Crossing Up",
+            AlertCondition.CrossingDown => "Crossing Down",
+            AlertCondition.Between => "Between",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetAlertValueTypeDescription(AlertValueType valutType)
+    {
+        return valutType switch
+        {
+            AlertValueType.Price => "Price",
+            AlertValueType.Volume => "Volume",
+            _ => "Unknown"
+        };
     }
 
     public void Dispose()

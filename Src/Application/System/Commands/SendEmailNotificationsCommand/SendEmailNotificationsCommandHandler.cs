@@ -8,10 +8,8 @@ using BTB.Domain.Entities;
 using BTB.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,6 +53,7 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             _klineInterval = request.KlineInterval;
 
             var alerts = _context.Alerts;
+            var triggeredAlerts = new List<Alert>();
 
             foreach (var alert in alerts)
             {
@@ -79,13 +78,20 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                     {
                         await SendInBrowserNotificationAsync(alert);
                     }
-
                     alert.WasTriggered = true;
-                    _context.Alerts.Update(alert);
+                    triggeredAlerts.Add(alert);           
                 }
             }
 
+            _context.Alerts.UpdateRange(triggeredAlerts);
             await _context.SaveChangesAsync(cancellationToken);
+
+            foreach (var alert in triggeredAlerts)
+            {
+                await SendEmailMessageAsync(alert);
+            }
+
+            
             return Unit.Value;
         }
 

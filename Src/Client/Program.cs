@@ -31,6 +31,7 @@ namespace BTB.Client
             builder.Services.AddSingleton<Blazored.Modal.Services.IModalService, Blazored.Modal.Services.ModalService>();
             builder.Services.AddSingleton<IToastService, ToastService>();
             builder.Services.AddBlazoredToast();
+            builder.Services.AddSingleton<IRefreshRequestsService, RefreshRequestsService>();
             await builder.Build().RunAsync();
         }
     }

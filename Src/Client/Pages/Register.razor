@@ -30,6 +30,15 @@
 
             <div class="input-group form-group">
                 <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="oi oi-person"></i></span>
+                </div>
+                <InputText type="text" id="inputDisplayName" class="form-control" placeholder="Display name" autofocus
+                           @bind-Value="@_registerParameters.DisplayName" />
+            </div>
+            <ValidationMessage For="@(() => _registerParameters.DisplayName)" />
+
+            <div class="input-group form-group">
+                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="oi oi-envelope-closed"></i></span>
                 </div>
                 <InputText type="email" id="inputEmail" class="form-control" placeholder="Email"
@@ -74,9 +83,9 @@
 
 @code
 {
-    private const int MessageHeight = 24;
+    private const int MessageHeight = 28;
 
-    private int _baseHeight = 400;
+    private int _baseHeight = 464;
     private int _height { get; set; }
 
     private dynamic _dyn { get; set; }
