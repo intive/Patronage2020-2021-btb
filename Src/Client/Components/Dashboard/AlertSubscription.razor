@@ -124,8 +124,8 @@
         _formModel = new AlertFormModel()
         {
             SymbolPair = _alertVO.SymbolPair,
-            Condition = _alertVO.Condition,
-            ValueType = _alertVO.ValueType,
+            Condition = _alertVO.Condition.ToString(),
+            ValueType = _alertVO.ValueType.ToString(),
             Value = _alertVO.Value,
             AdditionalValue = _alertVO.AdditionalValue,
             SendInBrowser = _alertVO.SendInBrowser,
