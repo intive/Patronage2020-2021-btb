@@ -26,9 +26,6 @@ using Microsoft.Extensions.Logging;
 using BTB.Application.Common.Behaviours;
 using System.Collections.Generic;
 using BTB.Application.Common.Hubs;
-using BTB.Client.Services.Contracts;
-using BTB.Client.Services.Implementations;
-using Microsoft.AspNet.SignalR;
 
 namespace BTB.Server
 {
@@ -114,10 +111,7 @@ namespace BTB.Server
                         new[] { "application/octet-stream" });
                 });
 
-                services.AddSignalR(options =>
-                {
-                    options.EnableDetailedErrors = true;
-                });
+                services.AddSignalR();
 
                 services.Configure<ApiBehaviorOptions>(options =>
                 {
@@ -192,8 +186,6 @@ namespace BTB.Server
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
-
-                GlobalHost.HubPipeline.RequireAuthentication();
 
                 app.UseEndpoints(endpoints =>
                 {
