@@ -188,8 +188,6 @@ namespace BTB.Server
                 app.UseAuthentication();
                 app.UseAuthorization();
 
-                GlobalHost.HubPipeline.RequireAuthentication();
-
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapHub<NotificationHub>("hubs/notifications");
