@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BTB.Application.Common.Hubs
 {
-    [Authorize]
+   
     public class NotificationHub : Hub
     {
         public static readonly ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();

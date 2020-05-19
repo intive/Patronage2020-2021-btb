@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using BTB.Application.Common.Hubs;
 using BTB.Client.Services.Contracts;
 using BTB.Client.Services.Implementations;
-using Microsoft.AspNet.SignalR;
+
 
 namespace BTB.Server
 {
@@ -52,6 +52,7 @@ namespace BTB.Server
         {
             try
             {
+ 
                 services.AddCors(options =>
                 {
                     options.AddPolicy("CorsPolicy", policy =>
@@ -102,17 +103,9 @@ namespace BTB.Server
                         new[] { "application/octet-stream" });
                 });
 
-                services.AddMvc(options =>
-                {
-                    options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory()));
-                }
-                    ).AddNewtonsoftJson(options =>
-                        options.SerializerSettings.Converters.Add(new StringEnumConverter()));
-                services.AddResponseCompression(opts =>
-                {
-                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                        new[] { "application/octet-stream" });
-                });
+                services.AddMvc(options => { options.Filters.Add(new GlobalExceptionFilter(new LoggerFactory())); }
+                ).AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+             
 
                 services.AddSignalR(options =>
                 {
@@ -175,6 +168,8 @@ namespace BTB.Server
         {
             try
             {
+                
+
                 app.UseCors("CorsPolicy");
                 app.UseResponseCompression();
 
@@ -197,8 +192,8 @@ namespace BTB.Server
 
                 app.UseEndpoints(endpoints =>
                 {
+                    endpoints.MapHub<NotificationHub>("hubs/notifications");
                     endpoints.MapDefaultControllerRoute();
-                    endpoints.MapHub<NotificationHub>("/hub/notifications");
                     endpoints.MapFallbackToClientSideBlazor<Client.Program>("index.html");
                 });
             }
