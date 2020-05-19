@@ -36,13 +36,13 @@ namespace BTB.Server
 
         public static async Task Main(string[] args)
         {
-#if DEBUG
+//#if DEBUG
             const string blazorConfigPath = @"/app/bin/Debug/netcoreapp3.1/BTB.Client.blazor.config";
             var blazorConfig = File.ReadAllText(blazorConfigPath);
             blazorConfig = Regex.Replace(blazorConfig, @"[a-zA-Z]:\\.+?\\Client\\", "/Client/")
                 .Replace('\\', '/');
             File.WriteAllText(blazorConfigPath, blazorConfig);
-#endif
+//#endif
             
             var host = CreateWebHostBuilder(args).Build();
             ServiceProvider = host.Services;
