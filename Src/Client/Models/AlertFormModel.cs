@@ -11,7 +11,6 @@ namespace BTB.Client.Models
         public decimal AdditionalValue { get; set; }
         public bool SendEmail { get; set; }
         public string Email { get; set; }
-        public string Message { get; set; }
         public bool TriggerOnce { get; set; }
 
         public AlertFormModel()
@@ -27,7 +26,6 @@ namespace BTB.Client.Models
             AdditionalValue = vo.AdditionalValue;
             SendEmail = vo.SendEmail;
             Email = vo.Email;
-            Message = vo.Message;
             TriggerOnce = vo.TriggerOnce;
         }
     } 

@@ -21,7 +21,7 @@ namespace BTB.Domain.Entities
         {
             get
             {
-                return string.Concat(BuySymbol.SymbolName, SellSymbol.SymbolName);
+                return string.Concat(BuySymbol?.SymbolName, SellSymbol?.SymbolName);
             }
         }
     }

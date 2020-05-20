@@ -36,10 +36,6 @@ namespace BTB.Persistence.Configurations
             builder.Property(a => a.Email)
                 .IsRequired(false);
 
-            builder.Property(a => a.Message)
-                .HasMaxLength(500)
-                .IsRequired(false);
-
             builder.Property(a => a.TriggerOnce)
                 .IsRequired();
 
@@ -55,6 +51,12 @@ namespace BTB.Persistence.Configurations
             builder.HasOne(a => a.SymbolPair)
                 .WithMany(s => s.Alerts)
                 .HasForeignKey(a => a.SymbolPairId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(a => a.MessageTemplate)
+                .WithMany(t => t.Alerts)
+                .HasForeignKey(a => a.MessageTemplateId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }

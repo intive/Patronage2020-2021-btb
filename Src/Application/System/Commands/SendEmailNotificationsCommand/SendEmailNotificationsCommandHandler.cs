@@ -2,6 +2,7 @@
 using BTB.Application.ConditionDetectors;
 using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.ConditionDetectors.Crossing;
+using BTB.Application.System.Commands.SeedSampleData;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.Enums;
@@ -48,8 +49,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
         public async Task<Unit> Handle(SendEmailNotificationsCommand request, CancellationToken cancellationToken)
         {
             _klineInterval = request.KlineInterval;
+            var alerts = _context.Alerts
+                .Include(a => a.SymbolPair).ThenInclude(sp => sp.BuySymbol)
+                .Include(a => a.SymbolPair).ThenInclude(sp => sp.SellSymbol);
 
-            var alerts = _context.Alerts;
             var triggeredAlerts = new List<Alert>();
 
             foreach (var alert in alerts)
@@ -150,7 +153,8 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
             if (!_emailKeeper.CheckIfLimitHasBeenReached())
             {
                 EmailTemplate template = await _context.EmailTemplates.SingleOrDefaultAsync();
-                _emailService.Send(alert.Email, "BTB trading pair alert", alert.Message, template);
+                AlertMessageTemplate messageTemplate = await _context.AlertMessageTemplates.SingleOrDefaultAsync(t => t.Type == alert.Condition);
+                _emailService.Send(alert.Email, "BTB trading pair alert", AlertMessageTemplates.FillTemplate(alert, messageTemplate.Message), template);
             }
         }
 

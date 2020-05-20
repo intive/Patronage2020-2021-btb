@@ -42,10 +42,6 @@ namespace BTB.Application.Alerts.Common
             RuleFor(a => a.Email)
                 .NotEmpty().When(a => a.SendEmail)
                 .EmailAddress();
-
-            RuleFor(a => a.Message)
-                .NotNull().When(a => a.SendEmail)
-                .MaximumLength(500);
         }
     }
 }

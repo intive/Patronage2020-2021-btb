@@ -25,7 +25,7 @@ namespace Application.UnitTests.Alerts.Commands
             var expectedValue = 1234.56m;
             var expectedSendEmail = true;
             var expectedEmail = "newexample@newmail.com";
-            var expectedMessage = "new_message";
+            var expectedTemplateId = 1;
 
             var userAccessorMock = GetUserAccessorMock(expectedUserId);
 
@@ -39,7 +39,6 @@ namespace Application.UnitTests.Alerts.Commands
                 Value = expectedValue,
                 SendEmail = expectedSendEmail,
                 Email = expectedEmail,
-                Message = expectedMessage
             };
 
             await sut.Handle(command, CancellationToken.None);
@@ -47,6 +46,8 @@ namespace Application.UnitTests.Alerts.Commands
                 .Include(x => x.SymbolPair).ThenInclude(x => x.BuySymbol)
                 .Include(x => x.SymbolPair).ThenInclude(x => x.SellSymbol)
                 .SingleOrDefault(a => a.UserId == expectedUserId && a.Id == alertId);
+
+            Assert.Equal(expectedTemplateId, dbAlert.MessageTemplateId);
 
             var dbAlertVo = _mapper.Map<AlertVO>(dbAlert);
 
@@ -57,7 +58,6 @@ namespace Application.UnitTests.Alerts.Commands
             Assert.Equal(expectedValue, dbAlertVo.Value);
             Assert.Equal(expectedSendEmail, dbAlertVo.SendEmail);
             Assert.Equal(expectedEmail, dbAlertVo.Email);
-            Assert.Equal(expectedMessage, dbAlertVo.Message);
 
             userAccessorMock.Verify(x => x.GetCurrentUserId());
             _btbBinanceClientMock.Verify(mock => mock.GetSymbolNames(expectedTradingPair, ""));

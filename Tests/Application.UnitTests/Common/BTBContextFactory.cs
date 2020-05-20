@@ -1,4 +1,5 @@
 ﻿using BTB.Application.Common.Interfaces;
+using BTB.Application.System.Commands.SeedSampleData;
 using BTB.Common;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
@@ -58,15 +59,17 @@ namespace Application.UnitTests.Common
 
             context.Alerts.AddRange
             (
-                new Alert() { Id = 1, UserId = "1", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 1000.0m, SendEmail = true, Email = "alert1@alert1.com", Message = "alert id: 1, user id: 1" },
-                new Alert() { Id = 2, UserId = "1", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price,  Value = 2000.0m, SendEmail = false, Email = null, Message = null },
-                new Alert() { Id = 3, UserId = "2", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 3000.0m, SendEmail = true, Email = "alert3@alert3.com", Message = "alert id: 3, user id: 2" },
-                new Alert() { Id = 4, UserId = "2", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 4000.0m, SendEmail = false, Email = null, Message = null },
-                new Alert() { Id = 5, UserId = "3", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 5000.0m, SendEmail = true, Email = "alert5@alert5.com", Message = "alert id: 5, user id: 3" },
-                new Alert() { Id = 6, UserId = "3", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 6000.0m, SendEmail = false, Email = null, Message = null }
+                new Alert() { Id = 1, UserId = "1", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 1000.0m, SendEmail = true, Email = "alert1@alert1.com" },
+                new Alert() { Id = 2, UserId = "1", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price,  Value = 2000.0m, SendEmail = false, Email = null },
+                new Alert() { Id = 3, UserId = "2", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 3000.0m, SendEmail = true, Email = "alert3@alert3.com" },
+                new Alert() { Id = 4, UserId = "2", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 4000.0m, SendEmail = false, Email = null },
+                new Alert() { Id = 5, UserId = "3", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Volume, Value = 5000.0m, SendEmail = true, Email = "alert5@alert5.com" },
+                new Alert() { Id = 6, UserId = "3", SymbolPairId = 1, Condition = AlertCondition.Crossing, ValueType = AlertValueType.Price, Value = 6000.0m, SendEmail = false, Email = null }
             );
 
             context.EmailTemplates.Add(new EmailTemplate() { Id = 1, Content = "<MESSAGE><br><DOMAIN_URL>"});
+
+            context.AlertMessageTemplates.AddRange(AlertMessageTemplates.GetTemplates());
 
             context.Bets.AddRange
             (
