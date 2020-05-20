@@ -12,7 +12,7 @@
 
 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="Quantity group">
-        <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Indicators</a>
+        <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">Indicators</a>
         @foreach (var value in Enum<IndicatorType>.GetValues())
         {
             <button class="btn btn-primary" type="button" @onclick="@( () => { _indicatorType = value; })">@(value)</button>
@@ -21,7 +21,7 @@
     @if (IndicatorType.RSI == _indicatorType)
     {
         <div class="btn-group" role="group" aria-label="Quantity group">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">RSI timeframe</a>
+            <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">RSI timeframe</a>
             @foreach (var value in Enum<RSITimeframe>.GetValues())
             {
                 @if (_priceHistory.Count() >= (int)_paginationQuantity + (int)value + 1)
@@ -38,7 +38,7 @@
     else if (IndicatorType.SMA == _indicatorType)
     {
         <div class="btn-group" role="group" aria-label="Quantity group">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">SMA kline price</a>
+            <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">SMA kline price</a>
             @foreach (var value in Enum<SMAPriceType>.GetValues())
             {
                 <button class="btn btn-primary" type="button" @onclick="@( async () => { _smaPriceType = value; await RefreshIndicatorView(); } )">@(value)</button>

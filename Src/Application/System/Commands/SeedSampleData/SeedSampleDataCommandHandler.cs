@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using MediatR;
+using BTB.Domain.Enums;
 
 namespace BTB.Application.System.Commands.SeedSampleData
 {
@@ -133,6 +134,12 @@ namespace BTB.Application.System.Commands.SeedSampleData
                     Content = MailTemplate.GetTemplate()
                 };
                 _context.EmailTemplates.Add(template);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            if (!await _context.AlertMessageTemplates.AnyAsync())
+            {
+                _context.AlertMessageTemplates.AddRange(AlertMessageTemplates.GetTemplates());
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }

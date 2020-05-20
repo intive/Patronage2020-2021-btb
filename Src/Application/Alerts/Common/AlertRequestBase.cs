@@ -14,7 +14,6 @@ namespace BTB.Application.Alerts.Common
         public decimal AdditionalValue { get; set; }
         public bool SendEmail { get; set; }
         public string Email { get; set; }
-        public string Message { get; set; }
         public bool TriggerOnce { get; set; }
     }
 }

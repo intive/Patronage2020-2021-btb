@@ -34,6 +34,11 @@ app {
     font-size: x-large;
 }
 
+.favorite-symbol {
+    color: var(--main-accent-color);
+    font-size: x-large;
+}
+
 .empty-star{
     cursor: pointer;
     font-size: x-large;
@@ -60,8 +65,16 @@ app {
     margin-right: 10px;
 }
 
-.table td{
+.table td {
     vertical-align: middle;
+}
+
+.table thead th {
+    vertical-align: middle;
+}
+
+.width-20percentages {
+    width: 20%;
 }
 
 .main {
@@ -441,13 +454,22 @@ input[type="button"] {
 
 /*Tab*/
 
+#exTab2 .nav-pills > li > a {
+    color: white;
+    border-radius: 4px 4px 0 0;
+}
+
+#exTab2 .tab-content {
+    background-color: white;
+    padding: 15px;
+}
+
 #exTab3 .nav-pills > li > a {
     color:white;
     border-radius: 4px 4px 0 0;
 }
 
 #exTab3 .tab-content {
-
     background-color: white;
     padding: 15px;
 }

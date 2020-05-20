@@ -86,14 +86,6 @@
             </div>
         </div>
 
-        <div class="form-group row mb-2">
-            <label for="message" class="col-sm-4 col-form-label">Message</label>
-            <div class="col-sm-8">
-                <InputTextArea @bind-Value="_formModel.Message" class="form-control form-control-sm mb-1" id="message" disabled="@(!_formModel.SendEmail)" />
-                <ValidationMessage For="@(()=>_formModel.Message)" class="mb-1" />
-            </div>
-        </div>
-
         <div class="text-right">
             <button class="btn btn-danger btn-sm" type="reset" @onclick="CancelModal">Cancel</button>
             <button class="btn btn-success btn-sm" type="submit">Confirm</button>
@@ -124,7 +116,6 @@
         if (!_formModel.SendEmail)
         {
             _formModel.Email = null;
-            _formModel.Message = null;
         }
 
         if (_formModel.Condition?.ToLower() != "between")

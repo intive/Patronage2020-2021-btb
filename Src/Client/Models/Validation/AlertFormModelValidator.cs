@@ -34,10 +34,6 @@ namespace BTB.Client.Models.Validation
             RuleFor(a => a.Email)
                 .NotEmpty().When(a => a.SendEmail).WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Please enter a valid email address.");
-
-            RuleFor(a => a.Message)
-                .NotNull().When(a => a.SendEmail).WithMessage("Email message is required.")
-                .MaximumLength(500).WithMessage("Maximum message length is 500.");
         }
     }
 }

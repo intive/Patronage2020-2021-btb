@@ -9,72 +9,76 @@
 @implements IDisposable
 @inject IRefreshRequestsService refreshService
 
-<div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
-        @foreach (var value in Enum<PaginationQuantity>.GetValues())
-        {
-            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
-        }
-    </div>
-</div>
-
-<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-
-<EditForm class="form-group" Model="_filter" OnValidSubmit="@Filter">
-    <DataAnnotationsValidator />
-    <ValidationMessage For="@(() => _filter.SymbolName)" />
-    <InputText style="@PointerEventsStyle()" id="inputvalue" class="mr-1 align-middle" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
-    <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-1" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
-    <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
-
-    <div class="btn-group mr-2" role="group" aria-label="Time group">
-        @foreach (var value in Enum<CurrencyFilter>.GetValues())
-        {
-            <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
-        }
-    </div>
-</EditForm>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th style="width: 10%;" class="text-center">Favorite</th>
-            <th style="width: 20%;" class="text-right">Symbol</th>
-            <th style="width: 25%;" class="text-right">Price</th>
-            <th style="width: 25%;" class="text-right">Volume</th>
-            <th style="width: 20%;" class="text-center">Subscribe</th>
-            <th style="width: 20%;" class="text-center">Bet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <SpinLoader IsLoading="@(_dashboardElements == null)">
-            <LoadingTemplate>
-                <tr>
-                    <td colspan="5" style="vertical-align: middle; background-color: white; height:500px;">
-                        <Flow Color="#428bca" Size="60px" Center="true" />
-                    </td>
-                </tr>
-            </LoadingTemplate>
-            <ContentTemplate>
-                @if (_dashboardElements.Any())
+<div class="rounded shadow-lg white-padding">
+    <div class="d-flex justify-content-between mb-2">
+        <div class="d-inline-block">
+            <div class="btn-group" role="group">
+                @foreach (var value in Enum<PaginationQuantity>.GetValues())
                 {
-                    @foreach (var item in _dashboardElements)
-                    {
-                        <SymbolPair DashboardPairVO="item" OnChangeFavorite="@SwitchElement" />
-                    }
+                    <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
                 }
-                else
+            </div>
+        </div>
+        <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+    </div>
+    <EditForm class="form-group" Model="_filter" OnValidSubmit="@Filter">
+        <div class="d-flex">
+            <DataAnnotationsValidator />
+            <ValidationMessage For="@(() => _filter.SymbolName)" />
+            <InputText style="@PointerEventsStyle()" id="inputvalue" class="align-middle form-control width-20percentages mr-2" placeholder="Enter symbol or pair" @bind-Value="@_filter.SymbolName" />
+            <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm mr-2" type="button" @onclick="Filter"><span class="oi oi-magnifying-glass"></span> Filter </button>
+            <button style="@PointerEventsStyle()" class="btn btn-danger btn-sm mr-3" type="button" @onclick="Clear"><span class="oi oi-action-undo"></span> Clear </button>
+
+            <div class="btn-group" role="group" aria-label="Time group">
+                @foreach (var value in Enum<CurrencyFilter>.GetValues())
                 {
+                    <button style="@PointerEventsStyle()" class="btn btn-primary btn-sm" type="button" @onclick=@(async () => { _filter.SymbolName = value.ToString(); await Filter(); })>@value.ToString()</button>
+                }
+            </div>
+        </div>
+    </EditForm>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 5%;" class="text-center"><span class="favorite-symbol">&#10026;</span></th>
+                <th style="width: 20%;" class="text-right">Symbol</th>
+                <th style="width: 25%;" class="text-right">Price</th>
+                <th style="width: 30%;" class="text-right">Volume</th>
+                <th style="width: 20%;" class="text-center">Subscribe</th>
+                <th style="width: 20%;" class="text-center">Bet</th>
+            </tr>
+        </thead>
+        <tbody>
+            <SpinLoader IsLoading="@(_dashboardElements == null)">
+                <LoadingTemplate>
                     <tr>
-                        <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
-                            <p class="align-middle d-inline-block"> No results </p>
+                        <td colspan="6" style="vertical-align: middle; background-color: white; height:500px;">
+                            <Flow Color="#428bca" Size="60px" Center="true" />
                         </td>
                     </tr>
-                }
-            </ContentTemplate>
-        </SpinLoader>
-    </tbody>
-</table>
+                </LoadingTemplate>
+                <ContentTemplate>
+                    @if (_dashboardElements.Any())
+                    {
+                        @foreach (var item in _dashboardElements)
+                        {
+                            <SymbolPair DashboardPairVO="item" OnChangeFavorite="@SwitchElement" />
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
+                                <p class="align-middle d-inline-block"> No results </p>
+                            </td>
+                        </tr>
+                    }
+                </ContentTemplate>
+            </SpinLoader>
+        </tbody>
+    </table>
+</div>
 
 @code {
 

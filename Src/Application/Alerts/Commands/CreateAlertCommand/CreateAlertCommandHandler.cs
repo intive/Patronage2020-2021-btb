@@ -4,6 +4,7 @@ using BTB.Application.Common.Interfaces;
 using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,6 +38,9 @@ namespace BTB.Application.Alerts.Commands.CreateAlertCommand
             SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
             alert.SymbolPairId = symbolPair.Id;
             alert.WasTriggered = false;
+
+            AlertMessageTemplate template = await _context.AlertMessageTemplates.SingleOrDefaultAsync(t => t.Type == alert.Condition);
+            alert.MessageTemplateId = template.Id;
 
             await _context.Alerts.AddAsync(alert, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);

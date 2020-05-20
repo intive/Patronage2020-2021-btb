@@ -11,24 +11,17 @@
 @inject ICustomHttpClient Http
 
 <h1>Details of @Symbol</h1>
-<div class="rounded shadow-lg white-padding" style="padding:5px;">
+<div class="rounded shadow-lg white-padding">
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="Time group">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
+            <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
             @foreach (KeyValuePair<KlineInterval, string> entry in KlineDictionary)
             {
                 <button @onclick=@(() => SelectKlineInterval(entry.Key)) type="button" class="btn btn-primary">@entry.Value</button>
             }
         </div>
-        <div class="btn-group mr-2" role="group" aria-label="Table Charts Indicators">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Current view</a>
-            @foreach (var value in Enum<CurrentDetailsView>.GetValues())
-            {
-                <button @onclick="@(() => SelectCurrentView(value))" type="button" class="btn btn-primary">@value</button>
-            }
-        </div>
         <div class="btn-group mr-2" role="group" aria-label="Data Source">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Data source</a>
+            <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">Data source</a>
             @foreach (var value in Enum<DetailsDataSource>.GetValues())
             {
                 <button @onclick=@(() => SelectDataSource(value)) type="button" class="btn btn-primary">@value</button>
@@ -38,52 +31,70 @@
 
     <br />
 
-
-    <div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="Quantity group">
-            <a href="#" role="button" class="btn btn-success btn-xs" id="label-btn" aria-disabled="true">Number of displayed elements</a>
-            @foreach (var value in Enum<PaginationQuantity>.GetValues())
-            {
-                <button class="btn btn-primary" type="button" @onclick="@(() => SelectQuantity(value))">@((int)value)</button>
-            }
+    <div class="d-flex justify-content-between mb-2">
+        <div class="d-inline-block">
+            <div class="btn-group" role="group">
+                @foreach (var value in Enum<PaginationQuantity>.GetValues())
+                {
+                    <button class="btn btn-primary" type="button" @onclick="@(() => SelectQuantity(value))">@((int)value)</button>
+                }
+            </div>
         </div>
+        <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
     </div>
 
-    <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+    <div id="exTab2" class="container p-0">
+        <ul class="nav">
+            <li class="rounded-left" style="@SetSelectedTableStyle()">
+                <a class="nav-link" href="#1b" data-toggle="tab" style="color:#2c2b30" @onclick="@(() => SelectCurrentView(CurrentDetailsView.Table))">Table</a>
+            </li>
+            <li class="active" style="@SetSelectedChartStyle()">
+                <a class="nav-link" href="#2b" data-toggle="tab" style="color:#2c2b30" @onclick="@(() => SelectCurrentView(CurrentDetailsView.Chart))">Chart</a>
+            </li>
+            <li class="rounded-right" style="@SetSelectedIndicatorsStyle()">
+                <a class="nav-link" href="#3b" data-toggle="tab" style="color:#2c2b30" @onclick="@(() => SelectCurrentView(CurrentDetailsView.Indicators))">Indicators</a>
+            </li>
+        </ul>
+        <SpinLoader IsLoading="@(_priceHistory == null)">
+            <LoadingTemplate>
+                <div class="d-flex"  style="height: 70vh">
+                    <TimedLoader ShowDelay="500" />
+                </div>
+            </LoadingTemplate>
+            <ContentTemplate>
+                <div class="tab-content clearfix rounded shadow-lg">
+                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Table)? "active":"")" id="1b">
+                        <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
+                            @if (CurrentDetailsView.Table == _currentView)
+                            {
+                                <DetailsTable />
+                            }
+                        </CascadingValue>
+                    </div>
+                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Chart)? "active":"")" id="2b">
+                        <CascadingValue Value="@_priceHistory.Take((int)_currentQuantity)">
+                            @if (CurrentDetailsView.Chart == _currentView)
+                            {
+                                <DetailsChart />
+                            }
+                        </CascadingValue>
+                    </div>
 
-    <SpinLoader IsLoading="@(_priceHistory == null)">
-        <LoadingTemplate>
-            <div class="d-flex" style="height: 70vh">
-                <TimedLoader ShowDelay="500" />
-            </div>
-        </LoadingTemplate>
-        <ContentTemplate>
-            <br />
+                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Indicators)? "active":"")" id="3b">
+                        <CascadingValue Value="_priceHistory" Name="PriceHistory">
+                            <CascadingValue Value="_currentQuantity" Name="PaginationQuantity">
+                                @if (CurrentDetailsView.Indicators == _currentView)
+                                {
+                                    <DetailsIndicators />
+                                }
+                            </CascadingValue>
+                        </CascadingValue>
+                    </div>
+                </div>
+            </ContentTemplate>
+        </SpinLoader>
+    </div>
 
-            <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
-                @if (CurrentDetailsView.Table == _currentView)
-                {
-                    <DetailsTable />
-                }
-            </CascadingValue>
-
-            <CascadingValue Value="_priceHistory.Take((int)_currentQuantity)">
-                @if (CurrentDetailsView.Chart == _currentView)
-                {
-                    <DetailsChart />
-                }
-            </CascadingValue>
-
-            <CascadingValue Value="_priceHistory" Name="PriceHistory">
-                <CascadingValue Value="_currentQuantity" Name="PaginationQuantity">
-                    @if (CurrentDetailsView.Indicators == _currentView)
-                    {
-                        <DetailsIndicators />
-                    }
-                </CascadingValue>
-            </CascadingValue>
-        </ContentTemplate>
-    </SpinLoader>
 </div>
 
 @code {
@@ -92,10 +103,10 @@
 
     private IEnumerable<KlineVO> _priceHistory { get; set; }
 
-    private CurrentDetailsView _currentView = CurrentDetailsView.Table;
-    private KlineInterval _klineInterval = KlineInterval.FiveMinutes;
-    private PaginationQuantity _currentQuantity = PaginationQuantity.Ten;
-    private DetailsDataSource _dataSource = DetailsDataSource.Database;
+    private CurrentDetailsView _currentView = CurrentDetailsView.Chart;
+    private KlineInterval _klineInterval = KlineInterval.OneDay;
+    private PaginationQuantity _currentQuantity = PaginationQuantity.Fifty;
+    private DetailsDataSource _dataSource = DetailsDataSource.API;
 
     private int _totalPageQuantity;
     private int _currentPage = 1;
@@ -144,6 +155,9 @@
 
             _isRequestRunning = false;
         }
+
+        StateHasChanged();
+
     }
 
     private async Task SelectKlineInterval(KlineInterval klineInterval)
@@ -186,4 +200,18 @@
         return _isRequestRunning ? "pointer-events: none;" : null;
     }
 
+    private string SetSelectedTableStyle()
+    {
+        return _currentView == CurrentDetailsView.Table ? "background-color: #F58F7C;" : "background-color: #f8ada0";
+    }
+
+    private string SetSelectedChartStyle()
+    {
+        return _currentView == CurrentDetailsView.Chart ? "background-color: #F58F7C;" : "background-color: #f8ada0";
+    }
+
+    private string SetSelectedIndicatorsStyle()
+    {
+        return _currentView == CurrentDetailsView.Indicators ? "background-color: #F58F7C;" : "background-color: #f8ada0";
+    }
 }

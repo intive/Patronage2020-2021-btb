@@ -42,6 +42,10 @@ namespace BTB.Application.Alerts.Commands.UpdateAlertCommand
             SymbolPair symbolPair = await _client.GetSymbolPairByName(request.SymbolPair);
             dbAlert.SymbolPairId = symbolPair.Id;
 
+            AlertMessageTemplate template = await _context.AlertMessageTemplates.SingleOrDefaultAsync(t => t.Type == dbAlert.Condition);
+            dbAlert.MessageTemplateId = template.Id;
+
+            _context.Alerts.Update(dbAlert);
             await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }

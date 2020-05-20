@@ -2,6 +2,9 @@
 
 @layout LoginLayout
 
+@using BTB.Client.Models.Validation;
+@using BTB.Client.Models.Authorization;
+
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 
@@ -17,7 +20,7 @@
 
         <EditForm class="form-signin" OnValidSubmit="OnValidSubmit"
                   EditContext="_editContext">
-            <DataAnnotationsValidator />
+            <FluentValidator Validator="_validator" />
 
             <div class="input-group form-group">
                 <div class="input-group-prepend">
@@ -76,7 +79,6 @@
                     Click here to login
                 </NavLink>
             </div>
-
         </EditForm>
     </div>
 </div>
@@ -91,7 +93,8 @@
     private dynamic _dyn { get; set; }
     private string _errorMessage { get; set; }
 
-    private RegisterParametersDto _registerParameters { get; set; }
+    private RegisterParametersModel _registerParameters = new RegisterParametersModel();
+    private RegisterParametersModelValidator _validator = new RegisterParametersModelValidator();
 
     private EditContext _editContext { get; set; }
 
@@ -101,8 +104,6 @@
 
         _dyn = string.Empty;
         _errorMessage = string.Empty;
-
-        _registerParameters = new RegisterParametersDto();
 
         _editContext = new EditContext(_registerParameters);
 
