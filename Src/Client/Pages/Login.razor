@@ -2,6 +2,9 @@
 
 @layout LoginLayout
 
+@using BTB.Client.Models.Validation;
+@using BTB.Client.Models.Authorization;
+
 @inject IAuthorizeService authorizeService
 @inject NavigationManager navigationManager
 
@@ -15,7 +18,7 @@
 
         <EditForm class="form-signin" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit"
                   EditContext="_editContext">
-            <DataAnnotationsValidator />
+            <FluentValidator Validator="_validator" />
 
             <div class="input-group form-group">
                 <div class="input-group-prepend">
@@ -60,7 +63,6 @@
                     Forgot password?
                 </NavLink>
             </div>
-
         </EditForm>
     </div>
 </div>
@@ -74,7 +76,8 @@
 
     private string _errorMessage { get; set; }
 
-    private LoginParametersDto _loginParameters { get; set; }
+    private LoginParametersModel _loginParameters = new LoginParametersModel();
+    private LoginParametersModelValidator _validator = new LoginParametersModelValidator();
 
     private EditContext _editContext { get; set; }
 
@@ -82,8 +85,6 @@
     {
         _height = _baseHeight;
         _errorMessage = string.Empty;
-
-        _loginParameters = new LoginParametersDto();
 
         _editContext = new EditContext(_loginParameters);
 

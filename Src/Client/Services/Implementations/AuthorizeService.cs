@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using BTB.Client.Pages.Dto.Authorization;
 using BTB.Client.Services.Contracts;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System;
 using Blazored.LocalStorage;
+using BTB.Client.Models.Authorization;
 
 namespace BTB.Client.Services.Implementations
 {
@@ -24,9 +24,9 @@ namespace BTB.Client.Services.Implementations
             _localStorage = localStorage;
         }
 
-        public async Task Login(LoginParametersDto loginParameters)
+        public async Task Login(LoginParametersModel loginParameters)
         {
-            var stringContent = new StringContent(JsonSerializer.Serialize(loginParameters), Encoding.UTF8, "application/json");            
+            var stringContent = new StringContent(JsonSerializer.Serialize(loginParameters), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Authorize/Login", stringContent);
 
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -48,7 +48,7 @@ namespace BTB.Client.Services.Implementations
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }
 
-        public async Task Register(RegisterParametersDto registerParameters)
+        public async Task Register(RegisterParametersModel registerParameters)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(registerParameters), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Authorize/Register", stringContent);
@@ -59,6 +59,5 @@ namespace BTB.Client.Services.Implementations
             }
             response.EnsureSuccessStatusCode();
         }
-
     }
 }

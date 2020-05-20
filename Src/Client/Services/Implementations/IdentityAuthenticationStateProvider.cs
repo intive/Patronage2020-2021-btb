@@ -4,7 +4,6 @@ using BTB.Domain.Extensions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Blazored.LocalStorage;
 
 namespace BTB.Client.Services.Implementations
 {
