@@ -2,6 +2,7 @@
 @using BTB.Client.Models.Validation;
 @inject ICustomHttpClient Http
 @inject Blazored.Modal.Services.IModalService Modal
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <style>
     .validation-message {
@@ -46,7 +47,7 @@
         <div class="form-group row mb-0">
             <label for="value" class="col-sm-4 col-form-label">@(DisplayUpperValue ? "Lower Value" : "Value")</label>
             <div class="col-sm-8">
-                <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm mb-1" id="value" step="0.000000001"/>
+                <InputNumber @bind-Value="_formModel.Value" class="form-control form-control-sm mb-1" id="value" step="0.000000001" />
                 <ValidationMessage For="() => _formModel.Value" class="text-center mb-1" />
             </div>
         </div>
@@ -56,7 +57,7 @@
             <div class="form-group row mb-4">
                 <label for="additionalValue" class="col-sm-4 col-form-label">Upper Value</label>
                 <div class="col-sm-8">
-                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm mb-1" id="additionalValue" step="0.000000001"/>
+                    <InputNumber @bind-Value="_formModel.AdditionalValue" class="form-control form-control-sm mb-1" id="additionalValue" step="0.000000001" />
                     <ValidationMessage For="() => _formModel.AdditionalValue" class="text-center mb-1" />
                 </div>
             </div>
@@ -103,12 +104,15 @@
     private AlertFormModelValidator _validator = new AlertFormModelValidator();
     private bool DisplayUpperValue { get { return _formModel.Condition?.ToLower() == "between"; } }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _shouldUpdateAlert = Parameters.Get<bool>("ShouldUpdateAlert");
         _alertVO = Parameters.Get<AlertVO>("Alert");
         _onModalClosedAsync = Parameters.Get<Func<Task>>("OnModalClosedAsync");
         _formModel = new AlertFormModel(_alertVO);
+
+        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _formModel.Email = state.User.Claims.SingleOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value;
     }
 
     private async Task HandleSubmitAsync(EditContext editContext)
