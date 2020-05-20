@@ -93,9 +93,9 @@
             </div>
         </div>
 
-        <div id="pagination-container" class="container">
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group" role="group" aria-label="Quantity group">
+        <div class="d-flex justify-content-between mb-2">
+            <div class="d-inline-block">
+                <div class="btn-group" role="group">
                     @foreach (var value in Enum<PaginationQuantity>.GetValues())
                     {
                         <button class="btn btn-primary" type="button" @onclick="@( async () => { _currentQuantity = value; _currentPage = 1; await LoadLogsFromDb(); })">@((int)value)</button>
@@ -103,9 +103,8 @@
                 </div>
             </div>
 
-            <div>
-                <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-            </div>
+            <Pagination TotalPagesQuantity="@_totalAmount" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
+
         </div>
 
         <table class="table">

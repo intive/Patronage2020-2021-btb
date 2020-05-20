@@ -5,25 +5,25 @@
 @inject HttpClient Http
 @implements IDisposable
 
-
-<div class="btn-toolbar d-inline-block mb-2" role="toolbar" aria-label="Toolbar with button groups">
-    <div class="btn-group mr-2" role="group" aria-label="Quantity group">
-        @foreach (var value in Enum<PaginationQuantity>.GetValues())
-        {
-            <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
-        }
+<div class="d-flex justify-content-between mb-2">
+    <div class="d-inline-block">
+        <div class="btn-group" role="group">
+            @foreach (var value in Enum<PaginationQuantity>.GetValues())
+            {
+                <button style="@PointerEventsStyle()" class="btn btn-primary" type="button" @onclick="@(() => SelectedQuantity(value))">@((int)value)</button>
+            }
+        </div>
     </div>
+
+    <Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
 </div>
-
-<Pagination TotalPagesQuantity="@_totalPageQuantity" CurrentPage="@_currentPage" Radius="2" SelectedPage="SelectedPage" PointerEventsStyle="@PointerEventsStyle()"></Pagination>
-
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 10%;" class="text-center">Favorite</th>
+            <th style="width: 5%;" class="text-center"><span class="favorite-symbol">&#10026;</span></th>
             <th style="width: 20%;" class="text-right">Symbol</th>
             <th style="width: 25%;" class="text-right">Price</th>
-            <th style="width: 25%;" class="text-right">Volume</th>
+            <th style="width: 30%;" class="text-right">Volume</th>
             <th style="width: 20%;" class="text-center">Subscribe</th>
             <th style="width: 20%;" class="text-center">Bet</th>
         </tr>
@@ -32,7 +32,7 @@
         <SpinLoader IsLoading="@(_dashboardElements == null)">
             <LoadingTemplate>
                 <tr>
-                    <td colspan="5" style="vertical-align: middle; background-color: white; height:500px;">
+                    <td colspan="6" style="vertical-align: middle; background-color: white; height:500px;">
                         <Flow Color="#428bca" Size="60px" Center="true" />
                     </td>
                 </tr>
@@ -41,14 +41,14 @@
                 @if (_dashboardElements.Any())
                 {
                     @foreach (var item in _dashboardElements)
-                    {      
-                        <SymbolPairFavorite DashboardPairVO="item" OnDeleteFavorite="@DeleteElement"/>
+                    {
+                        <SymbolPairFavorite DashboardPairVO="item" OnDeleteFavorite="@DeleteElement" />
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="5" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
+                        <td colspan="6" style="vertical-align: middle; background-color: whitesmoke; height: 500px; text-align: center;">
                             <p class="align-middle d-inline-block"> No results </p>
                         </td>
                     </tr>
@@ -152,7 +152,7 @@
         }
 
         await LoadDashboardTableAsync();
-        
+
     }
 
 }
