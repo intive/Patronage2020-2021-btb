@@ -6,63 +6,74 @@
 @inject ICustomHttpClient Http
 @inject IRefreshRequestsService refreshService
 
+
 <a class="navbar-brand" href="">
     <img class="ml-3" src="/img/btblogo.png" alt="">
 </a>
 
 @if (FullView)
 {
-<ul class="navbar-nav flex-row">
-    <li class="nav-item px-4">
-        <NavLink class="nav-link" href="">
-            Dashboard
-        </NavLink>
-    </li>
+    <ul class="navbar-nav flex-row">
 
-    <AuthorizeView Policy="@Policies.IsAdmin">
-        <div class="vertical-line-separator"></div>
+        @if (_favouriteTradingPairKline != null)
+        {
+            <li class="nav-item px-4">
+                <div class="nav-link" style="color: white;">
+                    <span>@_favouriteTradingPairKline.PairName @_favouriteTradingPairKline.ClosePrice</span>
+                </div>
+            </li>
+        }
 
         <li class="nav-item px-4">
-            <NavLink class="nav-link" href="users">
-                Users
+            <NavLink class="nav-link" href="">
+                Dashboard
+            </NavLink>
+        </li>
+
+        <AuthorizeView Policy="@Policies.IsAdmin">
+            <div class="vertical-line-separator"></div>
+
+            <li class="nav-item px-4">
+                <NavLink class="nav-link" href="users">
+                    Users
+                </NavLink>
+            </li>
+
+            <li class="nav-item px-4">
+                <NavLink class="nav-link" href="logboard">
+                    Logs
+                </NavLink>
+            </li>
+
+            <div class="vertical-line-separator"></div>
+        </AuthorizeView>
+
+        <li class="nav-item px-4">
+            <div class="nav-link">
+                <DisplayPoints />
+            </div>
+        </li>
+
+        <li class="nav-item px-4">
+            <NavLink class="nav-link" href="userprofile">
+                @_userName
             </NavLink>
         </li>
 
         <li class="nav-item px-4">
-            <NavLink class="nav-link" href="logboard">
-                Logs
+            <NavLink class="nav-link" href="bets">
+                Bets
             </NavLink>
         </li>
 
-        <div class="vertical-line-separator"></div>
-    </AuthorizeView>
-
-    <li class="nav-item px-4">
-        <div class="nav-link">
-            <DisplayPoints />
-        </div>
-    </li>
-
-    <li class="nav-item px-4">
-        <NavLink class="nav-link" href="userprofile">
-            @_userName
-        </NavLink>
-    </li>
-
-    <li class="nav-item px-4">
-        <NavLink class="nav-link" href="bets">
-            Bets
-        </NavLink>
-    </li>
-
-    <li class="nav-item px-4 float-right">
-        <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
-            <p class="font-weight-bold px-4 mb-0">
-                Logout
-            </p>
-        </button>
-    </li>
-</ul>
+        <li class="nav-item px-4 float-right">
+            <button type="button" class="btn btn-md" style="background-color:#F58F7C; padding: .275rem .75rem; margin-top: .175rem;" @onclick="@LogoutClick">
+                <p class="font-weight-bold px-4 mb-0">
+                    Logout
+                </p>
+            </button>
+        </li>
+    </ul>
 }
 
 @code {
@@ -71,6 +82,7 @@
 
     private bool _collapseNavMenu = true;
     private UserProfileInfoDto _userProfileInfo = null;
+    private KlineVO _favouriteTradingPairKline = null;
     private string _userName = "My Profile";
     private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
@@ -88,13 +100,28 @@
 
     private async Task LoadData()
     {
-        var response = await Http.GetAsync($"api/userprofile");
-        if (response.IsSuccessStatusCode)
+        var userProfileResponse = await Http.GetAsync($"api/userprofile");
+        if (!userProfileResponse.IsSuccessStatusCode)
         {
-            var jsonString = await response.Content.ReadAsStringAsync();
-            _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
-            _userName = _userProfileInfo.Username;
+            return;
         }
+
+        string jsonString = await userProfileResponse.Content.ReadAsStringAsync();
+        _userProfileInfo = JsonConvert.DeserializeObject<UserProfileInfoDto>(jsonString);
+        _userName = _userProfileInfo.Username;
+        if (_userProfileInfo.FavouriteTradingPair == null)
+        {
+            return;
+        }
+
+        var klineResponse = await Http.GetAsync($"api/system/kline/{_userProfileInfo.FavouriteTradingPair}");
+        if (!klineResponse.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        jsonString = await klineResponse.Content.ReadAsStringAsync();
+        _favouriteTradingPairKline = JsonConvert.DeserializeObject<KlineVO>(jsonString);
     }
 
     private void ToggleNavMenu()

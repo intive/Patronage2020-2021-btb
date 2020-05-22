@@ -7,6 +7,7 @@
 @using BTB.Domain.Extensions
 @inject ICustomHttpClient Http
 @implements IDisposable
+@inject IRefreshRequestsService refreshService
 
 <div class="rounded shadow-lg white-padding">
     <div class="d-flex justify-content-between mb-2">
@@ -162,6 +163,7 @@
 
             _isRequestRunning = false;
             _pageItems = _dashboardElements.ToList();
+            await refreshService.RequestRefreshAsync();
         }
     }
 
