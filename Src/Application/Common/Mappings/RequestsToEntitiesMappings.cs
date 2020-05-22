@@ -5,10 +5,7 @@ using BTB.Application.Bets.Commands.CreateBetCommand;
 using BTB.Application.FavoriteSymbolPairs.Commands.CreateFavoriteSymbolPair;
 using BTB.Application.System.Commands.AddKlineCommand;
 using BTB.Application.UserProfile.Commands.UpdateUserProfileCommand;
-using BTB.Domain.Common;
 using BTB.Domain.Entities;
-using BTB.Domain.Enums;
-using System;
 
 namespace BTB.Application.Common.Mappings
 {

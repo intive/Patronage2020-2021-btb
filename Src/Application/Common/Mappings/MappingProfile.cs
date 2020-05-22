@@ -10,7 +10,6 @@ namespace BTB.Application.Common.Mappings
         public MappingProfile()
         {
             ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
-
         }
 
         private void ApplyMappingsFromAssembly(Assembly assembly)

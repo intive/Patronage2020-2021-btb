@@ -17,6 +17,7 @@ namespace Application.UnitTests.Common
 
             var configurationProvider = new MapperConfiguration(cfg =>
             {
+                cfg.AddProfile<MappingProfile>();
                 cfg.AddProfile<EntitiesToDtosMappings>();
                 cfg.AddProfile<RequestsToEntitiesMappings>();
             });

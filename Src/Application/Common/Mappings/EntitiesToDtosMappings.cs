@@ -13,12 +13,8 @@ namespace BTB.Application.Common.Mappings
     {
         public EntitiesToDtosMappings()
         {
-            CreateMap<UserProfileInfo, UserProfileInfoVm>();
-
             CreateMap<Alert, AlertVO>()
                 .ForMember(vo => vo.SymbolPair, opt => opt.MapFrom(alert => alert.SymbolPair.PairName));
-
-            CreateMap<AuditTrail, AuditTrailVm>();
 
             CreateMap<SymbolPair, DashboardPairVO>()
                 .ForMember(s => s.Id, opts => opts.MapFrom(src => src.Id))
