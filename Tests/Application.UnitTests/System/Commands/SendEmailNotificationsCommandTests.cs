@@ -24,7 +24,17 @@ namespace Application.UnitTests.System.Commands
             var symbolPairId = 1;
             var userId = "1";
 
-            var kline = new Kline()
+            var lastKline = new Kline()
+            {
+                OpenTimestamp = 2,
+                SymbolPairId = symbolPairId,
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 3,
+                Volume = 1
+            };
+
+            var secondLastKline = new Kline()
             {
                 OpenTimestamp = 1,
                 SymbolPairId = symbolPairId,
@@ -60,7 +70,8 @@ namespace Application.UnitTests.System.Commands
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
 
-            await AddKline(kline);
+            await AddKline(lastKline);
+            await AddKline(secondLastKline);
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.Verify(mock => mock.Send(alert.Email, It.IsAny<string>(), It.IsAny<string>(), _context.EmailTemplates.FirstOrDefault()), Times.Once);
 
@@ -74,7 +85,17 @@ namespace Application.UnitTests.System.Commands
             var symbolPairId = 1;
             var userId = "1";
 
-            var kline = new Kline()
+            var lastKline = new Kline()
+            {
+                OpenTimestamp = 2,
+                SymbolPairId = symbolPairId,
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 2,
+                Volume = 1
+            };
+
+            var secondLastKline = new Kline()
             {
                 OpenTimestamp = 1,
                 SymbolPairId = symbolPairId,
@@ -108,7 +129,8 @@ namespace Application.UnitTests.System.Commands
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
-            await AddKline(kline);
+            await AddKline(lastKline);
+            await AddKline(secondLastKline);
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
         }
@@ -119,7 +141,17 @@ namespace Application.UnitTests.System.Commands
             var symbolPairId = 1;
             var userId = "1";
 
-            var kline = new Kline()
+            var lastKline = new Kline()
+            {
+                OpenTimestamp = 2,
+                SymbolPairId = symbolPairId,
+                DurationTimestamp = TimestampInterval.FiveMin,
+                OpenPrice = 1,
+                ClosePrice = 3,
+                Volume = 1
+            };
+
+            var secondlastKline = new Kline()
             {
                 OpenTimestamp = 1,
                 SymbolPairId = symbolPairId,
@@ -153,7 +185,8 @@ namespace Application.UnitTests.System.Commands
             SendEmailNotificationsCommandHandler.ResetTriggerFlags();
 
             await sut.Handle(command, CancellationToken.None);
-            await AddKline(kline);
+            await AddKline(lastKline);
+            await AddKline(secondlastKline);
             await sut.Handle(command, CancellationToken.None);
             emailServiceMock.VerifyNoOtherCalls();
         }

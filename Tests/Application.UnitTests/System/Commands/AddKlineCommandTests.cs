@@ -37,7 +37,8 @@ namespace Application.UnitTests.System.Commands
             };
 
             ILoggerFactory factory = new LoggerFactory();
-            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper, factory.CreateLogger<AddKlineCommandHandler>());
+            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper,
+                factory.CreateLogger<AddKlineCommandHandler>(), _dateTimeMock.Object);
             await sut.Handle(command, CancellationToken.None);
 
             Kline dbKline = await _context.Klines
@@ -68,7 +69,8 @@ namespace Application.UnitTests.System.Commands
                 ClosePrice = closePrice
             };
 
-            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper, _disabledLoggerFactory.CreateLogger<AddKlineCommandHandler>());
+            var sut = new AddKlineCommandHandler(_context, _btbBinanceClientMock.Object, _mapper,
+                _disabledLoggerFactory.CreateLogger<AddKlineCommandHandler>(), _dateTimeMock.Object);
             await Assert.ThrowsAsync<BadRequestException>(async () => await sut.Handle(command, CancellationToken.None));
         }
     }
