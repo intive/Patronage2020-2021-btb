@@ -5,8 +5,6 @@
     <RazorLangVersion>3.0</RazorLangVersion>
     <AssemblyName>BTB.Client</AssemblyName>
     <RootNamespace>BTB.Client</RootNamespace>
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
-    <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
   </PropertyGroup>
 
   <ItemGroup>
