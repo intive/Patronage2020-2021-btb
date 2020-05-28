@@ -65,7 +65,14 @@ namespace BTB.Server.Services
 
             if (!File.Exists(path))
             {
-                File.Create(path).Dispose();
+                try
+                {
+                    File.Create(path).Dispose();
+                }
+                catch
+                {
+                    return;
+                }
             }
 
             string message = log.GetString();
@@ -73,12 +80,19 @@ namespace BTB.Server.Services
 
             if (IsPossibleToAdd(wantedFreeSpaceByte))
             {
-                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
+                try
                 {
-                    stream.Seek(0, SeekOrigin.End);
-                    stream.Write(Encoding.ASCII.GetBytes(message));
-                    stream.Write(Encoding.ASCII.GetBytes("\n"));
-                    stream.Dispose();
+                    using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
+                    {
+                        stream.Seek(0, SeekOrigin.End);
+                        stream.Write(Encoding.ASCII.GetBytes(message));
+                        stream.Write(Encoding.ASCII.GetBytes("\n"));
+                        stream.Dispose();
+                    }
+                }
+                catch
+                {
+                    return;
                 }
             }
             else
