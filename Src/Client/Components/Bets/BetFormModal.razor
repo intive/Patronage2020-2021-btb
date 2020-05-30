@@ -17,13 +17,13 @@
     /* Chrome, Safari, Edge, Opera */
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+        -webkit-appearance: none;
+        margin: 0;
     }
-    
+
     /* Firefox */
     input[type=number] {
-      -moz-appearance: textfield;
+        -moz-appearance: textfield;
     }
 </style>
 
@@ -75,17 +75,15 @@
                 <InputSelect @bind-Value="_formModel.RateType" class="form-control form-control-sm mb-1" id="rateType">
                     <option value="Standard" selected>Standard</option>
                 </InputSelect>
-                <ValidationMessage For="() => _formModel.RateType" class="text-center mb-1" />
             </div>
         </div>
 
         <div class="form-group row mb-0">
             <label for="timeInterval" class="col-sm-4 col-form-label">Duration</label>
             <div class="col-sm-8">
-                <InputSelect @bind-Value="_formModel.TimeInterval" class="form-control form-control-sm mb-1" id="timeInterval">
+                <InputSelect @bind-Value="timeInterval" class="form-control form-control-sm mb-1" id="timeInterval">
                     <option value="TwoDays" selected>Two Days</option>
                 </InputSelect>
-                <ValidationMessage For="() => _formModel.TimeInterval" class="text-center mb-1" />
             </div>
         </div>
 
@@ -108,6 +106,8 @@
     private GamblePointsVO _currentPoints = new GamblePointsVO() { FreePoints = 0, SealedPoints = 0 };
     private KlineVO _currentKline = null;
     private decimal _avaliablePriceRange = 0.0m;
+
+    private string timeInterval = "TwoDays";
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,6 +137,7 @@
     private async Task HandleSubmitAsync(EditContext editContext)
     {
         _formModel.UpperPriceThreshold = _formModel.LowerPriceThreshold + _avaliablePriceRange;
+        _formModel.TimeInterval = timeInterval;
 
         if (editContext.Validate())
         {
