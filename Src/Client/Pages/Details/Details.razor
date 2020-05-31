@@ -11,7 +11,7 @@
 @inject ICustomHttpClient Http
 
 <h1>Details of @Symbol</h1>
-<div class="rounded shadow-lg white-padding">
+<div class="rounded shadow-lg white-padding" style="width: 100%; text-align: center;">
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="Time group">
             <a href="#" role="button" class="btn btn-info btn-xs" id="label-btn" aria-disabled="true">Kline interval</a>
@@ -71,16 +71,16 @@
                             }
                         </CascadingValue>
                     </div>
-                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Chart)? "active":"")" id="2b">
+                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Chart)? "active":"")" id="2b" style="display: inline-block;">
                         <CascadingValue Value="@_priceHistory.Take((int)_currentQuantity)">
                             @if (CurrentDetailsView.Chart == _currentView)
                             {
-                                <DetailsChart />
+                                <DetailsChart/>
                             }
                         </CascadingValue>
                     </div>
 
-                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Indicators)? "active":"")" id="3b">
+                    <div class="tab-pane rounded @((_currentView == CurrentDetailsView.Indicators)? "active":"")" id="3b" style="display: inline-block;">
                         <CascadingValue Value="_priceHistory" Name="PriceHistory">
                             <CascadingValue Value="_currentQuantity" Name="PaginationQuantity">
                                 @if (CurrentDetailsView.Indicators == _currentView)
