@@ -23,18 +23,16 @@ using Microsoft.Extensions.Options;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Logging;
 using Binance.Net.Interfaces;
-using Binance.Net.Objects;
 using Binance.Net;
 using System.Reflection;
 using FluentValidation;
 using AutoMapper;
 using MediatR;
-using BTB.Application.Bets.Commands.CreateBetCommand;
 using BTB.Application.Common.Interfaces;
 using BTB.Application.ConditionDetectors;
 using BTB.Application.ConditionDetectors.Between;
 using BTB.Application.Bets.Common;
-
+using Binance.Net.Objects.Spot;
 
 namespace BTB.Application
 {

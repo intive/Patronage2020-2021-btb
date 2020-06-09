@@ -1,7 +1,6 @@
 ﻿using BTB.Application.Details.Queries.GetPriceHistory;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Binance.Net.Objects;
 using Microsoft.AspNetCore.Http;
 using System.Threading;
 using BTB.Domain.Common.Pagination;
@@ -9,6 +8,7 @@ using BTB.Domain.Common;
 using BTB.Domain.Extensions;
 using BTB.Domain.ValueObjects;
 using BTB.Application.Common.Models;
+using Binance.Net.Enums;
 
 namespace BTB.Server.Controllers
 {

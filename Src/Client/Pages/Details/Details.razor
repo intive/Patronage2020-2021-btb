@@ -1,7 +1,7 @@
 ﻿@page "/details/{symbol}"
 
 @using BTB.Domain.Common
-@using Binance.Net.Objects
+@using Binance.Net.Enums
 @using System.Net.Http;
 @using System.Text.Json
 @using BTB.Domain.ValueObjects
@@ -114,7 +114,7 @@
     private bool _isRequestRunning = false;
 
     private readonly Dictionary<KlineInterval, string> KlineDictionary = new Dictionary<KlineInterval, string>()
-{
+    {
         { KlineInterval.FiveMinutes, "5 min" },
         { KlineInterval.FifteenMinutes, "15 min" },
         { KlineInterval.OneHour, "1h" },

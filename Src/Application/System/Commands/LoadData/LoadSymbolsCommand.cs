@@ -1,5 +1,5 @@
 ﻿using Binance.Net.Interfaces;
-using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.MarketData;
 using BTB.Application.Common.Exceptions;
 using BTB.Application.Common.Interfaces;
 using BTB.Domain.Common;

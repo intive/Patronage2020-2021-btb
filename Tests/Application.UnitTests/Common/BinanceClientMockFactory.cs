@@ -7,8 +7,9 @@ using System.Net;
 using System;
 using CryptoExchange.Net.Objects;
 using Binance.Net.Interfaces;
-using Binance.Net.Objects;
 using Moq;
+using Binance.Net.Objects.Spot.MarketData;
+using Binance.Net.Enums;
 
 namespace Application.UnitTests.Common
 {

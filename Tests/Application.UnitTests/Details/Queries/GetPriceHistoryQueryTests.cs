@@ -6,9 +6,9 @@ using BTB.Domain.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using Binance.Net.Objects;
 using Xunit;
 using System.Linq;
+using Binance.Net.Enums;
 
 namespace Application.UnitTests.Details
 {

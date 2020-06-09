@@ -2,8 +2,8 @@
 using BTB.Domain.Common.Pagination;
 using BTB.Domain.ValueObjects;
 using BTB.Domain.Common;
-using Binance.Net.Objects;
 using MediatR;
+using Binance.Net.Enums;
 
 namespace BTB.Application.Details.Queries.GetPriceHistory
 {

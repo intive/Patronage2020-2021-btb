@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Binance.Net.Objects;
-using BTB.Application.System.Common;
-using BTB.Application.UserProfile.Common;
+using Binance.Net.Objects.Spot.MarketData;
 using BTB.Domain.Common;
 using BTB.Domain.Entities;
 using BTB.Domain.ValueObjects;

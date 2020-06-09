@@ -1,10 +1,6 @@
-﻿using AutoMapper;
-using Binance.Net.Objects;
+﻿using Binance.Net.Enums;
 using BTB.Application.Common.Exceptions;
 using BTB.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BTB.Application.Common.Behaviours
 {
