@@ -64,18 +64,18 @@ namespace BTB.Server.Services
                 var binanceClient = scope.ServiceProvider.GetRequiredService<IBinanceClient>();
                 var emailKeeper = scope.ServiceProvider.GetRequiredService<IEmailKeeper>();
 
-                foreach (var interval in _klinesToUpdate)
-                {
-                    try
-                    {
-                        var loadKlinesHandler = new LoadKlinesCommandHandler(binanceClient, context, _loggerFactory);
-                        await loadKlinesHandler.Handle(new LoadKlinesCommand() { KlineType = interval, Amount = 1 }, cancellationToken);
-                    }
-                    catch (ServiceUnavailableException e)
-                    {
-                        _logger.LogError(e, $"{nameof(UpdateExchangeJob)} encountered an error during loading Klines {interval} to database.");
-                    }
-                }
+                //foreach (var interval in _klinesToUpdate)
+                //{
+                //    try
+                //    {
+                //        var loadKlinesHandler = new LoadKlinesCommandHandler(binanceClient, context, _loggerFactory);
+                //        await loadKlinesHandler.Handle(new LoadKlinesCommand() { KlineType = interval, Amount = 1 }, cancellationToken);
+                //    }
+                //    catch (ServiceUnavailableException e)
+                //    {
+                //        _logger.LogError(e, $"{nameof(UpdateExchangeJob)} encountered an error during loading Klines {interval} to database.");
+                //    }
+                //}
 
                 var email = scope.ServiceProvider.GetRequiredService<IEmailService>();
                 var sendEmailHandler = new SendEmailNotificationsCommandHandler(context, email, emailKeeper);

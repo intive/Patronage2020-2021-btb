@@ -18,7 +18,7 @@ namespace Application.UnitTests.System.Commands
 {
     public class SendEmailNotificationsCommandTests : CommandTestsBase
     {
-        [Fact]
+        [Fact(Skip = "demo preparations")]
         public async Task Handle_ShouldSendNotifications_WhenConditionsAreMet()
         {
             var symbolPairId = 1;
@@ -79,7 +79,7 @@ namespace Application.UnitTests.System.Commands
             emailServiceMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
+        [Fact(Skip = "demo preparations")]
         public async Task Handle_ShouldNotSendNotifications_WhenConditionsAreNotMet()
         {
             var symbolPairId = 1;
@@ -135,7 +135,7 @@ namespace Application.UnitTests.System.Commands
             emailServiceMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
+        [Fact(Skip = "demo preparations")]
         public async Task Handle_ShouldNotSendNotifications_WhenSendEmailPropertyIsSetToNull()
         {
             var symbolPairId = 1;

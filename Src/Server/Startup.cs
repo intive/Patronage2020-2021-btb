@@ -118,11 +118,11 @@ namespace BTB.Server
                     c.CronExpression = @"*/5 * * * *";
                 });
 
-                services.AddCronJob<UpdateDatabaseLogsJob>(c =>
-                {
-                    c.TimeZoneInfo = TimeZoneInfo.Local;
-                    c.CronExpression = @"* * * * *";
-                });
+                //services.AddCronJob<UpdateDatabaseLogsJob>(c =>
+                //{
+                //    c.TimeZoneInfo = TimeZoneInfo.Local;
+                //    c.CronExpression = @"* * * * *";
+                //});
 
                 services.AddCronJob<DailyAddGamblePointsJob>(c =>
                 {

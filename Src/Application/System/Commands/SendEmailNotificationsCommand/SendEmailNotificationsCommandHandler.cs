@@ -89,10 +89,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 return false;
             }
 
-            if (WasNotificationTriggeredByKline(alert.Id, kline.Id))
-            {
-                return false;
-            }
+            //if (WasNotificationTriggeredByKline(alert.Id, kline.Id))
+            //{
+            //    return false;
+            //}
 
             var parameters = new BasicConditionDetectorParameters()
             {
@@ -108,10 +108,10 @@ namespace BTB.Application.System.Commands.SendEmailNotificationsCommand
                 _ => false
             };
 
-            if (isConditionMet)
-            {
-                SetNofiticationTriggeredByKlineFlag(alert.Id, kline.Id);
-            }
+            //if (isConditionMet)
+            //{
+            //    SetNofiticationTriggeredByKlineFlag(alert.Id, kline.Id);
+            //}
 
             return isConditionMet;
         }
